@@ -1,0 +1,129 @@
+diff --git a/src/tagstudio/qt/ts_qt.py b/src/tagstudio/qt/ts_qt.py
+index 8d7edde..cca41f8 100644
+--- a/src/tagstudio/qt/ts_qt.py
++++ b/src/tagstudio/qt/ts_qt.py
+@@ -303,19 +303,114 @@ class QtDriver(DriverMixin, QObject):
+             )
+
+         if (
+-            platform.system() == "Darwin" or platform.system() == "Windows"
+-        ) and QGuiApplication.styleHints().colorScheme() is Qt.ColorScheme.Dark:
++            True
++            ):
+             pal: QPalette = self.app.palette()
+-            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.Window, QColor("#1e1e1e"))
+-            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.Button, QColor("#1e1e1e"))
+-            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Window, QColor("#232323"))
+-            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Button, QColor("#232323"))
+-            pal.setColor(
+-                QPalette.ColorGroup.Inactive, QPalette.ColorRole.ButtonText, QColor("#666666")
+-            )
++
++            # --- Nord Color Palette Definitions ---
++            nord0  = QColor("#2E3440")  # Polar Night (Darkest background)
++            nord1  = QColor("#3B4252")  # Polar Night (Lighter background)
++            nord3  = QColor("#4C566A")  # Polar Night (Comments/Disabled text)
++            nord4  = QColor("#D8DEE9")  # Snow Storm (Main text)
++            nord6  = QColor("#ECEFF4")  # Snow Storm (Bright text/Highlights)
++            nord8  = QColor("#88C0D0")  # Frost (Cyan - Links)
++            nord10 = QColor("#5E81AC")  # Frost (Dark Blue - Selection/Focus)
++
++            # Define roles
++            dark_bg = nord0
++            inactive_bg = nord1
++            text_main = nord4
++            text_bright = nord6
++            text_disabled = nord3
++            highlight_bg = nord10
++            link_color = nord8
++
++            # --- Active / Normal State ---
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.Window, dark_bg)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.WindowText, text_main)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.Base, dark_bg)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.AlternateBase, inactive_bg)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.ToolTipBase, inactive_bg)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.ToolTipText, text_main)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.Text, text_main)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.Button, dark_bg)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.ButtonText, text_main)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.Link, link_color)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.Highlight, highlight_bg)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.HighlightedText, text_bright)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.PlaceholderText, text_disabled)
++
++            # --- Inactive State ---
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Window, dark_bg)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.WindowText, text_disabled)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Base, dark_bg)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.AlternateBase, inactive_bg)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.ToolTipBase, inactive_bg)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.ToolTipText, text_disabled)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Text, text_disabled)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Button, dark_bg)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.ButtonText, text_disabled)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Highlight, inactive_bg)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.HighlightedText, text_disabled)
++
++            # --- Disabled State ---
++            pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Window, dark_bg)
++            pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText, text_disabled)
++            pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Base, dark_bg)
++            pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.AlternateBase, inactive_bg)
++            pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, text_disabled)
++            pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Button, dark_bg)
++            pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, text_disabled)
++            pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Highlight, inactive_bg)
++            pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.HighlightedText, text_disabled)
+
+             self.app.setPalette(pal)
+-
++            self.app.setStyleSheet("""
++                QMainWindow {
++                    background-color: #2E3440;
++                }
++                QLineEdit {
++                    background-color: #3B4252;   /* nord1: Lighter than bg */
++                    color: #D8DEE9;              /* nord4: Text */
++                    border: 1px solid #4C566A;   /* nord3: Border */
++                    border-radius: 4px;
++                    padding: 4px;
++                    selection-background-color: #5E81AC; /* nord10 */
++                    selection-color: #ECEFF4;    /* nord6 */
++                }
++                /* UPDATED: Target both QPushButton and QToolButton */
++                QPushButton, QToolButton {
++                    background-color: #3B4252;   /* nord1 */
++                    color: #D8DEE9;              /* nord4 */
++                    border: 1px solid #4C566A;   /* nord3 */
++                    border-radius: 4px;
++                    padding: 5px 10px;
++                }
++                QPushButton:hover, QToolButton:hover {
++                    background-color: #434C5E;   /* nord2 */
++                    border: 1px solid #5E81AC;   /* nord10 */
++                }
++                QPushButton:pressed, QToolButton:pressed {
++                    background-color: #5E81AC;   /* nord10 */
++                    color: #ECEFF4;              /* nord6 */
++                }
++
++                /* Scrollbars */
++                QScrollBar:vertical {
++                    background: #2E3440;
++                    width: 12px;
++                    margin: 0px;
++                }
++                QScrollBar::handle:vertical {
++                    background: #4C566A;
++                    min-height: 20px;
++                    border-radius: 6px;
++                    margin: 2px;
++                }
++                QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
++                    height: 0px;
++                }
++            """)
+         # Handle OS signals
+         self.setup_signals()
+         # allow to process input from console, eg. SIGTERM

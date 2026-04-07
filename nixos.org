@@ -1,0 +1,1626 @@
+* System Design
+** Dev checklist
+- Search via nix-search, nix search, or nix options
+- Install via nix-install <pkg-name>
+- Test via nix-unlock
+  with write-able config file
+  - Import into NixOS
+  - Delete and Copy to write-able ver to test new changes
+- Do dry run using rebuild --no-save
+- Clean when homemanager gives activation error
+  Either manual OR create backup then find \*.backup
+** Install checklist
+- Heuristics, [ break rules ] chance to refactor
+  - Keep all in home folder
+  - Keep as regular user
+  - Keep it simple
+- Install checklist
+  home.nix => config.nix
+  - host w/ port
+    Services => Docker => Install => Flatpak
+  - w/o port
+    Services => Install => Docker => Flatpak
+** TODO Hosting => Mermaid diagram
+- Localhost at // this isn't perfect //
+  Jellyfin: 8096 (Docker)
+  Copyparty: 3210 (Install)
+             3921 (ftp)
+  CloudDoom: 8080 (Docker) // TODO expand to allow others to explore my docs //
+  Mkdocs: 8000 (Install)
+  Syncthing: 8384 (Service)
+  Immich: 2283 (Docker)
+- Non-localhost at Norn
+*** Other hostings
+- Pixel:
+  Syncthing
+  Dropbox -> Kobo
+  (Tailscale)
+** Resources
+- Resources:
+  https://mynixos.com
+  https://search.nixos.org/packages
+  https://searchix.ovh
+- Curated list:
+  https://github.com/nix-community/awesome-nix?tab=readme-ov-file
+  https://github.com/awesome-selfhosted/awesome-selfhosted
+*** [[https://nix.dev/tutorials/packaging-existing-software.html][Create new Package]]
+** TODO Convert to allow secrets
+- Three folder:
+  |            | Stow | Auto-sync | Uploading |
+  | Stow       | Y    | Y         | Y         |
+  | Secrets    | Y    | Y         |           |
+  | (Services) | Y    | Y         |           |
+  | Remote     | Y    |           |           |
+** Tasks
+- [ ] Edit copyparty settings
+- [ ] Clean up configuration.nix
+- [ ] Flake update by parts and then see where to go
+- [ ] Allow for declarative flatpaks ([[https://github.com/gmodena/nix-flatpak][github]])
+- [ ] Remove hard paths
+- [ ] Add nix optimze and gc optimizations
+** (Failing) Update
+1) Try commenting out // with "# TODO update ltr" //
+2) Pin the version via flakes
+   Old package uses the original dependencies
+3) Overriding
+   Old package uses the current( updated ) dependencies
+4) Switch channel from unstable to stable if stable is ahead of unstable
+** Debugging, it's always a full boot partition
+#+BEGIN_SRC bash
+nix-collect-garbage --delete-older-than 1d
+cd nixos
+sudo nixos-rebuild switch --flake .
+#+END_SRC
+* Modules
+** Build( browser.nix )
+:PROPERTIES:
+:header-args: :comments link :mkdirp yes :tangle ./modules/browser.nix
+:END:
+- Header
+  #+BEGIN_SRC nix
+{ pkgs, ... }:
+
+{
+  #+END_SRC
+- Applications
+  #+BEGIN_SRC nix
+  home.packages = with pkgs; [
+    brave # Ad-blocking
+    google-chrome # Compadibility
+    vivaldi # Main browser
+    # TODO remove per window workspace, only have regular workspace
+    # Allow for jump between tab stacks
+  ];
+  #+END_SRC
+- Settings
+  #+BEGIN_SRC nix
+  xdg.configFile."xdg-desktop-portal-termfilechooser/config".text = ''
+    [filechooser]
+    cmd=yazi-wrapper.sh
+    default_dir=$HOME
+    env=TERMCMD='wezterm start --class "org.freedesktop.impl.portal.desktop.termfilechooser" --'
+    open_mode=suggested
+    save_mode=last
+  '';
+
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      # Web content
+      "text/html" = "vivaldi-stable.desktop";
+      "application/xhtml+xml" = "vivaldi-stable.desktop";
+      "x-scheme-handler/http" = "vivaldi-stable.desktop";
+      "x-scheme-handler/https" = "vivaldi-stable.desktop";
+      "x-scheme-handler/ftp" = "vivaldi-stable.desktop";
+
+      # Images
+      "image/jpeg" = "vivaldi-stable.desktop";
+      "image/png" = "vivaldi-stable.desktop";
+      "image/gif" = "vivaldi-stable.desktop";
+      "image/webp" = "vivaldi-stable.desktop";
+      "image/svg+xml" = "vivaldi-stable.desktop";
+      "image/bmp" = "vivaldi-stable.desktop";
+      "image/tiff" = "vivaldi-stable.desktop";
+
+      # Documents
+      "application/pdf" = "vivaldi-stable.desktop";
+      "application/xml" = "vivaldi-stable.desktop";
+      "text/xml" = "vivaldi-stable.desktop";
+      "text/plain" = "vivaldi-stable.desktop";
+    };
+  };
+  #+END_SRC
+- Footer
+  #+BEGIN_SRC nix
+}
+  #+END_SRC
+* Build( configuration.nix )
+:PROPERTIES:
+:header-args: :comments link :mkdirp yes :tangle configuration.nix
+:END:
+** Let variables
+#+BEGIN_SRC nix
+{ config, pkgs, inputs, ... }:
+
+let
+  # Refer to changing border color for more info
+  border-color = pkgs.writeShellScript "border-color" ''
+    ${pkgs.systemd}/bin/systemctl --machine=serralq@.host --user start border-color
+  '';
+in
+{
+#+END_SRC
+** Imports
+#+BEGIN_SRC nix
+  imports =
+    [
+      ./hardware-configuration.nix
+    ];
+#+END_SRC
+** Essentials
+*** User
+#+BEGIN_SRC nix
+  # Define a user account. Don't forget to set a password with ‘passwd’.
+  users.users.serralq = {
+    home = "/home/serralq";
+    isNormalUser = true;
+    description = "Serralq";
+    extraGroups = [ "docker" "networkmanager" "wheel" ];
+    openssh.authorizedKeys.keys = [
+      # List of questions -> To check answer against
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIKHJOkxOS9XQmRSYT0olSv0LHfSF/xNA6n9y5+e1g/o alexanderngocdao@gmail.com"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOKsOnJ1jLL3Ey8rVGRMdCUC0XDANQ1yJGxkU84XBi0M android-termux"
+    ];
+  };
+#+END_SRC
+**** SSH steps // For the client //
+1) pkg install openssh
+2) ssh-keygen -t ed25519 -C "<name>" # Creates the answer
+3) cat ~/.ssh/id_ed25519.pub # Displays the matching public question
+4) ssh serralq@<YOUR-NIXOS-TAILSCALE-IP>
+*** Bootloader
+#+BEGIN_SRC nix
+  # Bootloader.
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+#+END_SRC
+*** Networking
+#+BEGIN_SRC nix
+  # Hostname
+  networking.hostName = "nixos";
+  # Enable networking
+  networking.networkmanager.enable = true;
+  # Set your time zone.
+  time.timeZone = "America/New_York";
+  # Allow ssh ports
+  networking.firewall.enable = true;
+  networking.firewall.allowedTCPPorts = [ 22 ];
+#+END_SRC
+** Packages, and clean up
+#+BEGIN_SRC nix
+  # List packages installed in system profile. To search, run:
+  # Was missing in home-manager
+  environment.systemPackages = with pkgs; [
+  ];
+
+  # Home manager
+  home-manager = {
+    extraSpecialArgs = { inherit inputs; };
+    users = {
+      "serralq" = import ./home.nix;
+    };
+    useGlobalPkgs = true; # allows for unfree in homemanager too
+  };
+
+  # Allow unfree packages
+  nixpkgs.config.allowUnfree = true;
+
+  # Adding flakes
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+    trusted-users = [ "root" "serralq" ];
+    substituters = [ "https://hyprland.cachix.org" ];
+    trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
+  };
+
+  # Removing old system builds
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 7d";
+  };
+#+END_SRC
+*** Insecure packages
+#+BEGIN_SRC nix
+  nixpkgs.config.permittedInsecurePackages = [
+    "electron-36.9.5"
+  ];
+#+END_SRC
+*** Registry info
+#+BEGIN_SRC nix
+  nix.registry = {
+    nixpkgs-stable.flake = inputs.nixpkgs-stable;
+    nixpkgs.flake = inputs.nixpkgs;
+  };
+#+END_SRC
+** TODO Fonts and IME
+#+BEGIN_SRC nix
+  # Adding regular and JP fonts
+  # console.font = "Hermit";
+  console.keyMap = "us";
+  fonts.packages = with pkgs; [
+    hermit # Monospace font
+    comfortaa # Easy on the eye font
+    ipafont # JP fonts
+    kochi-substitute # JP fonts
+    nerd-fonts.dejavu-sans-mono
+    julia-mono
+    nerd-fonts.iosevka
+    symbola
+    notonoto
+  ];
+  i18n.inputMethod = {
+    enable = true;
+    type = "fcitx5";
+    fcitx5.addons = with pkgs; [
+      fcitx5-mozc
+      fcitx5-mozc-ut
+      fcitx5-gtk
+      fcitx5-nord
+    ];
+  };
+  # Configure keymap in X11
+  services.xserver.xkb = {
+    layout = "us";
+    variant = "";
+  };
+  # Select internationalisation properties.
+  i18n.defaultLocale = "en_US.UTF-8";
+  i18n.extraLocaleSettings = {
+    LC_ADDRESS = "en_US.UTF-8";
+    LC_IDENTIFICATION = "en_US.UTF-8";
+    LC_MEASUREMENT = "en_US.UTF-8";
+    LC_MONETARY = "en_US.UTF-8";
+    LC_NAME = "en_US.UTF-8";
+    LC_NUMERIC = "en_US.UTF-8";
+    LC_PAPER = "en_US.UTF-8";
+    LC_TELEPHONE = "en_US.UTF-8";
+    LC_TIME = "en_US.UTF-8";
+  };
+#+END_SRC
+** System.d
+*** TODO Enable split keyboard controls
+#+BEGIN_SRC nix
+  # Include voyager rules
+  services.udev.extraRules = ''
+    ACTION=="change",SUBSYSTEM=="power_supply", RUN+="${border-color}"
+    SUBSYSTEM=="power_supply",ATTR{status}=="Discharging", RUN+="${border-color}"
+
+    # Rules for Oryx web flashing and live training
+    KERNEL=="hidraw*", ATTRS{idVendor}=="16c0", MODE="0664", GROUP="plugdev"
+    KERNEL=="hidraw*", ATTRS{idVendor}=="3297", MODE="0664", GROUP="plugdev"
+
+    # Legacy rules for live training over webusb (Not needed for firmware v21+)
+      # Rule for all ZSA keyboards
+      SUBSYSTEM=="usb", ATTR{idVendor}=="3297", GROUP="plugdev"
+      # Rule for the Moonlander
+      SUBSYSTEM=="usb", ATTR{idVendor}=="3297", ATTR{idProduct}=="1969", GROUP="plugdev"
+      # Rule for the Ergodox EZ
+      SUBSYSTEM=="usb", ATTR{idVendor}=="feed", ATTR{idProduct}=="1307", GROUP="plugdev"
+      # Rule for the Planck EZ
+      SUBSYSTEM=="usb", ATTR{idVendor}=="feed", ATTR{idProduct}=="6060", GROUP="plugdev"
+
+    # Wally Flashing rules for the Ergodox EZ
+    ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="04[789B]?", ENV{ID_MM_DEVICE_IGNORE}="1"
+    ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="04[789A]?", ENV{MTP_NO_PROBE}="1"
+    SUBSYSTEMS=="usb", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="04[789ABCD]?", MODE:="0666"
+    KERNEL=="ttyACM*", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="04[789B]?", MODE:="0666"
+
+    # Keymapp / Wally Flashing rules for the Moonlander and Planck EZ
+    SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="df11", MODE:="0666", SYMLINK+="stm32_dfu"
+    # Keymapp Flashing rules for the Voyager
+    SUBSYSTEMS=="usb", ATTRS{idVendor}=="3297", MODE:="0666", SYMLINK+="ignition_dfu"
+  '';
+#+END_SRC
+*** Customs: Border colors
+#+BEGIN_SRC nix
+  systemd.user.services.border-color = {
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.bash}/bin/bash /home/serralq/.scripts/border-color.sh";
+    };
+  };
+#+END_SRC
+*** Customs: Mute after wake
+#+BEGIN_SRC nix
+  # Mute after waking up
+  powerManagement.resumeCommands = ''
+      ${pkgs.systemd}/bin/systemctl --machine=serralq@.host --user start wakeup
+  '';
+  systemd.user.services.wakeup = {
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.pulseaudio}/bin/pactl set-sink-volume @DEFAULT_SINK@ 0%";
+    };
+  };
+#+END_SRC
+*** Auto launch tailscale
+#+BEGIN_SRC nix
+  # Automatically startup tailscale
+  systemd.services.tailscale-autoconnect = {
+    description = "Automatic connection to Tailscale";
+
+    # make sure tailscale is running before trying to connect to tailscale
+    after = [ "network-pre.target" "tailscale.service" ];
+    wants = [ "network-pre.target" "tailscale.service" ];
+    wantedBy = [ "multi-user.target" ];
+
+    # set this service as a oneshot job
+    serviceConfig.Type = "oneshot";
+
+    # have the job run this shell script
+    script = with pkgs; ''
+      # wait for tailscaled to settle
+      sleep 2
+
+      # check if we are already authenticated to tailscale
+      status="$(${tailscale}/bin/tailscale status -json | ${jq}/bin/jq -r .BackendState)"
+      if [ $status = "Running" ]; then # if so, then do nothing
+        exit 0
+      fi
+
+      # otherwise authenticate with tailscale
+      ${tailscale}/bin/tailscale up -authkey tskey-examplekeyhere
+    '';
+  };
+#+END_SRC
+** Enable Services
+*** SSH
+#+BEGIN_SRC nix
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false;
+      PermitRootLogin = "no";
+    };
+  };
+#+END_SRC
+*** Printing
+#+BEGIN_SRC nix
+  # Enable CUPS to print documents.
+  services.printing.enable = true;
+#+END_SRC
+*** Pulse audio
+#+BEGIN_SRC nix
+  # Enable sound with pipewire.
+  services.pulseaudio.enable = false;
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
+#+END_SRC
+*** Tailscale / Networking
+#+BEGIN_SRC nix
+  # Enable tailscale
+  services.tailscale = {
+    enable = true;
+  };
+#+END_SRC
+*** Window manager
+#+BEGIN_SRC nix
+  # Hyprland
+  programs.hyprland = {
+    enable = true;
+    xwayland.enable = true;
+    package = pkgs.hyprland;
+    portalPackage = pkgs.xdg-desktop-portal-hyprland;
+  };
+
+  environment.sessionVariables = {
+    HOME = "/home/serralq";
+  };
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+     extraPackages = with pkgs; [
+      vpl-gpu-rt          # for newer GPUs on NixOS >24.05 or unstable
+    ];
+  };
+  hardware.enableRedistributableFirmware = true;
+
+  # Enable the X11 windowing system and GNOME as backup
+  services.xserver.enable = true;
+  services.desktopManager.gnome.enable = true;
+
+  # Login Manager
+  services.displayManager.ly.enable = true;
+#+END_SRC
+*** Docker
+#+BEGIN_SRC nix
+  # Enable docker
+  virtualisation.docker = {
+    enable = true;
+    rootless = {
+      enable = true;
+      setSocketVariable = true;
+    };
+  };
+#+END_SRC
+*** Documentation // also in packages //
+#+BEGIN_SRC nix
+  # Add documentation
+  documentation = {
+     enable = true;
+     man.enable = true;
+     doc.enable = true;
+     dev.enable = true;
+     info.enable = true;
+     nixos.enable = true;
+  };
+#+END_SRC
+*** Flatpak
+Also requires adding the repo
+  flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+#+BEGIN_SRC nix
+  services.flatpak.enable = true;
+#+END_SRC
+**** Installed flatpak
+flatpak install flathub com.github.PintaProject.Pinta
+also bambu studio
+*** Steam
+#+BEGIN_SRC nix
+  programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = true;
+    dedicatedServer.openFirewall = true;
+    localNetworkGameTransfers.openFirewall = true;
+    extraCompatPackages = with pkgs; [ proton-ge-bin ];
+    protontricks.enable = true;
+  };
+  programs.gamemode.enable = true;
+#+END_SRC
+*** Security
+**** Fail2Ban
+#+BEGIN_SRC nix
+  services.fail2ban.enable = true;
+#+END_SRC
+**** Sops
+#+BEGIN_SRC nix
+  sops.defaultSopsFile = ./secrets/secrets.yaml;
+  sops.defaultSopsFormat = "yaml";
+  sops.age.keyFile = "/home/serralq/.config/sops/age/keys.txt";
+#+END_SRC
+*** Cloudflared
+#+BEGIN_SRC nix
+  services.cloudflared = {
+    enable = true;
+    tunnels = {
+      "976a44e9-b2c2-4d1c-bd56-221a38342fcb" = {
+        credentialsFile = "/home/serralq/.cloudflared/976a44e9-b2c2-4d1c-bd56-221a38342fcb.json";
+        # Don't forget to set cloudflared tunnel route dns nixos-server <subdomain path>
+        ingress = {
+          "copyparty.serralq.dev" = "http://localhost:3210";
+          "tonda.serralq.dev" = "http://localhost:3210";
+          "mkdocs.serralq.dev" = "http://localhost:8000";
+          "jellyfin.serralq.dev" = "http://localhost:8096";
+          "saku.serralq.dev" = "http://localhost:8096";
+          "immich.serralq.dev" = "http://localhost:2283";
+          "noa.serralq.dev" = "http://localhost:2283";
+          "doom.serralq.dev" = "https://localhost:8080";
+          "roxy.serralq.dev" = "http://localhost:8080";
+          # Placeholders so it's pre-partitioned
+          "one.serralq.dev" = "http://localhost:8080";
+          "two.serralq.dev" = "http://localhost:8080";
+          "three.serralq.dev" = "http://localhost:8080";
+          "four.serralq.dev" = "http://localhost:8080";
+          "five.serralq.dev" = "http://localhost:8080";
+        };
+        default = "http_status:404";
+      };
+    };
+  };
+  systemd.services.cloudflared-tunnel-976a44e9-b2c2-4d1c-bd56-221a38342fcb = {
+    serviceConfig = {
+        User = "serralq";
+        Group = "user";
+    };
+  };
+#+END_SRC
+*** OBS-studio
+#+BEGIN_SRC nix
+  programs.obs-studio = {
+    enable = true;
+    enableVirtualCamera = true;
+
+    plugins = with pkgs.obs-studio-plugins; [
+      wlrobs
+      obs-backgroundremoval
+      obs-pipewire-audio-capture
+      obs-gstreamer
+      obs-vkcapture
+    ];
+  };
+  boot.extraModulePackages = with config.boot.kernelPackages; [
+    v4l2loopback
+  ];
+  boot.kernelModules = [ "v4l2loopback" ];
+  boot.extraModprobeConfig = ''
+    options v4l2loopback devices=1 video_nr=1 card_label="OBS Cam" exclusive_caps=1
+  '';
+  security.polkit.enable = true;
+#+END_SRC
+*** Xdg-port
+#+BEGIN_SRC nix
+  xdg.portal = {
+    enable = true;
+
+    extraPortals = [
+      pkgs.xdg-desktop-portal-gtk
+      pkgs.xdg-desktop-portal-termfilechooser
+    ];
+
+    config = {
+      hyprland = {
+        default = [ "hyprland" "gtk" ];
+        "org.freedesktop.impl.portal.FileChooser" = "termfilechooser";
+      };
+      common = {
+        default = [ "gtk" ];
+      };
+    };
+  };
+#+END_SRC
+*** Allow for binaries
+#+BEGIN_SRC nix
+  # Allow for zed lsp servers
+  programs.nix-ld.enable = true;
+#+END_SRC
+*** Class specific services
+#+BEGIN_SRC nix
+  services.mysql = {
+    enable = true;
+    package = pkgs.mariadb;
+  };
+#+END_SRC
+** Footer + stateVersion
+#+BEGIN_SRC nix
+  system.stateVersion = "25.05"; # Did you read the comment?
+}
+#+END_SRC
+* Build( home.nix )
+:PROPERTIES:
+:header-args: :comments link :mkdirp yes :tangle home.nix
+:END:
+** Header
+#+BEGIN_SRC nix
+{ pkgs, inputs, lib, ... } :
+
+let
+  bambu-appimage = import ./modules/bambu-appimage.nix { inherit pkgs; };
+in
+{
+  imports = [
+    ./modules/browser.nix
+  ];
+  home.username = "serralq";
+  home.homeDirectory = "/home/serralq";
+
+  home.stateVersion = "25.05"; # Please read the comment before changing.
+
+#+END_SRC
+** Applications
+*** Header
+#+BEGIN_SRC nix
+  # SSO Login is assumed
+  home.packages = with pkgs; [
+#+END_SRC
+*** System
+#+BEGIN_SRC nix
+    hermit # Font
+    nerd-fonts.dejavu-sans-mono
+    nerd-fonts.iosevka
+    symbola
+    notonoto
+    julia-mono
+    kdePackages.fcitx5-configtool # Setting up Jp IME
+    libnotify # To test notification
+    pulseaudio # Adding the command line utils
+#+END_SRC
+*** Hyprland / DE / Keyboard-shortcuts
+#+BEGIN_SRC nix
+    cliphist # Clipboard manager
+    wl-clipboard
+    ydotool
+    grimblast # Better screenshots
+    brightnessctl # For brightness cmd
+    waybar # TODO create a currently listening
+    mpvpaper
+    socat # Control forked mpvpaper
+    playerctl # Allow to check what's currently playing
+    hyprcursor # TODO Util to convert Xcursor to hyprcursor
+    xcur2png # Help extract xcursor
+    # TODO LWP Settup in the future
+    pmutils # Check battery -> Change border colors
+    nwg-look # Affects the mouse cursor in a different way
+    kitty # For hyprland fallback
+    waypaper # Basic wallpaper GUI
+    swayidle # Dim wallpaper when idle
+    wtype # Allow to send keymaps
+    # TODO Learn to package a app launcher that has premade plugins (vicinae)
+    # TODO Auto pause background music when detect another audio is playing
+    # Waybar already has rust plugin that can detect what's currently playing
+    # TODO https://www.wfdownloader.xyz/download to mass download twitter posts
+    hyprpicker # Get colors from screen
+    wev # Figure out what output from input devices
+    hypridle # For locking the computer
+#+END_SRC
+*** Terminal
+**** General Utils
+#+BEGIN_SRC nix
+    wget # Download
+    curl # Download
+    jq # Parse stdout
+    ripgrep # Greps but faster, written in Rust
+    unzip # Unzips
+    openvpn # VPN use
+    docker # Docker container
+    lazydocker # Easier version of docker
+    btop # Resource monitor
+    fzf # Fuzzy finder
+    dust # Disk usage
+    fd # A better find
+    eza # Better ls
+    wordnet # For offline emacs dictionary
+    ispell # For emacs to stop giving errors
+    imagemagick # Edit image properties in the terminal
+    xeyes # Checking if using xwayland
+    yt-dlp # Download / stream video
+    ffmpeg # All media convertions
+    jc # JSON parser for stdout
+    jq # JSON parser for stdout
+    pandoc # document convertions
+    mediainfo # Allow for more media preview in yazi
+    trash-cli # For yazi undo button
+    mokuro # To read jp manga
+    # Requires pdf to png
+    # May require a delete and reinstall
+    # Don't touch after it starts running
+    # On intel gpu will take literal days for a book
+    bluetuith # use nmtui for wifi, use gnome for captive portals
+      # Connecting to keyboards
+      # 1) Connect to GNOME's blt interface
+      # 2) Hold f10 w/o fn key, keyboard will appear on the interface
+      # 3) Reattach to computer body to use trackpad to select the keyboard
+      # 4) Hold f10 again to actually accept the request
+    cloudflared # Allow for external links
+    sqlite # Sqlite
+    appimage-run # To run app images
+    rarcrack # To crack rar passwords
+    unrar # To open multi-part rar files
+    unar # unrar but also allow for zips
+    p7zip # Create zips of multiple parts with file limit
+    # Eg: 7z a -v9m archive_name.7z /path/to/files
+    wl-clipboard-x11 # To access clipboard from terminal
+    rclone # For file transfers
+    sops # To decrypt sops secrets
+    bat # Better cat
+    su-exec # Allow for switching user and then execute
+    # Man pages
+    man
+    man-pages
+    man-pages-posix
+    vips # For emacs dirvish
+    ueberzugpp # For yazi image preview
+    xdg-desktop-portal-termfilechooser # Yazi as file chooser
+    texliveSmall
+#+END_SRC
+**** Dev-ops
+#+BEGIN_SRC nix
+    neovim # Basic editor
+    zed-editor # Trying new one
+    fish # Terminal prompt
+    starship # Terminal prompt look
+    fastfetch # Terminal splash screen
+    yazi # File manager
+    zoxide # Quick jump
+    atuin # Terminal History
+    pay-respects # Fixing previous terminal command
+    fishPlugins.fifc # Fish auto completion fzf
+    nushell # When I need structured contents
+    carapace # Better terminal autocomplete
+    # Ai in terminal, each have different harness that they were trained on and optimized for
+    claude-code
+    gemini-cli
+    codex
+    opencode
+    codeium # Ai autocomplete
+    inputs.t3code.packages.${pkgs.system}.default # For t3code better threads
+    sshfs # For working over ssh eg yazi
+#+END_SRC
+**** Nix-enviroment
+#+BEGIN_SRC nix
+    devenv # Allows for custom env (inclu nightly rust)
+    nix-tree # See size of nix
+    nh # Better nix commands (rebuild, clean)
+    nix-search-tv # Interactive search
+    nix-your-shell # So nix develop goes into fish
+    nix-index # To find missing binaries
+    deadnix # Better nix config
+    inputs.nix-alien.packages.${pkgs.system}.nix-alien # Running binaries in nix
+#+END_SRC
+**** Lang-dependent
+#+BEGIN_SRC nix
+    # Rust
+    rustc
+    jetbrains.rust-rover
+    cargo
+    # Go
+    jetbrains.goland
+    go
+    # Java
+    jetbrains.idea # For 25.11
+    jre25_minimal
+    # Python
+    (python-latest.withPackages (ps: with ps; [
+      # To serve my website
+      mkdocs-material
+      mkdocs-glightbox
+      mkdocs-autolinks-plugin
+      cairosvg
+      pillow
+    ]))
+    jetbrains.pycharm
+    # Javascript
+    nodejs_24 # For javascript deployments
+    yarn # Js package manager
+    # c/c++
+    jetbrains.clion # For c/c++
+    libgcc # For compiling c/c++, use the below to start gcc
+    # gcc # Also for gcc # Only use with direnv
+    cmake-language-server
+    gdb # c/c++ debugger
+    # ida-free # Binary dissassmebly
+    # Requires a pre install into the nix store
+    valgrind # Chcek for memory leaks
+    cmake # Compiling c programs
+    gnumake # Getting the make command
+    clang # Compiling c programs?
+    libtool # To compile vterm
+    zed-editor # Fast version of vs code
+#+END_SRC
+**** File-versioning
+#+BEGIN_SRC nix
+    stow # Manage dot files
+    git # Track files
+    gh # Github specific commands
+    gitoxide # Faster ver
+    git-filter-repo # Remove from history
+    github-desktop # Way to check in a GUI
+    difftastic # For better git syntax highlight
+    lazygit # TUI for git file tree exploration
+    jujutsu # Better git?
+    jj-starship
+    lazyjj # jj tui
+    jjui # another jj tui
+#+END_SRC
+*** GUI apps
+#+BEGIN_SRC nix
+    anki # Jp study
+    bitwarden-desktop # Passwords
+    # TODO Fix important passwords
+    discord # Online chat
+    emacs-pgtk # Main note taking, may require a doom install, only ver supporting wayland
+    localsend # Share files
+    megasync # Download from MEGA
+    popsicle # Formatting usb
+    qbittorrent # Torrenting files
+    aria2 # Downloader faster
+    vscode # for VScode plugin's GUI
+    wezterm # Terminal
+    kitty # For testing + wayland
+    mpv # Video player
+    nautilus # GUI Backup file manager
+    nemo # Better GUI manager
+    pavucontrol # GUI to check volume
+    webcord # Discord but wayland
+    baobab # Checking disk usage GUI
+    slack # Work / School communications
+    zoom-us # School meetings
+    foliate # Epub reader
+    inputs.parsecgaming.packages.${pkgs.system}.parsecgaming # Remote desktop
+    # Photography / Photo editing
+    gimp3-with-plugins
+    rawtherapee
+    shotcut # Video editing
+    kdePackages.kdenlive # Better video editing
+    freerdp # Remote desktop directly into windows container
+    tagstudio # TagStudio
+    fsearch # Index and search faster
+    # TODO Resource monitors
+    mission-center
+    # obs-studio # For screen recorder
+    filezilla # ftp client
+    freecad # For 3d printing
+    orca-slicer # Also for 3d printing
+    bambu-appimage # To send files to 3d printer w/ auth
+    pika-backup # Just to get something
+    todoist-electron # Notes app
+    inputs.affinity-nix.packages.${pkgs.system}.v3 # Affinity image editors
+#+END_SRC
+**** Gaming / Windows Compadibility
+#+BEGIN_SRC nix
+    protonup-ng # Improve proton
+#+END_SRC
+**** Office apps
+#+BEGIN_SRC nix
+    hunspell
+    libreoffice-qt
+    hunspellDicts.en_US-large
+#+END_SRC
+*** Footer
+#+BEGIN_SRC nix
+  ];
+#+END_SRC
+** Programs / Services
+#+BEGIN_SRC nix
+  programs.home-manager.enable = true;
+
+  services.syncthing.enable = true;
+
+  # Allow for zed acceleration
+  targets.genericLinux.nixGL.vulkan.enable = true;
+#+END_SRC
+*** Dunst
+#+BEGIN_SRC nix
+  # Notification daemon, search "notify-send" to find
+  # Only if requires immediate action
+  services.dunst.enable = true;
+  services.dunst.settings = {
+    global = {
+      offset = "(8, 8)";
+      origin = "top-right";
+      frame_width = "2";
+      font = "Hermit";
+      follow = "mouse";
+      background = "#2e3440";
+      width="(80,300)";
+    };
+    urgency_normal = {
+      frame_color = "#a3be8c";
+      foreground = "#a3be8c";
+      # Just long enough for me to notice
+      timeout = "2";
+    };
+    urgency_low = {
+      foreground = "#5e81ac";
+      frame_color = "#5e81ac";
+      timeout = "2";
+    };
+    urgency_critical = {
+      foreground = "#bf616a";
+      frame_color = "#bf616a";
+      timeout = "30";
+    };
+  };
+#+END_SRC
+*** Hyprlock
+#+BEGIN_SRC nix
+  programs.hyprlock.enable = true;
+  programs.hyprlock.settings = {
+    general = {
+      hide_cursor = true;
+      ignore_empty_input = true;
+      fail_timeout = 1000; # Just long enough to feel this
+    };
+    background = {
+      # Type of background
+      path = "screenshot";
+      monitor = "";
+      # Background settings
+      blur_passes = 1;
+      blur_size = 6;
+      brightness = 0.7;
+      noise = 0;
+    };
+    input-field = {
+      # Size
+      size = "500, 150"; # Height controls font size, 440 keeps it balanced
+      outline_thickness = 6;
+      # Position
+      monitor = "";
+      halign = "center";
+      valign = "center";
+      # Shape
+      rounding = 0;
+      # Behavior
+      hide_input = true;
+      fade_on_empty = false;
+      # Text
+      font_family = "Hermit";
+      placeholder_text = "<i>最高性ですから</i>";
+      fail_text = "ダメ";
+      # Colors
+      font_color  = "rgba(216, 222, 233, 1)";
+      inner_color = "rgba(0,0,0,0.0)";
+      outer_color = "rgba(46, 52, 64, 1) rgba(76, 86, 106, 1) 90deg";
+      fail_color  = "rgba(191, 97, 106, 1) rgba(208, 135, 112, 1) 90deg";
+      check_color = "rgba(94, 129, 172, 1) rgba(136, 192, 208, 1) 90deg";
+    };
+    animations = {
+      animation = [
+        # Disabled animations
+        "fadeOut, 0, 1" # Disable else delays the notification popup
+        "inputFieldWidth, 0, 10"
+        "inputFieldDots, 0, 10"
+        "inputFieldFade, 0, 10"
+        # Enabled animation
+        "inputFieldColors, 1, 50"
+        # (transitions for the entire length that blue / red appears)
+        # (multiple of the actual animation so it doesn't complete before next transition)
+        "fadeIn, 1, 10" # (within fastest time to type password)
+      ];
+    };
+  };
+#+END_SRC
+*** Hypridle // Hook for post-unlock commands //
+#+BEGIN_SRC nix
+  services.hypridle = {
+    enable = true;
+    settings = {
+      general = {
+        lock_cmd = "pidof hyprlock || hyprlock";
+        before_sleep_cmd = "loginctl lock-session";
+        on_unlock_cmd = lib.concatStringsSep " " [
+          "/home/serralq/.scripts/border-color.sh --all &"
+          "pactl set-sink-volume @DEFAULT_SINK@ 0% &"
+        ];
+      };
+    };
+  };
+#+END_SRC
+*** Direnv
+#+BEGIN_SRC nix
+  programs = {
+    direnv = {
+      enable = true;
+      enableFishIntegration = true; # see note on other shells below
+      nix-direnv.enable = true;
+    };
+  };
+#+END_SRC
+** Hyprland config
+- Can't use nixos and plugins without switching dotfiles into home.nix
+*** Header
+#+BEGIN_SRC nix
+  # Window manager, use of hyrplandPlugins... to get plugins
+  # Last updated: March 8, ver 0.52.0 (v53 is broken, v54 doesn't have plugin support yet)
+  # TODO Split this into it's own space
+  wayland.windowManager.hyprland = {
+    enable = true;
+    package = pkgs.hyprland;
+    systemd.enable = true;
+    systemd.variables = [ "--all" ];
+    portalPackage = pkgs.xdg-desktop-portal-hyprland;
+    plugins = [
+      inputs.hypr-dynamic-cursors.packages.${pkgs.system}.hypr-dynamic-cursors
+      inputs.hy3.packages.${pkgs.system}.hy3
+      inputs.hyprland-plugins.packages.${pkgs.system}.hyprtrails
+      inputs.hyprland-plugins.packages.${pkgs.system}.hyprexpo
+    ];
+#+END_SRC
+*** General
+#+BEGIN_SRC nix
+    settings = {
+      permission = "/usr/(bin|local/bin)/hyprpm, plugin, allow";
+
+      env = [
+        "GTK_THEME,Adwaita:dark"
+      ];
+
+      monitor = [
+        "eDP-1,2880x1800@60,0x0,1.8, bitdepth, 10, cm, hdr"
+        "eDP-2,2880x1800@60,0x1000,1.8, bitdepth, 10, cm, hdr" # Bottom monitor
+        ",preferred,auto,1" # For auto external monitors
+      ];
+
+      general = {
+        gaps_in = "4";
+        gaps_out = "8";
+        border_size = "2";
+        "col.inactive_border" = "rgba(595959aa)";
+        allow_tearing = "true";
+        layout = "hy3";
+        resize_on_border = "true";
+        extend_border_grab_area = "30";
+      };
+
+      group = {
+        groupbar = {
+          # TODO add font weight, turn off when not in focus, gradients into hy3
+          # Or into native, borders
+          # Native tabstack vs plugin tab stacks
+          # Both missing: allow for tabs on the bottom
+          # Allow for app name first
+        };
+      };
+
+      decoration = {
+        dim_inactive = "true";
+        dim_strength = "0.11";
+
+        shadow = {
+          enabled = "false"; # Battery hogs
+          range = "8";
+          render_power = "2";
+          color = "rgba(1a1a1aee)";
+        };
+
+        blur = {
+          enabled = "false";
+          size = "5";
+          passes = "2";
+        };
+      };
+
+      animations = {
+        workspace_wraparound = "true";
+
+        bezier = [
+          "easeOutQuint,0.23,1,0.32,1"
+          "easeInOutCubic,0.65,0.05,0.36,1"
+          "linear,0,0,1,1"
+          "almostLinear,0.5,0.5,0.75,1.0"
+          "quick,0.15,0,0.1,1"
+          "overshoot, 0.05, 0.9, 0.1, 1.1"
+        ];
+
+        animation = [
+          "global, 1, 10, default"
+          "windows, 1, 2.75, easeOutQuint, slide"
+          "fade, 1, 1.8, almostLinear"
+          "border, 1, 5.50, easeOutQuint"
+          "workspaces, 1, 2.00, easeOutQuint, slide"
+
+          # Disabled
+          "windowsMove, 0, 1.49, linear, popin 87%"
+          "layers, 0, 3.81, easeOutQuint"
+        ];
+      };
+
+      dwindle = {
+        pseudotile = "true";
+        preserve_split = "true";
+      };
+
+      master = {
+        new_status = "master";
+      };
+
+      input = {
+        kb_options = "caps:escape, ctrl:swap_lalt_lctl";
+        sensitivity = "0.6";
+        accel_profile = "flat";
+        repeat_delay = "180";
+        repeat_rate = "35";
+        # Allow for click and drag scrolling
+        # TODO Remove if not using the trackball
+        scroll_method = "on_button_down";
+        scroll_button = "275";
+        scroll_factor = "0.3";
+
+        touchpad = {
+            natural_scroll = "true";
+            disable_while_typing = "true";
+        };
+
+        # To prevent broken screen from creating inputs
+        touchdevice = {
+          enabled = "false";
+        };
+      };
+
+      cursor = {
+        hide_on_key_press = "true";
+      };
+
+      misc = {
+        enable_swallow = true;
+        swallow_regex = "(org.wezfurlong.wezterm)";
+        vfr = "true";
+      };
+      #windowrule = [
+      #  # "no_focus on, match:class ^$, match:title ^$, match:xwayland true, match:float true, match:fullscreen false, match:pinned false"
+      #  "float on, match:title ^(Picture in picture)$"
+      #  "pin on, match:title ^(Picture in picture)$"
+      #  "size 200 200, match:title ^(Picture in picture)$"
+      #  "move 1348 790, match:title ^(Picture in picture)$"
+      #];
+      windowrulev2 = [
+        "float, title:^(Picture in picture)$"
+        "pin, title:^(Picture in picture)$"
+        "size 200 200, title:^(Picture in picture)$"
+        "move 1348 790, title:^(Picture in picture)$"
+      ];
+
+      exec-once = [
+         "~/.config/hypr/startup.sh &"
+         "hypridle"
+      ];
+#+END_SRC
+*** Binds
+#+BEGIN_SRC nix
+      "$mainMod" = "SUPER";
+
+      binde = [
+        "bind = SUPER, H, exec, wtype -k Left"
+        "bind = SUPER, J, exec, wtype -k Down"
+        "bind = SUPER, K, exec, wtype -k Up"
+        "bind = SUPER, L, exec, wtype -k Right"
+      ];
+
+      bindl = [
+        "$mainMod, SPACE, exec, wezterm"
+        "ALT, SPACE, exec, grimblast copy area" # Screenshots
+        # TODO For monitor screen keybindings, don't forget to update debug msg
+        # One screen to svae power, two screen to use power
+        ''$mainMod, B, exec, ~/stow/.config/hypr/battery-saver.sh & ''
+        ''$mainMod SHIFT, B, exec, ~/stow/.config/hypr/second-monitor.sh &''
+        # Just adding the commands would fail for some reason to execute the second mpvpaper command
+        # Start the bottom monitor and start the wallpaper
+        "$mainMod, C, exec, emacsclient -c --eval '(thanos/type)'"
+        "$mainMod, V, exec, ~/.config/hypr/workspace-manager.sh --swap-monitors"
+        "$mainMod, N, exec, ~/.config/hypr/workspace-manager.sh --debug"
+        "$mainMod, W, killactive,"
+        "$mainMod, M, exit,"
+        # Allow for the initial sleep
+        "$mainMod, comma, exec, hyprlock"
+        "$mainMod, period, hyprexpo:expo, toggle"
+        "$mainMod, slash, exec, ~/.config/hypr/workspace-manager.sh --debug"
+
+        "$mainMod, D, hy3:changegroup, toggletab"
+        "$mainMod SHIFT, D, hy3:makegroup, tab, toggle"
+        "$mainMod, F, hy3:focustab, r, wrap"
+        "$mainMod, S, hy3:focustab, l, wrap"
+
+       # "$mainMod, H, hy3:movefocus, l"
+       # "$mainMod, L, hy3:movefocus, r"
+       # "$mainMod, K, hy3:movefocus, u"
+       # "$mainMod, J, hy3:movefocus, d"
+
+        "$mainMod SHIFT, H, hy3:movewindow, l"
+        "$mainMod SHIFT, L, hy3:movewindow, r"
+        "$mainMod SHIFT, K, hy3:movewindow, u"
+        "$mainMod SHIFT, J, hy3:movewindow, d"
+
+        # TODO Create script for multimonitor support
+        # TODO Add rename options to terminal
+        # If both on monitor don't change,
+        # If either not in monitor
+        # Navigation (1-5) within current group
+        "$mainMod, 1, exec, ~/.config/hypr/workspace-manager.sh --switch 1"
+        "$mainMod, 2, exec, ~/.config/hypr/workspace-manager.sh --switch 2"
+        "$mainMod, 3, exec, ~/.config/hypr/workspace-manager.sh --switch 3"
+        "$mainMod, 4, exec, ~/.config/hypr/workspace-manager.sh --switch 4"
+        "$mainMod, 5, exec, ~/.config/hypr/workspace-manager.sh --switch 5"
+
+        # Group Selection (Mod + Shift + 1-5)
+        "$mainMod SHIFT, 1, exec, ~/.config/hypr/workspace-manager.sh --set-group 0"
+        "$mainMod SHIFT, 2, exec, ~/.config/hypr/workspace-manager.sh --set-group 1"
+        "$mainMod SHIFT, 3, exec, ~/.config/hypr/workspace-manager.sh --set-group 2"
+        "$mainMod SHIFT, 4, exec, ~/.config/hypr/workspace-manager.sh --set-group 3"
+        "$mainMod SHIFT, 5, exec, ~/.config/hypr/workspace-manager.sh --set-group 4"
+
+        # Move Window to Relative Workspace (Mod + Alt + 1-5)
+        "$mainMod ALT, 1, exec, ~/.config/hypr/workspace-manager.sh --move-window 1"
+        "$mainMod ALT, 2, exec, ~/.config/hypr/workspace-manager.sh --move-window 2"
+        "$mainMod ALT, 3, exec, ~/.config/hypr/workspace-manager.sh --move-window 3"
+        "$mainMod ALT, 4, exec, ~/.config/hypr/workspace-manager.sh --move-window 4"
+        "$mainMod ALT, 5, exec, ~/.config/hypr/workspace-manager.sh --move-window 5"
+
+        # Move Active Window to same slot in a different Group (Mod + Alt + Shift + 1-5)
+"$mainMod ALT SHIFT, 1, exec, ~/.config/hypr/workspace-manager.sh --move-to-group 0"
+"$mainMod ALT SHIFT, 2, exec, ~/.config/hypr/workspace-manager.sh --move-to-group 1"
+"$mainMod ALT SHIFT, 3, exec, ~/.config/hypr/workspace-manager.sh --move-to-group 2"
+"$mainMod ALT SHIFT, 4, exec, ~/.config/hypr/workspace-manager.sh --move-to-group 3"
+"$mainMod ALT SHIFT, 5, exec, ~/.config/hypr/workspace-manager.sh --move-to-group 4"
+
+        "$mainMod, mouse_down, workspace, e+1"
+        "$mainMod, mouse_up, workspace, e-1"
+
+        ", F2, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-; dunstify -u low -r 9910 \"Volume: $(pactl get-sink-volume @DEFAULT_SINK@ | awk '{print $5}')\" & "
+        ", F3, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ & wpctl set-mute @DEFAULT_AUDIO_SINK@ 0; dunstify -u low -r 9910 \"Volume: $(pactl get-sink-volume @DEFAULT_SINK@ | awk '{print $5}')\" & "
+        ", F5, exec, brightnessctl s 10%- & brightnessctl -d intel_backlight s 10%-"
+        ", F6, exec, brightnessctl s 10%+ & brightnessctl -d intel_backlight s 10%+"
+
+        ", XF86AudioNext, exec, playerctl next"
+        ", XF86AudioPause, exec, playerctl play-pause"
+        ", XF86AudioPlay, exec, playerctl play-pause"
+        ", XF86AudioPrev, exec, playerctl previous"
+
+        ",XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+        ",XF86AudioRaiseVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ && wpctl set-mute @DEFAULT_AUDIO_SINK@ 0"
+        ",XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+        ",XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+        ",XF86MonBrightnessUp, exec, brightnessctl -e4 -n2 set 5%+"
+        ",XF86MonBrightnessDown, exec, brightnessctl -e4 -n2 set 5%-"
+
+        # TODO Doesn't work since left is sent along with the ctrl
+        # "CTRL, H, exec, wtype -k Left"
+        # "CTRL, J, exec, wtype -k Down"
+        # "CTRL, K, exec, wtype -k Up"
+        # "CTRL, L, exec, wtype -k Right"
+      ];
+
+      bindm = [
+        "$mainMod, mouse:272, movewindow"
+        "$mainMod, mouse:273, resizewindow"
+      ];
+#+END_SRC
+*** Plugins
+#+BEGIN_SRC nix
+      plugin = {
+        dynamic-cursors = {
+          enabled = "true";
+          mode = "tilt";
+
+          tilt = {
+            function = "quadratic";
+            window = "100";
+            limit = "1500";
+          };
+
+          shake = {
+            enabled = "false";
+          };
+        };
+
+        hyprtrails = {
+          color = "rgba(88C0D0FF)";
+        };
+
+        hyprexpo =  {
+          columns = "5";
+          gap_size = "0";
+          bg_col = "rgb(000000)";
+          workspace_method = "center current";
+        };
+
+        hy3 = {
+          tab_first_window = "true";
+          tabs = {
+            text_font = "Hermit";
+            text_height = "10";
+            border_width = "4";
+            "col.inactive" = "rgba(595959DD)";
+            "col.inactive.border" = "rgba(2E3440FF)";
+            "col.active" = "rgba(5E81ACFF)";
+            "col.active.border" = "rgba(2E3440FF)";
+          };
+        };
+
+      };
+#+END_SRC
+*** Footer
+#+BEGIN_SRC nix
+    };
+  };
+#+END_SRC
+** Footer
+#+BEGIN_SRC nix
+}
+#+END_SRC
+* Build( flake.nix )
+:PROPERTIES:
+:header-args: :comments link :mkdirp yes :tangle flake.nix
+:END:
+- Flakes only can reference files which are tracked by git
+#+BEGIN_SRC nix
+# TODO sort which worth it in config or home.nix
+{
+  description = "Main Config";
+
+  # List of sources
+  # Follow just means imports not that it will accept public interface changes
+  # Flakes just means repoducable not that this version will work
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    # Whatever slows down the update by a lot
+    nixpkgs-heavy.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    # For stable version
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
+
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    hyprland = {
+      url = "github:hyprwm/Hyprland/v0.52.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    hyprland-plugins = {
+      url = "github:hyprwm/hyprland-plugins/v0.52.0";
+      inputs.hyprland.follows = "hyprland";
+    };
+
+    hy3 = {
+      url = "github:outfoxxed/hy3/hl0.52.0";
+      inputs.hyprland.follows = "hyprland";
+    };
+
+    hypr-dynamic-cursors = {
+      url = "github:VirtCode/hypr-dynamic-cursors/8c1679b87c54e97145cae83e622956d720e88bef";
+      inputs.hyprland.follows = "hyprland";
+    };
+
+    affinity-nix.url = "github:mrshmllow/affinity-nix";
+
+    copyparty.url = "github:9001/copyparty";
+
+    parsecgaming.url = "github:DarthPJB/parsec-gaming-nix";
+
+    winapps.url = "github:Insomniac66/winapps-nixos-fix";
+
+    nix-alien.url = "github:thiagokokada/nix-alien";
+
+    tagstudio.url = "github:TagStudioDev/TagStudio";
+
+    sops-nix.url = "github:Mic92/sops-nix";
+
+    t3code.url = "github:rodeyseijkens/t3code-nix";
+  };
+
+  outputs = { nixpkgs, nixpkgs-stable, nixpkgs-heavy, home-manager, copyparty, sops-nix, ... } @ inputs:
+  let
+    system = "x86_64-linux";
+    pkgs = nixpkgs.legacyPackages.${system};
+    pkgs-stable = import nixpkgs-stable {
+      inherit system;
+      config.allowUnfree = true;
+    };
+    pkgs-heavy = import nixpkgs-heavy {
+      inherit system;
+      config.allowUnfree = true;
+    };
+  in
+  {
+    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+      specialArgs = {
+        inherit inputs;
+      };
+      modules = [
+        ./configuration.nix
+        home-manager.nixosModules.default
+        copyparty.nixosModules.default
+        sops-nix.nixosModules.sops
+        ({ pkgs, ... }: {
+          nixpkgs.overlays = [
+            # add the copyparty overlay to expose the package to the module
+            copyparty.overlays.default
+
+            # Overlay is for replacement or new keyword in global space
+            #   with access to prev and final
+            #   has a global eval order
+            # Can either make a new pkg name or replace pkg
+            # Aka I am the new maintainer, allow to seperate concerns
+            (final: prev: {
+
+              tagstudio = inputs.tagstudio.packages.${prev.system}.tagstudio-jxl.overrideAttrs (oldAttrs: {
+                # Override is a regular build script keyword
+                # Patches keyword is a part of nix stdenv
+                patches = (oldAttrs.patches or []) ++ [ ./tagstudio-nord.patch ];
+              });
+
+              hyprland = inputs.hyprland.packages.${prev.system}.hyprland;
+              xdg-desktop-portal-hyprland = inputs.hyprland.packages.${prev.system}.xdg-desktop-portal-hyprland;
+
+              # Custom nix stable pins, after fail in nix-unstable
+              rarcrack = pkgs-stable.rarcrack;
+
+              # Ensures this is replacement and not just new pkg name
+              jetbrains = prev.jetbrains // {
+                rust-rover = pkgs-heavy.jetbrains.rust-rover;
+                clion = pkgs-heavy.jetbrains.clion;
+                pycharm = pkgs-heavy.jetbrains.pycharm;
+                idea = pkgs-heavy.jetbrains.idea;
+                goland = pkgs-heavy.jetbrains.goland;
+              };
+
+              # This is not a namespace repalcement
+              python-latest = pkgs.python313;
+            })
+          ];
+        })
+      ];
+    };
+  };
+}
+#+END_SRC
+* Build( tagstudio-nord.patch )
+:PROPERTIES:
+:header-args: :comments no :mkdirp yes :tangle tagstudio-nord.patch
+:END:
+- To hard code the dark mode colorsf
+#+BEGIN_SRC nix
+diff --git a/src/tagstudio/qt/ts_qt.py b/src/tagstudio/qt/ts_qt.py
+index 8d7edde..cca41f8 100644
+--- a/src/tagstudio/qt/ts_qt.py
++++ b/src/tagstudio/qt/ts_qt.py
+@@ -303,19 +303,114 @@ class QtDriver(DriverMixin, QObject):
+             )
+
+         if (
+-            platform.system() == "Darwin" or platform.system() == "Windows"
+-        ) and QGuiApplication.styleHints().colorScheme() is Qt.ColorScheme.Dark:
++            True
++            ):
+             pal: QPalette = self.app.palette()
+-            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.Window, QColor("#1e1e1e"))
+-            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.Button, QColor("#1e1e1e"))
+-            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Window, QColor("#232323"))
+-            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Button, QColor("#232323"))
+-            pal.setColor(
+-                QPalette.ColorGroup.Inactive, QPalette.ColorRole.ButtonText, QColor("#666666")
+-            )
++
++            # --- Nord Color Palette Definitions ---
++            nord0  = QColor("#2E3440")  # Polar Night (Darkest background)
++            nord1  = QColor("#3B4252")  # Polar Night (Lighter background)
++            nord3  = QColor("#4C566A")  # Polar Night (Comments/Disabled text)
++            nord4  = QColor("#D8DEE9")  # Snow Storm (Main text)
++            nord6  = QColor("#ECEFF4")  # Snow Storm (Bright text/Highlights)
++            nord8  = QColor("#88C0D0")  # Frost (Cyan - Links)
++            nord10 = QColor("#5E81AC")  # Frost (Dark Blue - Selection/Focus)
++
++            # Define roles
++            dark_bg = nord0
++            inactive_bg = nord1
++            text_main = nord4
++            text_bright = nord6
++            text_disabled = nord3
++            highlight_bg = nord10
++            link_color = nord8
++
++            # --- Active / Normal State ---
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.Window, dark_bg)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.WindowText, text_main)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.Base, dark_bg)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.AlternateBase, inactive_bg)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.ToolTipBase, inactive_bg)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.ToolTipText, text_main)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.Text, text_main)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.Button, dark_bg)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.ButtonText, text_main)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.Link, link_color)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.Highlight, highlight_bg)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.HighlightedText, text_bright)
++            pal.setColor(QPalette.ColorGroup.Normal, QPalette.ColorRole.PlaceholderText, text_disabled)
++
++            # --- Inactive State ---
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Window, dark_bg)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.WindowText, text_disabled)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Base, dark_bg)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.AlternateBase, inactive_bg)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.ToolTipBase, inactive_bg)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.ToolTipText, text_disabled)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Text, text_disabled)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Button, dark_bg)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.ButtonText, text_disabled)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Highlight, inactive_bg)
++            pal.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.HighlightedText, text_disabled)
++
++            # --- Disabled State ---
++            pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Window, dark_bg)
++            pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText, text_disabled)
++            pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Base, dark_bg)
++            pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.AlternateBase, inactive_bg)
++            pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, text_disabled)
++            pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Button, dark_bg)
++            pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, text_disabled)
++            pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Highlight, inactive_bg)
++            pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.HighlightedText, text_disabled)
+
+             self.app.setPalette(pal)
+-
++            self.app.setStyleSheet("""
++                QMainWindow {
++                    background-color: #2E3440;
++                }
++                QLineEdit {
++                    background-color: #3B4252;   /* nord1: Lighter than bg */
++                    color: #D8DEE9;              /* nord4: Text */
++                    border: 1px solid #4C566A;   /* nord3: Border */
++                    border-radius: 4px;
++                    padding: 4px;
++                    selection-background-color: #5E81AC; /* nord10 */
++                    selection-color: #ECEFF4;    /* nord6 */
++                }
++                /* UPDATED: Target both QPushButton and QToolButton */
++                QPushButton, QToolButton {
++                    background-color: #3B4252;   /* nord1 */
++                    color: #D8DEE9;              /* nord4 */
++                    border: 1px solid #4C566A;   /* nord3 */
++                    border-radius: 4px;
++                    padding: 5px 10px;
++                }
++                QPushButton:hover, QToolButton:hover {
++                    background-color: #434C5E;   /* nord2 */
++                    border: 1px solid #5E81AC;   /* nord10 */
++                }
++                QPushButton:pressed, QToolButton:pressed {
++                    background-color: #5E81AC;   /* nord10 */
++                    color: #ECEFF4;              /* nord6 */
++                }
++
++                /* Scrollbars */
++                QScrollBar:vertical {
++                    background: #2E3440;
++                    width: 12px;
++                    margin: 0px;
++                }
++                QScrollBar::handle:vertical {
++                    background: #4C566A;
++                    min-height: 20px;
++                    border-radius: 6px;
++                    margin: 2px;
++                }
++                QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
++                    height: 0px;
++                }
++            """)
+         # Handle OS signals
+         self.setup_signals()
+         # allow to process input from console, eg. SIGTERM
+#+END_SRC
+** TODO Have a generate cache button
+** TODO Non-GUI method for tag management
+* Build( hardware-configuration.nix )
+:PROPERTIES:
+:header-args: :comments link :mkdirp yes :tangle hardware-configuration.nix
+:END:
+#+BEGIN_SRC nix
+# Do not modify this file!  It was generated by ‘nixos-generate-config’
+# and may be overwritten by future invocations.  Please make changes
+# to /etc/nixos/configuration.nix instead.
+{ config, lib, modulesPath, ... }:
+
+{
+  imports =
+    [ (modulesPath + "/installer/scan/not-detected.nix")
+    ];
+
+  boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "vmd" "nvme" "usbhid" "usb_storage" "sd_mod" ];
+  boot.initrd.kernelModules = [ "i915" ];
+  boot.kernelModules = [ "kvm-intel" ];
+  boot.extraModulePackages = [ ];
+
+  fileSystems."/" =
+    { device = "/dev/disk/by-uuid/60aee169-7daf-4bfc-9621-a17e3e0a4986";
+      fsType = "ext4";
+    };
+
+  fileSystems."/boot" =
+    { device = "/dev/disk/by-uuid/6227-6CF1";
+      fsType = "vfat";
+      options = [ "fmask=0077" "dmask=0077" ];
+    };
+
+  swapDevices = [ ];
+
+  # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
+  # (the default) this is the recommended approach. When using systemd-networkd it's
+  # still possible to use this option, but it's recommended to use it in conjunction
+  # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
+  networking.useDHCP = lib.mkDefault true;
+  # networking.interfaces.wlo1.useDHCP = lib.mkDefault true;
+
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+}
+#+END_SRC
