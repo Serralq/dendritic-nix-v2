@@ -1103,10 +1103,10 @@ in
 
       input = {
         kb_options = "caps:escape, ctrl:swap_lalt_lctl";
-        sensitivity = "0.6";
+        sensitivity = "1"; # Clamped to 1
         accel_profile = "flat";
         repeat_delay = "180";
-        repeat_rate = "35";
+        repeat_rate = "50";
         # Allow for click and drag scrolling
         # TODO Remove if not using the trackball
         scroll_method = "on_button_down";
