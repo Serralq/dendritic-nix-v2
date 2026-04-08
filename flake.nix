@@ -53,6 +53,8 @@
     sops-nix.url = "github:Mic92/sops-nix";
 
     t3code.url = "github:rodeyseijkens/t3code-nix";
+
+    devenv.url = "github:cachix/devenv";
   };
 
   outputs =
@@ -102,7 +104,7 @@
                 tagstudio = inputs.tagstudio.packages.${prev.system}.tagstudio-jxl.overrideAttrs (oldAttrs: {
                   # Override is a regular build script keyword
                   # Patches keyword is a part of nix stdenv
-                  patches = (oldAttrs.patches or [ ]) ++ [ ./tagstudio-nord.patch ];
+                  patches = (oldAttrs.patches or [ ]) ++ [ ./patches/tagstudio-nord.patch ];
                 });
 
                 hyprland = inputs.hyprland.packages.${prev.system}.hyprland;

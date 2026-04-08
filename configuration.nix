@@ -449,13 +449,6 @@ in
   programs.nix-ld.enable = true;
   # Allow for binaries:1 ends here
 
-  # [[file:nixos.org::*Class specific services][Class specific services:1]]
-  services.mysql = {
-    enable = true;
-    package = pkgs.mariadb;
-  };
-  # Class specific services:1 ends here
-
   # [[file:nixos.org::*Footer + stateVersion][Footer + stateVersion:1]]
   system.stateVersion = "25.05"; # Did you read the comment?
 }

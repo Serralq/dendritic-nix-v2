@@ -203,14 +203,12 @@ in
     stow # Manage dot files
     git # Track files
     gh # Github specific commands
-    gitoxide # Faster ver
     git-filter-repo # Remove from history
     github-desktop # Way to check in a GUI
     difftastic # For better git syntax highlight
     lazygit # TUI for git file tree exploration
     jujutsu # Better git?
     jj-starship
-    lazyjj # jj tui
     jjui # another jj tui
     # File-versioning:1 ends here
 
@@ -260,6 +258,12 @@ in
 
     # [[file:nixos.org::*Gaming / Windows Compadibility][Gaming / Windows Compadibility:1]]
     protonup-ng # Improve proton
+    (heroic.override {
+      extraPkgs = pkgs: [
+        pkgs.gamemode
+        pkgs.gamescope
+      ];
+    })
     # Gaming / Windows Compadibility:1 ends here
 
     # [[file:nixos.org::*Office apps][Office apps:1]]
@@ -506,10 +510,11 @@ in
 
       input = {
         kb_options = "caps:escape, ctrl:swap_lalt_lctl";
-        sensitivity = "0.6";
+        # Testing this out
+        sensitivity = "1"; # Clamped to 1
         accel_profile = "flat";
         repeat_delay = "180";
-        repeat_rate = "35";
+        repeat_rate = "50";
         # Allow for click and drag scrolling
         # TODO Remove if not using the trackball
         scroll_method = "on_button_down";
