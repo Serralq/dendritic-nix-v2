@@ -580,13 +580,6 @@ also bambu studio
   # Allow for zed lsp servers
   programs.nix-ld.enable = true;
 #+END_SRC
-*** Class specific services
-#+BEGIN_SRC nix
-  services.mysql = {
-    enable = true;
-    package = pkgs.mariadb;
-  };
-#+END_SRC
 ** Footer + stateVersion
 #+BEGIN_SRC nix
   system.stateVersion = "25.05"; # Did you read the comment?
