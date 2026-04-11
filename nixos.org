@@ -846,6 +846,12 @@ in
 **** Gaming / Windows Compadibility
 #+BEGIN_SRC nix
     protonup-ng # Improve proton
+    (heroic.override {
+      extraPkgs = pkgs: [
+        pkgs.gamemode
+        pkgs.gamescope
+      ];
+    })
 #+END_SRC
 **** Office apps
 #+BEGIN_SRC nix
@@ -983,6 +989,11 @@ in
       nix-direnv.enable = true;
     };
   };
+#+END_SRC
+*** Gaming
+#+BEGIN_SRC
+  programs.gamescope.enable = true;
+  programs.gamemode.enable = true;
 #+END_SRC
 ** Hyprland config
 - Can't use nixos and plugins without switching dotfiles into home.nix
