@@ -1372,6 +1372,8 @@ in
     sops-nix.url = "github:Mic92/sops-nix";
 
     t3code.url = "github:rodeyseijkens/t3code-nix";
+
+    devenv.url = "github:cachix/devenv";
   };
 
   outputs = { nixpkgs, nixpkgs-stable, nixpkgs-heavy, home-manager, copyparty, sops-nix, ... } @ inputs:
