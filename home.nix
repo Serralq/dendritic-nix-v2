@@ -7,12 +7,9 @@
 }:
 
 let
-  bambu-appimage = import ./modules/bambu-appimage.nix { inherit pkgs; };
+  bambu-appimage = import ./modules/_nixos/bambu-appimage.nix { inherit pkgs; };
 in
 {
-  imports = [
-    ./modules/browser.nix
-  ];
   home.username = "serralq";
   home.homeDirectory = "/home/serralq";
 

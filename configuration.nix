@@ -64,15 +64,6 @@ in
   environment.systemPackages = with pkgs; [
   ];
 
-  # Home manager
-  home-manager = {
-    extraSpecialArgs = { inherit inputs; };
-    users = {
-      "serralq" = import ./home.nix;
-    };
-    useGlobalPkgs = true; # allows for unfree in homemanager too
-  };
-
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
