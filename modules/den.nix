@@ -25,6 +25,31 @@ in
 {
   imports = [ inputs.den.flakeModule ];
 
+  # Example: Add an option to ALL aspects (accessible via config.optName on any aspect)
+  # den.schema.aspect = { lib, ... }: {
+  #   options.minimal = lib.mkOption {
+  #     type = lib.types.bool;
+  #     default = false;
+  #   };
+  # };
+
+  # Example: Add an option to ALL hosts (accessible via host.optName on any host entity)
+  # den.schema.host.imports = [ { options.wsl = {
+  #   enable = lib.mkEnableOption "Enable WSL on this host";
+  #   module = lib.mkOption {
+  #     type = lib.types.deferredModule;
+  #     default = {};
+  #   };
+  # }; } ];
+
+  # Example: Add an option to ALL users (accessible via user.optName on any user entity)
+  # den.schema.user.imports = [ { options = {
+  #   email = lib.mkOption {
+  #     type = lib.types.str;
+  #     default = "";
+  #   };
+  # }; } ];
+
   den.schema.user.classes = lib.mkDefault [ "homeManager" ];
   den.default.homeManager.home.stateVersion = "25.05";
 
