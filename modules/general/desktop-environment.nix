@@ -7,6 +7,10 @@
 
 {
   den.aspects.desktop-environment = { config, ... }: {
+    includes = [
+      den.aspects.font
+    ];
+
     nixos = { pkgs, ... }: {
       # ** Window Manager
       programs.hyprland = {

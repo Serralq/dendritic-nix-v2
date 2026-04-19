@@ -16,13 +16,6 @@ in
 
   # * System Packages
   home.packages = with pkgs; [
-    hermit # Font
-    nerd-fonts.dejavu-sans-mono
-    nerd-fonts.iosevka
-    symbola
-    notonoto
-    julia-mono
-    kdePackages.fcitx5-configtool # Setting up Jp IME
     libnotify # To test notification
     pulseaudio # Adding the command line utils
 
