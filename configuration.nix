@@ -13,6 +13,7 @@ let
   '';
 in
 {
+  environment.sessionVariables.HOME = "/home/serralq";
   system.stateVersion = "25.05"; # Did you read the comment?
 
   # * Imports
@@ -241,17 +242,6 @@ in
   # ** Tailscale / Networking
   services.tailscale.enable = true;
 
-  # ** Window Manager
-  programs.hyprland = {
-    enable = true;
-    xwayland.enable = true;
-    package = pkgs.hyprland;
-    portalPackage = pkgs.xdg-desktop-portal-hyprland;
-  };
-
-  environment.sessionVariables.HOME = "/home/serralq";
-  environment.sessionVariables.NIXOS_OZONE_WL = "1";
-
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
@@ -260,12 +250,6 @@ in
     ];
   };
   hardware.enableRedistributableFirmware = true;
-
-  # Enable the X11 windowing system and GNOME as backup
-  services.xserver.enable = true;
-  services.desktopManager.gnome.enable = true;
-
-  services.displayManager.ly.enable = true;
 
   # ** Docker
   virtualisation.docker = {
@@ -360,29 +344,6 @@ in
     options v4l2loopback devices=1 video_nr=1 card_label="OBS Cam" exclusive_caps=1
   '';
   security.polkit.enable = true;
-
-  # ** Xdg portals
-  xdg.portal = {
-    enable = true;
-
-    extraPortals = [
-      pkgs.xdg-desktop-portal-gtk
-      pkgs.xdg-desktop-portal-termfilechooser
-    ];
-
-    config = {
-      hyprland = {
-        default = [
-          "hyprland"
-          "gtk"
-        ];
-        "org.freedesktop.impl.portal.FileChooser" = "termfilechooser";
-      };
-      common = {
-        default = [ "gtk" ];
-      };
-    };
-  };
 
   # ** Enable binaries in NixOS
   # Allow for zed lsp servers
