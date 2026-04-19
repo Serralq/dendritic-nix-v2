@@ -1,4 +1,4 @@
-# [[file:nixos.org::*Header][Header:1]]
+# * Header
 {
   pkgs,
   inputs,
@@ -10,18 +10,17 @@ let
   bambu-appimage = import ./modules/_nixos/bambu-appimage.nix { inherit pkgs; };
 in
 {
+
+  # * System Configs
   home.username = "serralq";
   home.homeDirectory = "/home/serralq";
-
   home.stateVersion = "25.05"; # Please read the comment before changing.
-  # Header:1 ends here
+  programs.home-manager.enable = true;
+  # Allow for zed acceleration
+  targets.genericLinux.nixGL.vulkan.enable = true;
 
-  # [[file:nixos.org::*Header][Header:1]]
-  # SSO Login is assumed
+  # * System Packages
   home.packages = with pkgs; [
-    # Header:1 ends here
-
-    # [[file:nixos.org::*System][System:1]]
     hermit # Font
     nerd-fonts.dejavu-sans-mono
     nerd-fonts.iosevka
@@ -31,9 +30,8 @@ in
     kdePackages.fcitx5-configtool # Setting up Jp IME
     libnotify # To test notification
     pulseaudio # Adding the command line utils
-    # System:1 ends here
 
-    # [[file:nixos.org::*Hyprland / DE / Keyboard-shortcuts][Hyprland / DE / Keyboard-shortcuts:1]]
+    # ** Hyprland / DE / Keyboard-shortcuts
     cliphist # Clipboard manager
     wl-clipboard
     ydotool
@@ -59,9 +57,8 @@ in
     hyprpicker # Get colors from screen
     wev # Figure out what output from input devices
     hypridle # For locking the computer
-    # Hyprland / DE / Keyboard-shortcuts:1 ends here
 
-    # [[file:nixos.org::*General Utils][General Utils:1]]
+    # * Terminal
     wget # Download
     curl # Download
     jq # Parse stdout
@@ -118,9 +115,8 @@ in
     ueberzugpp # For yazi image preview
     xdg-desktop-portal-termfilechooser # Yazi as file chooser
     texliveSmall
-    # General Utils:1 ends here
 
-    # [[file:nixos.org::*Dev-ops][Dev-ops:1]]
+    # * DevOps
     neovim # Basic editor
     zed-editor # Trying new one
     fish # Terminal prompt
@@ -141,9 +137,8 @@ in
     codeium # Ai autocomplete
     inputs.t3code.packages.${pkgs.system}.default # For t3code better threads
     sshfs # For working over ssh eg yazi
-    # Dev-ops:1 ends here
 
-    # [[file:nixos.org::*Nix-enviroment][Nix-enviroment:1]]
+    # ** Nix Packages
     devenv # Allows for custom env (inclu nightly rust)
     nix-tree # See size of nix
     nh # Better nix commands (rebuild, clean)
@@ -152,9 +147,8 @@ in
     nix-index # To find missing binaries
     deadnix # Better nix config
     inputs.nix-alien.packages.${pkgs.system}.nix-alien # Running binaries in nix
-    # Nix-enviroment:1 ends here
 
-    # [[file:nixos.org::*Lang-dependent][Lang-dependent:1]]
+    # ** Other Languages
     # Rust
     rustc
     jetbrains.rust-rover
@@ -194,9 +188,8 @@ in
     clang # Compiling c programs?
     libtool # To compile vterm
     zed-editor # Fast version of vs code
-    # Lang-dependent:1 ends here
 
-    # [[file:nixos.org::*File-versioning][File-versioning:1]]
+    # ** Git/JJ
     stow # Manage dot files
     git # Track files
     gh # Github specific commands
@@ -207,9 +200,8 @@ in
     jujutsu # Better git?
     jj-starship
     jjui # another jj tui
-    # File-versioning:1 ends here
 
-    # [[file:nixos.org::*GUI apps][GUI apps:1]]
+    # * GUI Packages
     anki # Jp study
     bitwarden-desktop # Passwords
     # TODO Fix important passwords
@@ -251,9 +243,8 @@ in
     pika-backup # Just to get something
     todoist-electron # Notes app
     inputs.affinity-nix.packages.${pkgs.system}.v3 # Affinity image editors
-    # GUI apps:1 ends here
 
-    # [[file:nixos.org::*Gaming / Windows Compadibility][Gaming / Windows Compadibility:1]]
+    # ** Gaming
     protonup-ng # Improve proton
     (heroic.override {
       extraPkgs = pkgs: [
@@ -261,28 +252,19 @@ in
         pkgs.gamescope
       ];
     })
-    # Gaming / Windows Compadibility:1 ends here
 
-    # [[file:nixos.org::*Office apps][Office apps:1]]
+    # ** Office suit
     hunspell
     libreoffice-qt
     hunspellDicts.en_US-large
-    # Office apps:1 ends here
 
-    # [[file:nixos.org::*Footer][Footer:1]]
   ];
-  # Footer:1 ends here
 
-  # [[file:nixos.org::*Programs / Services][Programs / Services:1]]
-  programs.home-manager.enable = true;
-
+  # * Services
+  # ** Syncthing
   services.syncthing.enable = true;
 
-  # Allow for zed acceleration
-  targets.genericLinux.nixGL.vulkan.enable = true;
-  # Programs / Services:1 ends here
-
-  # [[file:nixos.org::*Dunst][Dunst:1]]
+  # ** Notifications: Dunst
   # Notification daemon, search "notify-send" to find
   # Only if requires immediate action
   services.dunst.enable = true;
@@ -313,9 +295,8 @@ in
       timeout = "30";
     };
   };
-  # Dunst:1 ends here
 
-  # [[file:nixos.org::*Hyprlock][Hyprlock:1]]
+  # ** Hyprlock
   programs.hyprlock.enable = true;
   programs.hyprlock.settings = {
     general = {
@@ -372,9 +353,8 @@ in
       ];
     };
   };
-  # Hyprlock:1 ends here
 
-  # [[file:nixos.org::*Hypridle / Hook for post-unlock commands /][Hypridle // Hook for post-unlock commands //:1]]
+  # ** TODO HyprIdle, to have mute
   services.hypridle = {
     enable = true;
     settings = {
@@ -388,9 +368,8 @@ in
       };
     };
   };
-  # Hypridle // Hook for post-unlock commands //:1 ends here
 
-  # [[file:nixos.org::*Direnv][Direnv:1]]
+  # ** Direnv
   programs = {
     direnv = {
       enable = true;
@@ -398,9 +377,8 @@ in
       nix-direnv.enable = true;
     };
   };
-  # Direnv:1 ends here
 
-  # [[file:nixos.org::*Header][Header:1]]
+  # * Hyprland
   # Window manager, use of hyrplandPlugins... to get plugins
   # Last updated: March 8, ver 0.52.0 (v53 is broken, v54 doesn't have plugin support yet)
   # TODO Split this into it's own space
@@ -416,9 +394,8 @@ in
       inputs.hyprland-plugins.packages.${pkgs.system}.hyprtrails
       inputs.hyprland-plugins.packages.${pkgs.system}.hyprexpo
     ];
-    # Header:1 ends here
 
-    # [[file:nixos.org::*General][General:1]]
+    # ** General Settings
     settings = {
       permission = "/usr/(bin|local/bin)/hyprpm, plugin, allow";
 
@@ -505,6 +482,27 @@ in
         new_status = "master";
       };
 
+      #windowrule = [
+      #  # "no_focus on, match:class ^$, match:title ^$, match:xwayland true, match:float true, match:fullscreen false, match:pinned false"
+      #  "float on, match:title ^(Picture in picture)$"
+      #  "pin on, match:title ^(Picture in picture)$"
+      #  "size 200 200, match:title ^(Picture in picture)$"
+      #  "move 1348 790, match:title ^(Picture in picture)$"
+      #];
+
+      windowrulev2 = [
+        "float, title:^(Picture in picture)$"
+        "pin, title:^(Picture in picture)$"
+        "size 200 200, title:^(Picture in picture)$"
+        "move 1348 790, title:^(Picture in picture)$"
+      ];
+
+      exec-once = [
+        "~/.config/hypr/startup.sh &"
+        "hypridle"
+      ];
+
+      # ** Bindings
       input = {
         kb_options = "caps:escape, ctrl:swap_lalt_lctl";
         # Testing this out
@@ -538,27 +536,7 @@ in
         swallow_regex = "(org.wezfurlong.wezterm)";
         vfr = "true";
       };
-      #windowrule = [
-      #  # "no_focus on, match:class ^$, match:title ^$, match:xwayland true, match:float true, match:fullscreen false, match:pinned false"
-      #  "float on, match:title ^(Picture in picture)$"
-      #  "pin on, match:title ^(Picture in picture)$"
-      #  "size 200 200, match:title ^(Picture in picture)$"
-      #  "move 1348 790, match:title ^(Picture in picture)$"
-      #];
-      windowrulev2 = [
-        "float, title:^(Picture in picture)$"
-        "pin, title:^(Picture in picture)$"
-        "size 200 200, title:^(Picture in picture)$"
-        "move 1348 790, title:^(Picture in picture)$"
-      ];
 
-      exec-once = [
-        "~/.config/hypr/startup.sh &"
-        "hypridle"
-      ];
-      # General:1 ends here
-
-      # [[file:nixos.org::*Binds][Binds:1]]
       "$mainMod" = "SUPER";
 
       binde = [
@@ -665,9 +643,8 @@ in
         "$mainMod, mouse:272, movewindow"
         "$mainMod, mouse:273, resizewindow"
       ];
-      # Binds:1 ends here
 
-      # [[file:nixos.org::*Plugins][Plugins:1]]
+      # ** Plugins
       plugin = {
         dynamic-cursors = {
           enabled = "true";
@@ -707,15 +684,7 @@ in
             "col.active.border" = "rgba(2E3440FF)";
           };
         };
-
       };
-      # Plugins:1 ends here
-
-      # [[file:nixos.org::*Footer][Footer:1]]
     };
   };
-  # Footer:1 ends here
-
-  # [[file:nixos.org::*Footer][Footer:1]]
 }
-# Footer:1 ends here

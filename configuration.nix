@@ -1,4 +1,4 @@
-# [[file:nixos.org::*Let variables][Let variables:1]]
+# * Header
 {
   config,
   pkgs,
@@ -13,15 +13,34 @@ let
   '';
 in
 {
-  # Let variables:1 ends here
+  system.stateVersion = "25.05"; # Did you read the comment?
 
-  # [[file:nixos.org::*Imports][Imports:1]]
+  # * Imports
   imports = [
     ./hardware-configuration.nix
   ];
-  # Imports:1 ends here
+  environment.systemPackages = with pkgs; [
+  ];
+  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.permittedInsecurePackages = [
+    "electron-36.9.5"
+  ];
 
-  # [[file:nixos.org::*User][User:1]]
+  # ** Flakes
+  nix.settings = {
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
+    trusted-users = [
+      "root"
+      "serralq"
+    ];
+    substituters = [ "https://hyprland.cachix.org" ];
+    trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
+  };
+
+  # * User
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.serralq = {
     home = "/home/serralq";
@@ -38,71 +57,34 @@ in
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOKsOnJ1jLL3Ey8rVGRMdCUC0XDANQ1yJGxkU84XBi0M android-termux"
     ];
   };
-  # User:1 ends here
 
-  # [[file:nixos.org::*Bootloader][Bootloader:1]]
-  # Bootloader.
+  # * Bootleader
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  # Bootloader:1 ends here
 
-  # [[file:nixos.org::*Networking][Networking:1]]
-  # Hostname
+  # * Networking
   networking.hostName = "nixos";
-  # Enable networking
   networking.networkmanager.enable = true;
-  # Set your time zone.
   time.timeZone = "America/New_York";
   # Allow ssh ports
   networking.firewall.enable = true;
   networking.firewall.allowedTCPPorts = [ 22 ];
-  # Networking:1 ends here
 
-  # [[file:nixos.org::*Packages, and clean up][Packages, and clean up:1]]
-  # List packages installed in system profile. To search, run:
-  # Was missing in home-manager
-  environment.systemPackages = with pkgs; [
-  ];
-
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
-
-  # Adding flakes
-  nix.settings = {
-    experimental-features = [
-      "nix-command"
-      "flakes"
-    ];
-    trusted-users = [
-      "root"
-      "serralq"
-    ];
-    substituters = [ "https://hyprland.cachix.org" ];
-    trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
-  };
-
-  # Removing old system builds
+  # * Optimizations
+  # ** Garbage collection
   nix.gc = {
     automatic = true;
     dates = "weekly";
     options = "--delete-older-than 7d";
   };
-  # Packages, and clean up:1 ends here
 
-  # [[file:nixos.org::*Insecure packages][Insecure packages:1]]
-  nixpkgs.config.permittedInsecurePackages = [
-    "electron-36.9.5"
-  ];
-  # Insecure packages:1 ends here
-
-  # [[file:nixos.org::*Registry info][Registry info:1]]
+  # ** Nix registry
   nix.registry = {
     nixpkgs-stable.flake = inputs.nixpkgs-stable;
     nixpkgs.flake = inputs.nixpkgs;
   };
-  # Registry info:1 ends here
 
-  # [[file:nixos.org::*Fonts and IME][Fonts and IME:1]]
+  # * Fonts
   # Adding regular and JP fonts
   # console.font = "Hermit";
   console.keyMap = "us";
@@ -145,10 +127,9 @@ in
     LC_TELEPHONE = "en_US.UTF-8";
     LC_TIME = "en_US.UTF-8";
   };
-  # Fonts and IME:1 ends here
 
-  # [[file:nixos.org::*Enable split keyboard controls][Enable split keyboard controls:1]]
-  # Include voyager rules
+  # * System.d
+  # ** Enable custom keyboards (voyager)
   services.udev.extraRules = ''
     ACTION=="change",SUBSYSTEM=="power_supply", RUN+="${border-color}"
     SUBSYSTEM=="power_supply",ATTR{status}=="Discharging", RUN+="${border-color}"
@@ -178,19 +159,16 @@ in
     # Keymapp Flashing rules for the Voyager
     SUBSYSTEMS=="usb", ATTRS{idVendor}=="3297", MODE:="0666", SYMLINK+="ignition_dfu"
   '';
-  # Enable split keyboard controls:1 ends here
 
-  # [[file:nixos.org::*Customs: Border colors][Customs: Border colors:1]]
+  # ** Customs: Border colors
   systemd.user.services.border-color = {
     serviceConfig = {
       Type = "oneshot";
       ExecStart = "${pkgs.bash}/bin/bash /home/serralq/.scripts/border-color.sh";
     };
   };
-  # Customs: Border colors:1 ends here
 
-  # [[file:nixos.org::*Customs: Mute after wake][Customs: Mute after wake:1]]
-  # Mute after waking up
+  # ** Customs: Mute after wake
   powerManagement.resumeCommands = ''
     ${pkgs.systemd}/bin/systemctl --machine=serralq@.host --user start wakeup
   '';
@@ -200,10 +178,8 @@ in
       ExecStart = "${pkgs.pulseaudio}/bin/pactl set-sink-volume @DEFAULT_SINK@ 0%";
     };
   };
-  # Customs: Mute after wake:1 ends here
 
-  # [[file:nixos.org::*Auto launch tailscale][Auto launch tailscale:1]]
-  # Automatically startup tailscale
+  # ** Auto launch tailscale
   systemd.services.tailscale-autoconnect = {
     description = "Automatic connection to Tailscale";
 
@@ -218,10 +194,8 @@ in
     ];
     wantedBy = [ "multi-user.target" ];
 
-    # set this service as a oneshot job
     serviceConfig.Type = "oneshot";
 
-    # have the job run this shell script
     script = with pkgs; ''
       # wait for tailscaled to settle
       sleep 2
@@ -236,9 +210,13 @@ in
       ${tailscale}/bin/tailscale up -authkey tskey-examplekeyhere
     '';
   };
-  # Auto launch tailscale:1 ends here
 
-  # [[file:nixos.org::*SSH][SSH:1]]
+  # * Services
+  # ** OpenSSH
+  # 1) pkg install openssh
+  # 2) ssh-keygen -t ed25519 -C "<name>" # Creates the answer
+  # 3) cat ~/.ssh/id_ed25519.pub # Displays the matching public question
+  # 4) ssh serralq@<YOUR-NIXOS-TAILSCALE-IP>
   services.openssh = {
     enable = true;
     settings = {
@@ -246,15 +224,11 @@ in
       PermitRootLogin = "no";
     };
   };
-  # SSH:1 ends here
 
-  # [[file:nixos.org::*Printing][Printing:1]]
-  # Enable CUPS to print documents.
+  # ** Printing
   services.printing.enable = true;
-  # Printing:1 ends here
 
-  # [[file:nixos.org::*Pulse audio][Pulse audio:1]]
-  # Enable sound with pipewire.
+  # ** Pulse audio
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -263,17 +237,11 @@ in
     alsa.support32Bit = true;
     pulse.enable = true;
   };
-  # Pulse audio:1 ends here
 
-  # [[file:nixos.org::*Tailscale / Networking][Tailscale / Networking:1]]
-  # Enable tailscale
-  services.tailscale = {
-    enable = true;
-  };
-  # Tailscale / Networking:1 ends here
+  # ** Tailscale / Networking
+  services.tailscale.enable = true;
 
-  # [[file:nixos.org::*Window manager][Window manager:1]]
-  # Hyprland
+  # ** Window Manager
   programs.hyprland = {
     enable = true;
     xwayland.enable = true;
@@ -281,9 +249,7 @@ in
     portalPackage = pkgs.xdg-desktop-portal-hyprland;
   };
 
-  environment.sessionVariables = {
-    HOME = "/home/serralq";
-  };
+  environment.sessionVariables.HOME = "/home/serralq";
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   hardware.graphics = {
@@ -299,12 +265,9 @@ in
   services.xserver.enable = true;
   services.desktopManager.gnome.enable = true;
 
-  # Login Manager
   services.displayManager.ly.enable = true;
-  # Window manager:1 ends here
 
-  # [[file:nixos.org::*Docker][Docker:1]]
-  # Enable docker
+  # ** Docker
   virtualisation.docker = {
     enable = true;
     rootless = {
@@ -312,10 +275,8 @@ in
       setSocketVariable = true;
     };
   };
-  # Docker:1 ends here
 
-  # [[file:nixos.org::*Documentation / also in packages /][Documentation // also in packages //:1]]
-  # Add documentation
+  # ** Documentation
   documentation = {
     enable = true;
     man.enable = true;
@@ -324,13 +285,17 @@ in
     info.enable = true;
     nixos.enable = true;
   };
-  # Documentation // also in packages //:1 ends here
 
-  # [[file:nixos.org::*Flatpak][Flatpak:1]]
+  # ** Flatpak
+  # To add repo:
+  #   flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+  #
+  # To install:
+  # flatpak install flathub com.github.PintaProject.Pinta
+  # also bambu studio
   services.flatpak.enable = true;
-  # Flatpak:1 ends here
 
-  # [[file:nixos.org::*Steam][Steam:1]]
+  # ** Steam
   programs.steam = {
     enable = true;
     remotePlay.openFirewall = true;
@@ -340,19 +305,17 @@ in
     protontricks.enable = true;
   };
   programs.gamemode.enable = true;
-  # Steam:1 ends here
 
-  # [[file:nixos.org::*Fail2Ban][Fail2Ban:1]]
+  # ** Security
+  # *** Fail2Ban
   services.fail2ban.enable = true;
-  # Fail2Ban:1 ends here
 
-  # [[file:nixos.org::*Sops][Sops:1]]
+  # *** SOPS
   sops.defaultSopsFile = ./secrets/secrets.yaml;
   sops.defaultSopsFormat = "yaml";
   sops.age.keyFile = "/home/serralq/.config/sops/age/keys.txt";
-  # Sops:1 ends here
 
-  # [[file:nixos.org::*Cloudflared][Cloudflared:1]]
+  # ** Cloudflared
   services.cloudflared = {
     enable = true;
     tunnels = {
@@ -386,9 +349,8 @@ in
       Group = "user";
     };
   };
-  # Cloudflared:1 ends here
 
-  # [[file:nixos.org::*OBS-studio][OBS-studio:1]]
+  # ** OBS-studio
   programs.obs-studio = {
     enable = true;
     enableVirtualCamera = true;
@@ -409,9 +371,8 @@ in
     options v4l2loopback devices=1 video_nr=1 card_label="OBS Cam" exclusive_caps=1
   '';
   security.polkit.enable = true;
-  # OBS-studio:1 ends here
 
-  # [[file:nixos.org::*Xdg-port][Xdg-port:1]]
+  # ** Xdg portals
   xdg.portal = {
     enable = true;
 
@@ -433,14 +394,8 @@ in
       };
     };
   };
-  # Xdg-port:1 ends here
 
-  # [[file:nixos.org::*Allow for binaries][Allow for binaries:1]]
+  # ** Enable binaries in NixOS
   # Allow for zed lsp servers
   programs.nix-ld.enable = true;
-  # Allow for binaries:1 ends here
-
-  # [[file:nixos.org::*Footer + stateVersion][Footer + stateVersion:1]]
-  system.stateVersion = "25.05"; # Did you read the comment?
 }
-# Footer + stateVersion:1 ends here

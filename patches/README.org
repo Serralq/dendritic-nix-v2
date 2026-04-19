@@ -1,0 +1,4 @@
+* Tagstudio
+- Hardcoded the dark themes into tagstudio
+** TODO Have a generate cache button
+** TODO Non-GUI method for tag management
