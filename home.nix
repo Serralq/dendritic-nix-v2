@@ -90,16 +90,8 @@ in
     fishPlugins.fifc # Fish auto completion fzf
     nushell # When I need structured contents
     carapace # Better terminal autocomplete
-    # Ai in terminal, each have different harness that they were trained on and optimized for
-    claude-code
-    gemini-cli
-    codex
-    opencode
-    codeium # Ai autocomplete
-    inputs.t3code.packages.${pkgs.system}.default # For t3code better threads
-    sshfs # For working over ssh eg yazi
-
     # ** Other Languages
+    sshfs # For working over ssh eg yazi
     # Rust
     rustc
     jetbrains.rust-rover

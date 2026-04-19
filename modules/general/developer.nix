@@ -10,6 +10,7 @@
     includes = [
       den.aspects.nix
       den.aspects.version-control
+      den.aspects.ai
     ];
   };
 }
