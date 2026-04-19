@@ -22,24 +22,6 @@ in
   ];
   environment.systemPackages = with pkgs; [
   ];
-  nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.permittedInsecurePackages = [
-    "electron-36.9.5"
-  ];
-
-  # ** Flakes
-  nix.settings = {
-    experimental-features = [
-      "nix-command"
-      "flakes"
-    ];
-    trusted-users = [
-      "root"
-      "serralq"
-    ];
-    substituters = [ "https://hyprland.cachix.org" ];
-    trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
-  };
 
   # * User
   # Define a user account. Don't forget to set a password with ‘passwd’.
@@ -70,20 +52,6 @@ in
   # Allow ssh ports
   networking.firewall.enable = true;
   networking.firewall.allowedTCPPorts = [ 22 ];
-
-  # * Optimizations
-  # ** Garbage collection
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 7d";
-  };
-
-  # ** Nix registry
-  nix.registry = {
-    nixpkgs-stable.flake = inputs.nixpkgs-stable;
-    nixpkgs.flake = inputs.nixpkgs;
-  };
 
   # * System.d
   # ** Enable custom keyboards (voyager)
@@ -301,7 +269,4 @@ in
   '';
   security.polkit.enable = true;
 
-  # ** Enable binaries in NixOS
-  # Allow for zed lsp servers
-  programs.nix-ld.enable = true;
 }

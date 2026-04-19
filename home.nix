@@ -99,16 +99,6 @@ in
     inputs.t3code.packages.${pkgs.system}.default # For t3code better threads
     sshfs # For working over ssh eg yazi
 
-    # ** Nix Packages
-    devenv # Allows for custom env (inclu nightly rust)
-    nix-tree # See size of nix
-    nh # Better nix commands (rebuild, clean)
-    nix-search-tv # Interactive search
-    nix-your-shell # So nix develop goes into fish
-    nix-index # To find missing binaries
-    deadnix # Better nix config
-    inputs.nix-alien.packages.${pkgs.system}.nix-alien # Running binaries in nix
-
     # ** Other Languages
     # Rust
     rustc
@@ -215,14 +205,5 @@ in
   # * Services
   # ** Syncthing
   services.syncthing.enable = true;
-
-  # ** Direnv
-  programs = {
-    direnv = {
-      enable = true;
-      enableFishIntegration = true; # see note on other shells below
-      nix-direnv.enable = true;
-    };
-  };
 
 }
