@@ -244,15 +244,6 @@ in
     todoist-electron # Notes app
     inputs.affinity-nix.packages.${pkgs.system}.v3 # Affinity image editors
 
-    # ** Gaming
-    protonup-ng # Improve proton
-    (heroic.override {
-      extraPkgs = pkgs: [
-        pkgs.gamemode
-        pkgs.gamescope
-      ];
-    })
-
     # ** Office suit
     hunspell
     libreoffice-qt

@@ -295,17 +295,6 @@ in
   # also bambu studio
   services.flatpak.enable = true;
 
-  # ** Steam
-  programs.steam = {
-    enable = true;
-    remotePlay.openFirewall = true;
-    dedicatedServer.openFirewall = true;
-    localNetworkGameTransfers.openFirewall = true;
-    extraCompatPackages = with pkgs; [ proton-ge-bin ];
-    protontricks.enable = true;
-  };
-  programs.gamemode.enable = true;
-
   # ** Security
   # *** Fail2Ban
   services.fail2ban.enable = true;

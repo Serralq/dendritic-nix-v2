@@ -116,6 +116,7 @@ in
       den.provides.define-user
       den.provides.primary-user
       den.aspects.browser
+      den.aspects.gaming
     ];
     homeManager = { pkgs, ... }: {
       imports = [
