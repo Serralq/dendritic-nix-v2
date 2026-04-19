@@ -25,7 +25,6 @@ in
     jq # Parse stdout
     ripgrep # Greps but faster, written in Rust
     unzip # Unzips
-    openvpn # VPN use
     btop # Resource monitor
     fzf # Fuzzy finder
     dust # Disk usage
@@ -53,7 +52,6 @@ in
     # 2) Hold f10 w/o fn key, keyboard will appear on the interface
     # 3) Reattach to computer body to use trackpad to select the keyboard
     # 4) Hold f10 again to actually accept the request
-    cloudflared # Allow for external links
     sqlite # Sqlite
     rarcrack # To crack rar passwords
     unrar # To open multi-part rar files
@@ -61,7 +59,6 @@ in
     p7zip # Create zips of multiple parts with file limit
     # Eg: 7z a -v9m archive_name.7z /path/to/files
     wl-clipboard-x11 # To access clipboard from terminal
-    rclone # For file transfers
     sops # To decrypt sops secrets
     bat # Better cat
     su-exec # Allow for switching user and then execute
@@ -83,7 +80,6 @@ in
     fishPlugins.fifc # Fish auto completion fzf
     nushell # When I need structured contents
     carapace # Better terminal autocomplete
-    sshfs # For working over ssh eg yazi
 
     # * GUI Packages
     anki # Jp study

@@ -120,6 +120,7 @@ in
       den.aspects.desktop-environment
       den.aspects.developer
       den.aspects.container
+      den.aspects.networking
     ];
     homeManager = { pkgs, ... }: {
       imports = [
