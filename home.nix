@@ -6,14 +6,6 @@ let
 in
 {
 
-  # * System Configs
-  home.username = "serralq";
-  home.homeDirectory = "/home/serralq";
-  home.stateVersion = "25.05"; # Please read the comment before changing.
-  programs.home-manager.enable = true;
-  # Allow for zed acceleration
-  targets.genericLinux.nixGL.vulkan.enable = true;
-
   # * System Packages
   home.packages = with pkgs; [
     libnotify # To test notification
@@ -70,7 +62,6 @@ in
     # * DevOps
     neovim # Basic editor
     zed-editor # Trying new one
-    fish # Terminal prompt
     starship # Terminal prompt look
     fastfetch # Terminal splash screen
     yazi # File manager

@@ -1,3 +1,4 @@
+# * Flakes
 # For Flakes: since will be auto generated,
 #   Flakes only work when tracked by git
 # List of sources
@@ -5,6 +6,34 @@
 # Flakes just means repoducable not that this version will work
 # Nixpkgs-heavy: Whatever slows down the update by a lot
 # Nixpkgs-stable: For stable version
+#
+# * Options
+# Example: Add an option to ALL aspects (accessible via config.optName on any aspect)
+# den.schema.aspect = { lib, ... }: {
+#   options.minimal = lib.mkOption {
+#     type = lib.types.bool;
+#     default = false;
+#   };
+# };
+
+# Example: Add an option to ALL hosts (accessible via host.optName on any host entity)
+# den.schema.host.imports = [ { options.wsl = {
+#   enable = lib.mkEnableOption "Enable WSL on this host";
+#   module = lib.mkOption {
+#     type = lib.types.deferredModule;
+#     default = {};
+#   };
+# }; } ];
+
+# Example: Add an option to ALL users (accessible via user.optName on any user entity)
+# den.schema.user.imports = [ { options = {
+#   email = lib.mkOption {
+#     type = lib.types.str;
+#     default = "";
+#   };
+# }; } ];
+#
+# * Global configs
 {
   inputs,
   den,
@@ -25,48 +54,19 @@ in
 {
   imports = [ inputs.den.flakeModule ];
 
-  # Example: Add an option to ALL aspects (accessible via config.optName on any aspect)
-  # den.schema.aspect = { lib, ... }: {
-  #   options.minimal = lib.mkOption {
-  #     type = lib.types.bool;
-  #     default = false;
-  #   };
-  # };
-
-  # Example: Add an option to ALL hosts (accessible via host.optName on any host entity)
-  # den.schema.host.imports = [ { options.wsl = {
-  #   enable = lib.mkEnableOption "Enable WSL on this host";
-  #   module = lib.mkOption {
-  #     type = lib.types.deferredModule;
-  #     default = {};
-  #   };
-  # }; } ];
-
-  # Example: Add an option to ALL users (accessible via user.optName on any user entity)
-  # den.schema.user.imports = [ { options = {
-  #   email = lib.mkOption {
-  #     type = lib.types.str;
-  #     default = "";
-  #   };
-  # }; } ];
-
+  # ** User declarations
   den.schema.user.classes = lib.mkDefault [ "homeManager" ];
+  den.default.nixos.system.stateVersion = "25.05";
   den.default.homeManager.home.stateVersion = "25.05";
 
-  den.hosts.x86_64-linux.nixos.users.serralq = { };
+  den.hosts.x86_64-linux.hirakata.users.serralq = { };
 
-  den.aspects.nixos = {
-    includes = [
-      den.provides.hostname
-      den.provides.define-user
-      den.provides.primary-user
-    ];
+  # ** Overlays
+  den.aspects.overlays = {
     nixos = { pkgs, ... }: {
       _module.args.inputs = inputs;
 
       imports = [
-        ./../hardware-configuration.nix
-        ./../configuration.nix
         inputs.copyparty.nixosModules.default
         inputs.sops-nix.nixosModules.sops
       ];
@@ -108,24 +108,6 @@ in
 
       home-manager.useGlobalPkgs = true;
       home-manager.extraSpecialArgs = { inherit inputs; };
-    };
-  };
-
-  den.aspects.serralq = {
-    includes = [
-      den.provides.define-user
-      den.provides.primary-user
-      den.aspects.browser
-      den.aspects.gaming
-      den.aspects.desktop-environment
-      den.aspects.developer
-      den.aspects.container
-      den.aspects.networking
-    ];
-    homeManager = { pkgs, ... }: {
-      imports = [
-        ./../home.nix
-      ];
     };
   };
 }

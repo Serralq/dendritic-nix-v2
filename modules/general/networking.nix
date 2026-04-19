@@ -4,7 +4,6 @@
   den.aspects.networking = { config, ... }: {
     nixos = { pkgs, ... }: {
       # * Networking
-      networking.hostName = "nixos";
       networking.networkmanager.enable = true;
       time.timeZone = "America/New_York";
       # Allow ssh ports
