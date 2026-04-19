@@ -1,0 +1,74 @@
+* System Design
+** Dev checklist
+- Search via nix-search, nix search, or nix options
+- Install via nix-install <pkg-name>
+- Test via nix-unlock
+  with write-able config file
+  - Import into NixOS
+  - Delete and Copy to write-able ver to test new changes
+- Do dry run using rebuild --no-save
+- Clean when homemanager gives activation error
+  Either manual OR create backup then find \*.backup
+** Install checklist
+- Heuristics, [ break rules ] chance to refactor
+  - Keep all in home folder
+  - Keep as regular user
+  - Keep it simple
+- Install checklist
+  home.nix => config.nix
+  - host w/ port
+    Services => Docker => Install => Flatpak
+  - w/o port
+    Services => Install => Docker => Flatpak
+** TODO Hosting => Mermaid diagram
+- Localhost at // this isn't perfect //
+  Jellyfin: 8096 (Docker)
+  Copyparty: 3210 (Install)
+             3921 (ftp)
+  CloudDoom: 8080 (Docker) // TODO expand to allow others to explore my docs //
+  Mkdocs: 8000 (Install)
+  Syncthing: 8384 (Service)
+  Immich: 2283 (Docker)
+- Non-localhost at Norn
+*** Other hostings
+- Pixel:
+  Syncthing
+  Dropbox -> Kobo
+  (Tailscale)
+** Resources
+- Resources:
+  https://mynixos.com
+  https://search.nixos.org/packages
+  https://searchix.ovh
+- Curated list:
+  https://github.com/nix-community/awesome-nix?tab=readme-ov-file
+  https://github.com/awesome-selfhosted/awesome-selfhosted
+*** [[https://nix.dev/tutorials/packaging-existing-software.html][Create new Package]]
+** TODO Convert to allow secrets
+- Three folder:
+  |            | Stow | Auto-sync | Uploading |
+  | Stow       | Y    | Y         | Y         |
+  | Secrets    | Y    | Y         |           |
+  | (Services) | Y    | Y         |           |
+  | Remote     | Y    |           |           |
+** Tasks
+- [ ] Edit copyparty settings
+- [ ] Clean up configuration.nix
+- [ ] Flake update by parts and then see where to go
+- [ ] Allow for declarative flatpaks ([[https://github.com/gmodena/nix-flatpak][github]])
+- [ ] Remove hard paths
+- [ ] Add nix optimze and gc optimizations
+** (Failing) Update
+1) Try commenting out // with "# TODO update ltr" //
+2) Pin the version via flakes
+   Old package uses the original dependencies
+3) Overriding
+   Old package uses the current( updated ) dependencies
+4) Switch channel from unstable to stable if stable is ahead of unstable
+** Debugging, it's always a full boot partition
+#+BEGIN_SRC bash
+nix-collect-garbage --delete-older-than 1d
+cd nixos
+sudo nixos-rebuild switch --flake .
+#+END_SRC
+* Pkg info

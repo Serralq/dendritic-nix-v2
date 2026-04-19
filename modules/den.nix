@@ -1,5 +1,5 @@
-# TODO sort which worth it in config or home.nix
-# For Flakes: since will be auto generated
+# For Flakes: since will be auto generated,
+#   Flakes only work when tracked by git
 # List of sources
 # Follow just means imports not that it will accept public interface changes
 # Flakes just means repoducable not that this version will work

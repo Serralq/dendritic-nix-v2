@@ -354,7 +354,7 @@ in
     };
   };
 
-  # ** HyprIdle
+  # ** TODO HyprIdle, to have mute
   services.hypridle = {
     enable = true;
     settings = {

@@ -213,6 +213,10 @@ in
 
   # * Services
   # ** OpenSSH
+  # 1) pkg install openssh
+  # 2) ssh-keygen -t ed25519 -C "<name>" # Creates the answer
+  # 3) cat ~/.ssh/id_ed25519.pub # Displays the matching public question
+  # 4) ssh serralq@<YOUR-NIXOS-TAILSCALE-IP>
   services.openssh = {
     enable = true;
     settings = {
@@ -283,7 +287,10 @@ in
   };
 
   # ** Flatpak
-  # To install
+  # To add repo:
+  #   flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+  #
+  # To install:
   # flatpak install flathub com.github.PintaProject.Pinta
   # also bambu studio
   services.flatpak.enable = true;
