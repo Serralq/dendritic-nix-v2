@@ -68,10 +68,6 @@ in
     sops # To decrypt sops secrets
     bat # Better cat
     su-exec # Allow for switching user and then execute
-    # Man pages
-    man
-    man-pages
-    man-pages-posix
     vips # For emacs dirvish
     ueberzugpp # For yazi image preview
     xdg-desktop-portal-termfilechooser # Yazi as file chooser

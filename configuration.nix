@@ -184,16 +184,6 @@ in
     };
   };
 
-  # ** Documentation
-  documentation = {
-    enable = true;
-    man.enable = true;
-    doc.enable = true;
-    dev.enable = true;
-    info.enable = true;
-    nixos.enable = true;
-  };
-
   # ** Flatpak
   # To add repo:
   #   flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
