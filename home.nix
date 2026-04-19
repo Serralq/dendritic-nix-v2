@@ -26,8 +26,6 @@ in
     ripgrep # Greps but faster, written in Rust
     unzip # Unzips
     openvpn # VPN use
-    docker # Docker container
-    lazydocker # Easier version of docker
     btop # Resource monitor
     fzf # Fuzzy finder
     dust # Disk usage
@@ -57,7 +55,6 @@ in
     # 4) Hold f10 again to actually accept the request
     cloudflared # Allow for external links
     sqlite # Sqlite
-    appimage-run # To run app images
     rarcrack # To crack rar passwords
     unrar # To open multi-part rar files
     unar # unrar but also allow for zips

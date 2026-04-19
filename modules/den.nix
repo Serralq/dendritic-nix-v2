@@ -119,6 +119,7 @@ in
       den.aspects.gaming
       den.aspects.desktop-environment
       den.aspects.developer
+      den.aspects.container
     ];
     homeManager = { pkgs, ... }: {
       imports = [

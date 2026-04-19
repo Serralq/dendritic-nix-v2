@@ -30,7 +30,6 @@ in
     isNormalUser = true;
     description = "Serralq";
     extraGroups = [
-      "docker"
       "networkmanager"
       "wheel"
     ];
@@ -174,24 +173,6 @@ in
     ];
   };
   hardware.enableRedistributableFirmware = true;
-
-  # ** Docker
-  virtualisation.docker = {
-    enable = true;
-    rootless = {
-      enable = true;
-      setSocketVariable = true;
-    };
-  };
-
-  # ** Flatpak
-  # To add repo:
-  #   flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-  #
-  # To install:
-  # flatpak install flathub com.github.PintaProject.Pinta
-  # also bambu studio
-  services.flatpak.enable = true;
 
   # ** Security
   # *** Fail2Ban
