@@ -10,15 +10,15 @@
     winapps.url = "github:Insomniac66/winapps-nixos-fix";
   };
 
-  den.aspects.required-gui = { config, ... }: {
+  den.aspects.multi-media = { config, ... }: {
     includes = [
-      den.aspects.communication
       den.aspects.video
       den.aspects.photo
       den.aspects.printing-3d
       den.aspects.office
       den.aspects.remote
       den.aspects.reading
+      den.aspects.converter
     ];
 
     homeManager = { pkgs, ... }: {

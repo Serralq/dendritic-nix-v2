@@ -12,8 +12,9 @@
       den.aspects.developer
       den.aspects.networking
       den.aspects.file-management
-      den.aspects.required-gui
+      den.aspects.multi-media
       den.aspects.startup-scripts
+      den.aspects.communication
     ];
 
     nixos = { pkgs, ... }: {
