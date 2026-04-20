@@ -1,0 +1,23 @@
+{ ... }:
+{
+  flake-file.inputs = {
+    t3code.url = "github:rodeyseijkens/t3code-nix";
+  };
+
+  den.aspects.ai =
+    { ... }:
+    {
+      homeManager =
+        { pkgs, inputs, ... }:
+        {
+          # Ai in terminal, each have different harness that they were trained on and optimized for
+          home.packages = with pkgs; [
+            claude-code
+            gemini-cli
+            codex
+            opencode
+            inputs.t3code.packages.${pkgs.system}.default # For t3code better threads
+          ];
+        };
+    };
+}

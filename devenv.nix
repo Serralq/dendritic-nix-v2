@@ -9,4 +9,5 @@
 {
   languages.nix.enable = true;
   languages.nix.lsp.enable = true;
+  packages = [ pkgs.nixfmt ];
 }

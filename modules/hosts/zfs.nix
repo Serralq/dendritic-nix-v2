@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ ... }:
 {
   flake-file.inputs = {
     disko.url = "github:nix-community/disko";
@@ -8,8 +8,6 @@
     nixos =
       { lib, ... }:
       {
-        imports = [ inputs.disko.nixosModules.disko ];
-
         # Required for ZFS — must match your actual hostname
         # generate with: head -c4 /dev/urandom | od -A none -t x4 | tr -d ' '
         networking.hostId = lib.mkDefault "8c3b74a7";
