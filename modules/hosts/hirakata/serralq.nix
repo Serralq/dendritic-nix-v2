@@ -17,6 +17,7 @@
       den.aspects.developer
       den.aspects.container
       den.aspects.networking
+      den.aspects.file-management
     ];
 
     nixos = { pkgs, ... }: {

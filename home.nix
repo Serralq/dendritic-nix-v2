@@ -16,23 +16,19 @@ in
     curl # Download
     jq # Parse stdout
     ripgrep # Greps but faster, written in Rust
-    unzip # Unzips
     btop # Resource monitor
     fzf # Fuzzy finder
-    dust # Disk usage
     fd # A better find
     eza # Better ls
     wordnet # For offline emacs dictionary
     ispell # For emacs to stop giving errors
     imagemagick # Edit image properties in the terminal
     xeyes # Checking if using xwayland
-    yt-dlp # Download / stream video
     ffmpeg # All media convertions
     jc # JSON parser for stdout
     jq # JSON parser for stdout
     pandoc # document convertions
     mediainfo # Allow for more media preview in yazi
-    trash-cli # For yazi undo button
     mokuro # To read jp manga
     # Requires pdf to png
     # May require a delete and reinstall
@@ -45,11 +41,6 @@ in
     # 3) Reattach to computer body to use trackpad to select the keyboard
     # 4) Hold f10 again to actually accept the request
     sqlite # Sqlite
-    rarcrack # To crack rar passwords
-    unrar # To open multi-part rar files
-    unar # unrar but also allow for zips
-    p7zip # Create zips of multiple parts with file limit
-    # Eg: 7z a -v9m archive_name.7z /path/to/files
     wl-clipboard-x11 # To access clipboard from terminal
     sops # To decrypt sops secrets
     bat # Better cat
