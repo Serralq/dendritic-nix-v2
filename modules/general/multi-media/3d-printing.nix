@@ -5,7 +5,7 @@
     homeManager =
       { pkgs, ... }:
       let
-        bambu-appimage = import ../../_nixos/bambu-appimage.nix { inherit pkgs; };
+        bambu-appimage = import ../../_packages/bambu-appimage.nix { inherit pkgs; };
       in
       {
         home.packages = with pkgs; [
