@@ -15,8 +15,6 @@
       den.aspects.communication
       den.aspects.video
       den.aspects.photo
-      den.aspects.editors
-      den.aspects.terminal
       den.aspects.printing-3d
       den.aspects.office
       den.aspects.remote

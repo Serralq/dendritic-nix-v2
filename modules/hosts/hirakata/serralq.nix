@@ -10,7 +10,6 @@
       den.aspects.gaming
       den.aspects.desktop-environment
       den.aspects.developer
-      den.aspects.container
       den.aspects.networking
       den.aspects.file-management
       den.aspects.required-gui

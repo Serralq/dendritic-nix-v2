@@ -12,6 +12,10 @@
       den.aspects.version-control
       den.aspects.ai
       den.aspects.languages
+      den.aspects.terminal
+      den.aspects.editors
+      den.aspects.container
+      den.aspects.sqlite
     ];
 
     nixos = { pkgs, ... }: {
@@ -27,6 +31,7 @@
 
     homeManager = { pkgs, ... }: {
       home.packages = with pkgs; [
+        btop # Resource monitor
         # Man pages
         man
         man-pages
