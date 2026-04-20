@@ -36,10 +36,6 @@
     };
 
     homeManager = { pkgs, ... }: {
-      imports = [
-        ./../../../home.nix
-      ];
-
       home.username = "serralq";
       home.homeDirectory = "/home/serralq";
       programs.home-manager.enable = true;
