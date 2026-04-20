@@ -1,3 +1,4 @@
+# * Flakes
 # For Flakes: since will be auto generated,
 #   Flakes only work when tracked by git
 # List of sources
@@ -5,6 +6,34 @@
 # Flakes just means repoducable not that this version will work
 # Nixpkgs-heavy: Whatever slows down the update by a lot
 # Nixpkgs-stable: For stable version
+#
+# * Options
+# Example: Add an option to ALL aspects (accessible via config.optName on any aspect)
+# den.schema.aspect = { lib, ... }: {
+#   options.minimal = lib.mkOption {
+#     type = lib.types.bool;
+#     default = false;
+#   };
+# };
+
+# Example: Add an option to ALL hosts (accessible via host.optName on any host entity)
+# den.schema.host.imports = [ { options.wsl = {
+#   enable = lib.mkEnableOption "Enable WSL on this host";
+#   module = lib.mkOption {
+#     type = lib.types.deferredModule;
+#     default = {};
+#   };
+# }; } ];
+
+# Example: Add an option to ALL users (accessible via user.optName on any user entity)
+# den.schema.user.imports = [ { options = {
+#   email = lib.mkOption {
+#     type = lib.types.str;
+#     default = "";
+#   };
+# }; } ];
+#
+# * Global configs
 {
   inputs,
   den,
@@ -23,52 +52,20 @@ let
   };
 in
 {
-  imports = [ inputs.den.flakeModule ];
-
-  # Example: Add an option to ALL aspects (accessible via config.optName on any aspect)
-  # den.schema.aspect = { lib, ... }: {
-  #   options.minimal = lib.mkOption {
-  #     type = lib.types.bool;
-  #     default = false;
-  #   };
-  # };
-
-  # Example: Add an option to ALL hosts (accessible via host.optName on any host entity)
-  # den.schema.host.imports = [ { options.wsl = {
-  #   enable = lib.mkEnableOption "Enable WSL on this host";
-  #   module = lib.mkOption {
-  #     type = lib.types.deferredModule;
-  #     default = {};
-  #   };
-  # }; } ];
-
-  # Example: Add an option to ALL users (accessible via user.optName on any user entity)
-  # den.schema.user.imports = [ { options = {
-  #   email = lib.mkOption {
-  #     type = lib.types.str;
-  #     default = "";
-  #   };
-  # }; } ];
-
+  # ** User declarations
   den.schema.user.classes = lib.mkDefault [ "homeManager" ];
+  den.default.nixos.system.stateVersion = "25.05";
   den.default.homeManager.home.stateVersion = "25.05";
 
-  den.hosts.x86_64-linux.nixos.users.serralq = { };
+  den.hosts.x86_64-linux.hirakata.users.serralq = { };
 
-  den.aspects.nixos = {
-    includes = [
-      den.provides.hostname
-      den.provides.define-user
-      den.provides.primary-user
-    ];
+  # ** Overlays
+  den.aspects.overlays = {
     nixos = { pkgs, ... }: {
       _module.args.inputs = inputs;
 
       imports = [
-        ./../hardware-configuration.nix
-        ./../configuration.nix
         inputs.copyparty.nixosModules.default
-        inputs.sops-nix.nixosModules.sops
       ];
 
       nixpkgs.overlays = [
@@ -111,16 +108,15 @@ in
     };
   };
 
-  den.aspects.serralq = {
-    includes = [
-      den.provides.define-user
-      den.provides.primary-user
-    ];
-    homeManager = { pkgs, ... }: {
-      imports = [
-        ./_nixos/browser.nix
-        ./../home.nix
-      ];
-    };
+  # ** Flake-file inputs
+  flake-file.inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nixpkgs-heavy.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
+
+    copyparty.url = "github:9001/copyparty";
+    tagstudio.url = "github:TagStudioDev/TagStudio";
+    sops-nix.url = "github:Mic92/sops-nix";
+    devenv.url = "github:cachix/devenv";
   };
 }
