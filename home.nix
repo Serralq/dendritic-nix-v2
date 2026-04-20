@@ -6,7 +6,6 @@
   # * System Packages
   home.packages = with pkgs; [
     libnotify # To test notification
-    pulseaudio # Adding the command line utils
 
     # * Terminal
     jq # Parse stdout
@@ -24,12 +23,6 @@
     jq # JSON parser for stdout
     pandoc # document convertions
     mediainfo # Allow for more media preview in yazi
-    bluetuith # use nmtui for wifi, use gnome for captive portals
-    # Connecting to keyboards
-    # 1) Connect to GNOME's blt interface
-    # 2) Hold f10 w/o fn key, keyboard will appear on the interface
-    # 3) Reattach to computer body to use trackpad to select the keyboard
-    # 4) Hold f10 again to actually accept the request
     sqlite # Sqlite
     wl-clipboard-x11 # To access clipboard from terminal
     bat # Better cat

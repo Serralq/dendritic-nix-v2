@@ -85,7 +85,6 @@
           nwg-look # Affects the mouse cursor in a different way
           kitty # For hyprland fallback
           waypaper # Basic wallpaper GUI
-          swayidle # Dim wallpaper when idle
           wtype # Allow to send keymaps
           # TODO Learn to package a app launcher that has premade plugins (vicinae)
           # TODO Auto pause background music when detect another audio is playing
@@ -186,7 +185,7 @@
           };
         };
 
-        # ** TODO HyprIdle, to have mute
+        # ** HyprIdle (handles locking + dim brightness on idle)
         services.hypridle = {
           enable = true;
           settings = {
@@ -198,6 +197,13 @@
                 "pactl set-sink-volume @DEFAULT_SINK@ 0% &"
               ];
             };
+            listener = [
+              {
+                timeout = 600;
+                on-timeout = "${pkgs.brightnessctl}/bin/brightnessctl -d intel_backlight s 10% ; ${pkgs.brightnessctl}/bin/brightnessctl s 10%";
+                on-resume = "${pkgs.brightnessctl}/bin/brightnessctl -d intel_backlight s 100% ; ${pkgs.brightnessctl}/bin/brightnessctl s 100%";
+              }
+            ];
           };
         };
 
@@ -317,11 +323,6 @@
               "pin, title:^(Picture in picture)$"
               "size 200 200, title:^(Picture in picture)$"
               "move 1348 790, title:^(Picture in picture)$"
-            ];
-
-            exec-once = [
-              "~/.config/hypr/startup.sh &"
-              "hypridle"
             ];
 
             # ** Bindings

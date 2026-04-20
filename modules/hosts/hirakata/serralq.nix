@@ -1,8 +1,5 @@
 { den, ... }:
 {
-  flake-file.inputs = {
-    winapps.url = "github:Insomniac66/winapps-nixos-fix";
-  };
 
   den.aspects.serralq = {
     includes = [
@@ -17,6 +14,7 @@
       den.aspects.networking
       den.aspects.file-management
       den.aspects.required-gui
+      den.aspects.startup-scripts
     ];
 
     nixos = { pkgs, ... }: {

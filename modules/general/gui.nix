@@ -6,6 +6,10 @@
 }:
 
 {
+  flake-file.inputs = {
+    winapps.url = "github:Insomniac66/winapps-nixos-fix";
+  };
+
   den.aspects.required-gui = { config, ... }: {
     includes = [
       den.aspects.communication
