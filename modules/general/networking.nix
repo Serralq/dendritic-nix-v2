@@ -1,22 +1,20 @@
 { pkgs, lib, ... }:
 
 {
-  den.aspects.networking = { config, ... }: {
+  den.aspects.networking = { user, ... }: {
     nixos = { config, pkgs, ... }: {
+
       # * Networking
+      users.users.${user.userName}.extraGroups = [ "networkmanager" ];
       networking.networkmanager.enable = true;
       time.timeZone = "America/New_York";
-      # Allow ssh ports
       networking.firewall.enable = true;
       networking.firewall.allowedTCPPorts = [ 22 ];
-
-      users.users.serralq.extraGroups = [ "networkmanager" ];
 
       # ** Auto launch tailscale
       systemd.services.tailscale-autoconnect = {
         description = "Automatic connection to Tailscale";
 
-        # make sure tailscale is running before trying to connect to tailscale
         after = [
           "network-pre.target"
           "tailscale.service"
@@ -48,7 +46,6 @@
       # 1) pkg install openssh
       # 2) ssh-keygen -t ed25519 -C "<name>" # Creates the answer
       # 3) cat ~/.ssh/id_ed25519.pub # Displays the matching public question
-      # 4) ssh serralq@<YOUR-NIXOS-TAILSCALE-IP>
       services.openssh = {
         enable = true;
         settings = {
@@ -61,6 +58,12 @@
       services.tailscale.enable = true;
 
       # ** Cloudflared
+      systemd.services.cloudflared-tunnel-976a44e9-b2c2-4d1c-bd56-221a38342fcb = {
+        serviceConfig = {
+          User = user.userName;
+          Group = "users";
+        };
+      };
       services.cloudflared = {
         enable = true;
         tunnels = {
@@ -86,12 +89,6 @@
             };
             default = "http_status:404";
           };
-        };
-      };
-      systemd.services.cloudflared-tunnel-976a44e9-b2c2-4d1c-bd56-221a38342fcb = {
-        serviceConfig = {
-          User = "serralq";
-          Group = "user";
         };
       };
     };

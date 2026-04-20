@@ -64,6 +64,7 @@
         pkgs,
         inputs,
         lib,
+        config,
         ...
       }:
       {
@@ -206,7 +207,7 @@
               lock_cmd = "pidof hyprlock || hyprlock";
               before_sleep_cmd = "loginctl lock-session";
               on_unlock_cmd = lib.concatStringsSep " " [
-                "/home/serralq/.scripts/border-color.sh --all &"
+                "${config.home.homeDirectory}/.scripts/border-color.sh --all &"
                 "pactl set-sink-volume @DEFAULT_SINK@ 0% &"
               ];
             };

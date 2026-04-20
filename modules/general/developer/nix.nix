@@ -5,22 +5,19 @@
     nix-alien.url = "github:thiagokokada/nix-alien";
   };
 
-  den.aspects.nix = { config, ... }: {
+  den.aspects.nix = { user, ... }: {
     nixos = { pkgs, inputs, ... }: {
       nixpkgs.config.allowUnfree = true;
       nixpkgs.config.permittedInsecurePackages = [
         "electron-36.9.5"
       ];
+      users.users.${user.userName}.extraGroups = [ "trusted" ];
 
       # ** Flakes
       nix.settings = {
         experimental-features = [
           "nix-command"
           "flakes"
-        ];
-        trusted-users = [
-          "root"
-          "serralq"
         ];
         substituters = [ "https://hyprland.cachix.org" ];
         trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
@@ -41,7 +38,6 @@
       };
 
       # ** Enable binaries in NixOS
-      # Allow for zed lsp servers
       programs.nix-ld.enable = true;
     };
 

@@ -1,8 +1,10 @@
 { pkgs, lib, ... }:
 
 {
-  den.aspects.container = { config, ... }: {
+  den.aspects.container = { user, ... }: {
     nixos = { pkgs, ... }: {
+      users.users.${user.userName}.extraGroups = [ "docker" ];
+
       # ** Docker
       virtualisation.docker = {
         enable = true;
@@ -11,11 +13,10 @@
           setSocketVariable = true;
         };
       };
-      users.users.serralq.extraGroups = [ "docker" ];
 
       # ** Flatpak
       # To add repo:
-      #   flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+      #   flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flhub.flatpakrepo
       #
       # To install:
       # flatpak install flathub com.github.PintaProject.Pinta

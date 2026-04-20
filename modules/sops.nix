@@ -1,19 +1,16 @@
-{ inputs, ... }:
+{ den, ... }:
 
 {
-  den.aspects.security = {
+  den.aspects.security = { user, ... }: {
     nixos = { ... }: {
-      imports = [
-        inputs.sops-nix.nixosModules.sops
-      ];
-
       # * SOPs
       sops.defaultSopsFile = ./../secrets/secrets.yaml;
       sops.defaultSopsFormat = "yaml";
-      sops.age.keyFile = "/home/serralq/.config/sops/age/keys.txt";
 
       sops.secrets.tailscale-authkey = { };
       sops.secrets.cloudflared-credentials = { };
+
+      sops.age.keyFile = "/home/${user.userName}/.config/sops/age/keys.txt";
 
       # * General Security
       security.polkit.enable = true;
