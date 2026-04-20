@@ -115,10 +115,10 @@ in
     includes = [
       den.provides.define-user
       den.provides.primary-user
+      den.aspects.browser
     ];
     homeManager = { pkgs, ... }: {
       imports = [
-        ./_nixos/browser.nix
         ./../home.nix
       ];
     };
