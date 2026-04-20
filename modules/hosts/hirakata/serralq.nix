@@ -41,7 +41,6 @@
 
       home.username = "serralq";
       home.homeDirectory = "/home/serralq";
-      home.stateVersion = "25.05"; # Please read the comment before changing.
       programs.home-manager.enable = true;
     };
   };

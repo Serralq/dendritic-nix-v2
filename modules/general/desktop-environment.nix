@@ -67,8 +67,21 @@
         ...
       }:
       {
+        # ** Xdg termfilechooser config
+        xdg.configFile."xdg-desktop-portal-termfilechooser/config".text = ''
+          [filechooser]
+          cmd=yazi-wrapper.sh
+          default_dir=$HOME
+          env=TERMCMD='wezterm start --class "org.freedesktop.impl.portal.desktop.termfilechooser" --'
+          open_mode=suggested
+          save_mode=last
+        '';
+
         # ** Hyprland / DE / Keyboard-shortcuts
         home.packages = with pkgs; [
+          wl-clipboard-x11 # To access clipboard from terminal
+          libnotify # To test notification
+          xeyes # Checking if using xwayland
           cliphist # Clipboard manager
           wl-clipboard
           ydotool
