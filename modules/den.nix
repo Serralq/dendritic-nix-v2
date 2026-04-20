@@ -66,7 +66,6 @@ in
 
       imports = [
         inputs.copyparty.nixosModules.default
-        inputs.sops-nix.nixosModules.sops
       ];
 
       nixpkgs.overlays = [

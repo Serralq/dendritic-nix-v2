@@ -32,7 +32,6 @@
     # 4) Hold f10 again to actually accept the request
     sqlite # Sqlite
     wl-clipboard-x11 # To access clipboard from terminal
-    sops # To decrypt sops secrets
     bat # Better cat
     su-exec # Allow for switching user and then execute
     vips # For emacs dirvish

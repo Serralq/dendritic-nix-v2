@@ -6,6 +6,7 @@
       den.provides.define-user
       den.provides.primary-user
       den.aspects.overlays
+      den.aspects.security
     ];
     nixos = { ... }: {
       imports = [

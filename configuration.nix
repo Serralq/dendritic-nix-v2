@@ -100,14 +100,4 @@ in
   };
   hardware.enableRedistributableFirmware = true;
 
-  # ** Security
-  # *** Fail2Ban
-  services.fail2ban.enable = true;
-
-  # *** SOPS
-  sops.defaultSopsFile = ./secrets/secrets.yaml;
-  sops.defaultSopsFormat = "yaml";
-  sops.age.keyFile = "/home/serralq/.config/sops/age/keys.txt";
-
-  security.polkit.enable = true;
 }

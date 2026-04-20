@@ -2,7 +2,7 @@
 
 {
   den.aspects.networking = { config, ... }: {
-    nixos = { pkgs, ... }: {
+    nixos = { config, pkgs, ... }: {
       # * Networking
       networking.networkmanager.enable = true;
       time.timeZone = "America/New_York";
@@ -40,7 +40,7 @@
           fi
 
           # otherwise authenticate with tailscale
-          ${tailscale}/bin/tailscale up -authkey tskey-examplekeyhere
+          ${tailscale}/bin/tailscale up -authkey $(cat ${config.sops.secrets.tailscale-authkey.path})
         '';
       };
 
@@ -65,7 +65,7 @@
         enable = true;
         tunnels = {
           "976a44e9-b2c2-4d1c-bd56-221a38342fcb" = {
-            credentialsFile = "/home/serralq/.cloudflared/976a44e9-b2c2-4d1c-bd56-221a38342fcb.json";
+            credentialsFile = config.sops.secrets.cloudflared-credentials.path;
             # Don't forget to set cloudflared tunnel route dns nixos-server <subdomain path>
             ingress = {
               "copyparty.serralq.dev" = "http://localhost:3210";
