@@ -6,6 +6,13 @@
 }:
 
 {
+  flake-file.inputs = {
+    hyprland.url = "github:hyprwm/Hyprland/v0.52.0";
+    hyprland-plugins.url = "github:hyprwm/hyprland-plugins/v0.52.0";
+    hy3.url = "github:outfoxxed/hy3/hl0.52.0";
+    hypr-dynamic-cursors.url = "github:VirtCode/hypr-dynamic-cursors/8c1679b87c54e97145cae83e622956d720e88bef";
+  };
+
   den.aspects.desktop-environment = { config, ... }: {
     includes = [
       den.aspects.font

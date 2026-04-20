@@ -1,5 +1,11 @@
 { den, ... }:
 {
+  flake-file.inputs = {
+    parsecgaming.url = "github:DarthPJB/parsec-gaming-nix";
+    affinity-nix.url = "github:mrshmllow/affinity-nix";
+    winapps.url = "github:Insomniac66/winapps-nixos-fix";
+  };
+
   den.aspects.serralq = {
     includes = [
       den.provides.define-user

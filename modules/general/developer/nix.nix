@@ -1,6 +1,10 @@
 { pkgs, lib, ... }:
 
 {
+  flake-file.inputs = {
+    nix-alien.url = "github:thiagokokada/nix-alien";
+  };
+
   den.aspects.nix = { config, ... }: {
     nixos = { pkgs, inputs, ... }: {
       nixpkgs.config.allowUnfree = true;

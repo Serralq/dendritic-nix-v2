@@ -1,6 +1,10 @@
 { pkgs, lib, ... }:
 
 {
+  flake-file.inputs = {
+    t3code.url = "github:rodeyseijkens/t3code-nix";
+  };
+
   den.aspects.ai = { config, ... }: {
     homeManager = { pkgs, inputs, ... }: {
       # ** AI
