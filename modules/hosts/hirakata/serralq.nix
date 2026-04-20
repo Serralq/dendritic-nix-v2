@@ -1,8 +1,6 @@
 { den, ... }:
 {
   flake-file.inputs = {
-    parsecgaming.url = "github:DarthPJB/parsec-gaming-nix";
-    affinity-nix.url = "github:mrshmllow/affinity-nix";
     winapps.url = "github:Insomniac66/winapps-nixos-fix";
   };
 
@@ -18,6 +16,7 @@
       den.aspects.container
       den.aspects.networking
       den.aspects.file-management
+      den.aspects.required-gui
     ];
 
     nixos = { pkgs, ... }: {
@@ -47,8 +46,6 @@
       home.homeDirectory = "/home/serralq";
       home.stateVersion = "25.05"; # Please read the comment before changing.
       programs.home-manager.enable = true;
-      # Allow for zed acceleration
-      targets.genericLinux.nixGL.vulkan.enable = true;
     };
   };
 }

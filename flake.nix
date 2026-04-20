@@ -8,6 +8,7 @@
     copyparty.url = "github:9001/copyparty";
     den.url = "github:vic/den";
     devenv.url = "github:cachix/devenv";
+    disko.url = "github:nix-community/disko";
     flake-file.url = "github:vic/flake-file";
     flake-parts = {
       url = "github:hercules-ci/flake-parts";

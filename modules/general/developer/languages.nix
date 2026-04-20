@@ -3,9 +3,6 @@
 {
   den.aspects.languages = { config, ... }: {
     homeManager = { pkgs, ... }: {
-
-      # Allow for zed acceleration
-      targets.genericLinux.nixGL.vulkan.enable = true;
       # ** Other Languages
       home.packages = with pkgs; [
         # Rust
@@ -46,7 +43,6 @@
         gnumake # Getting the make command
         clang # Compiling c programs?
         libtool # To compile vterm
-        zed-editor # Fast version of vs code
       ];
     };
   };
