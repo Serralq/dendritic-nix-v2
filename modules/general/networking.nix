@@ -5,7 +5,6 @@
     nixos = { config, pkgs, ... }: {
 
       # * Networking
-      users.users.${user.userName}.extraGroups = [ "networkmanager" ];
       networking.networkmanager.enable = true;
       time.timeZone = "America/New_York";
       networking.firewall.enable = true;

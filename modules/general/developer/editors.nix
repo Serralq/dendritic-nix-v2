@@ -13,6 +13,17 @@
         vscode # for VScode plugin's GUI
         zed-editor # Fast version of vs code
       ];
+
+      # ** Emacs daemon
+      systemd.user.services.emacs-daemon = {
+        Unit.After = [ "hyprland-session.target" ];
+        Install.WantedBy = [ "hyprland-session.target" ];
+        Service = {
+          Type = "forking";
+          ExecStart = "${pkgs.emacs-pgtk}/bin/emacs --daemon";
+          Restart = "on-failure";
+        };
+      };
     };
   };
 }

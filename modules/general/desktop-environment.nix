@@ -13,9 +13,55 @@
     hypr-dynamic-cursors.url = "github:VirtCode/hypr-dynamic-cursors/8c1679b87c54e97145cae83e622956d720e88bef";
   };
 
+  den.aspects.desktop-border-services =
+    { user, ... }:
+    let
+      homeDir = "/home/${user.userName}";
+    in
+    {
+      nixos =
+        { pkgs, ... }:
+        let
+          border-color = pkgs.writeShellScript "border-color" ''
+            ${pkgs.systemd}/bin/systemctl --machine=${user.userName}@.host --user start border-color
+          '';
+        in
+        {
+          # ** Customs: Border colors
+          systemd.user.services.border-color = {
+            wantedBy = [ "default.target" ];
+            after = [ "default.target" ];
+            serviceConfig = {
+              Type = "oneshot";
+              ExecStart = "${pkgs.bash}/bin/bash ${homeDir}/.scripts/border-color.sh";
+            };
+          };
+
+          # ** Customs: Mute after wake
+          powerManagement.resumeCommands = ''
+            ${pkgs.systemd}/bin/systemctl --machine=${user.userName}@.host --user start wakeup
+          '';
+          systemd.user.services.wakeup = {
+            wantedBy = [ "default.target" ];
+            after = [ "default.target" ];
+            serviceConfig = {
+              Type = "oneshot";
+              ExecStart = "${pkgs.pulseaudio}/bin/pactl set-sink-volume @DEFAULT_SINK@ 0%";
+            };
+          };
+
+          # ** Power supply udev rules for border-color
+          services.udev.extraRules = ''
+            ACTION=="change",SUBSYSTEM=="power_supply", RUN+="${border-color}"
+            SUBSYSTEM=="power_supply",ATTR{status}=="Discharging", RUN+="${border-color}"
+          '';
+        };
+    };
+
   den.aspects.desktop-environment = { config, ... }: {
     includes = [
       den.aspects.font
+      den.aspects.desktop-border-services
     ];
 
     nixos = { pkgs, ... }: {
@@ -67,6 +113,9 @@
         config,
         ...
       }:
+      let
+        homeDir = config.home.homeDirectory;
+      in
       {
         # ** Xdg termfilechooser config
         xdg.configFile."xdg-desktop-portal-termfilechooser/config".text = ''
@@ -218,6 +267,107 @@
                 on-resume = "${pkgs.brightnessctl}/bin/brightnessctl -d intel_backlight s 100% ; ${pkgs.brightnessctl}/bin/brightnessctl s 100%";
               }
             ];
+          };
+        };
+
+        # ** Hyprland session startup services
+        systemd.user.services = {
+          # Clipboard history manager
+          cliphist-store = {
+            Unit.After = [ "hyprland-session.target" ];
+            Install.WantedBy = [ "hyprland-session.target" ];
+            Service = {
+              Type = "simple";
+              ExecStart = "${pkgs.wl-clipboard}/bin/wl-paste --watch ${pkgs.cliphist}/bin/cliphist store";
+              Restart = "on-failure";
+            };
+          };
+
+          # Audio jack detection
+          audio-jack = {
+            Unit.After = [ "hyprland-session.target" ];
+            Install.WantedBy = [ "hyprland-session.target" ];
+            Service = {
+              Type = "simple";
+              ExecStart = "${homeDir}/.config/hypr/audio-jack.sh";
+              Restart = "on-failure";
+            };
+          };
+
+          # Set cursor theme
+          hyprland-cursor = {
+            Unit.After = [ "hyprland-session.target" ];
+            Install.WantedBy = [ "hyprland-session.target" ];
+            Service = {
+              Type = "oneshot";
+              ExecStart = "${pkgs.hyprland}/bin/hyprctl setcursor oguri-cap-1 50";
+              RemainAfterExit = true;
+            };
+          };
+
+          # Disable bottom monitor
+          hyprland-monitor = {
+            Unit.After = [ "hyprland-session.target" ];
+            Install.WantedBy = [ "hyprland-session.target" ];
+            Service = {
+              Type = "oneshot";
+              ExecStart = "${pkgs.hyprland}/bin/hyprctl keyword monitor eDP-2,disable";
+              RemainAfterExit = true;
+            };
+          };
+
+          # Wallpaper
+          hyprland-wallpaper = {
+            Unit.After = [ "hyprland-session.target" ];
+            Install.WantedBy = [ "hyprland-session.target" ];
+            Service = {
+              Type = "simple";
+              ExecStart = "${pkgs.mpvpaper}/bin/mpvpaper eDP-1 ${homeDir}/Videos/atri.jpg -o '--loop --no-audio --fullscreen=yes --panscan=1'";
+              Restart = "on-failure";
+            };
+          };
+
+          # Restore saved workspaces (commented out: re-enable when needed)
+          #       workspace-restore = {
+          #         Unit.After = [ "hyprland-session.target" ];
+          #         Install.WantedBy = [ "hyprland-session.target" ];
+          #         Service = {
+          #           Type = "oneshot";
+          #           ExecStart = "${homeDir}/.config/hypr/workspace-manager.sh --restore";
+          #           RemainAfterExit = true;
+          #         };
+          #       };
+
+          # VPN
+          vpn = {
+            Unit.After = [ "hyprland-session.target" ];
+            Install.WantedBy = [ "hyprland-session.target" ];
+            Service = {
+              Type = "simple";
+              ExecStart = "${homeDir}/scripts/vpn";
+              Restart = "on-failure";
+            };
+          };
+          # One monitor script (Use the manual method since this will default to battery saver) (commented out: re-enable when needed)
+          #       one-monitor = {
+          #         Unit.After = [ "hyprland-session.target" ];
+          #         Install.WantedBy = [ "hyprland-session.target" ];
+          #         Service = {
+          #           Type = "oneshot";
+          #           ExecStart = "${homeDir}/hypr/one-monitor.sh";
+          #           RemainAfterExit = true;
+          #         };
+          #       };
+
+          # Japanese input method (also started by i18n.inputMethod.fcitx5)
+          fcitx5 = {
+            Unit.After = [ "hyprland-session.target" ];
+            Install.WantedBy = [ "hyprland-session.target" ];
+            Service = {
+              Type = "forking";
+              ExecStart = "${pkgs.fcitx5}/bin/fcitx5 -d";
+              Restart = "on-failure";
+            };
           };
         };
 
@@ -440,7 +590,7 @@
               "$mainMod ALT, 2, exec, ~/.config/hypr/workspace-manager.sh --move-window 2"
               "$mainMod ALT, 3, exec, ~/.config/hypr/workspace-manager.sh --move-window 3"
               "$mainMod ALT, 4, exec, ~/.config/hypr/workspace-manager.sh --move-window 4"
-              "$mainMod ALT, 5, exec, ~/.config/hypr/workspace-manager.sh --move-window 5"
+              "$mainMod ALT, 5, exec, ~/.config/hypr/workspace.sh --move-window 5"
 
               # Move Active Window to same slot in a different Group (Mod + Alt + Shift + 1-5)
               "$mainMod ALT SHIFT, 1, exec, ~/.config/hypr/workspace-manager.sh --move-to-group 0"
