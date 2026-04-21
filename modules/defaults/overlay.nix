@@ -66,6 +66,7 @@ in
   den.default.nixos.system.stateVersion = "25.05";
   den.default.homeManager.home.stateVersion = "25.05";
 
+  # Define a user account. Don't forget to set a password with 'passwd'.
   den.hosts.x86_64-linux.hirakata.users.serralq = { };
 
   # ** Overlays

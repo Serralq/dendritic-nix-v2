@@ -14,6 +14,7 @@
       nixos =
         { pkgs, ... }:
         let
+          # Refer to changing border color for more info
           border-color = pkgs.writeShellScript "border-color" ''
             ${pkgs.systemd}/bin/systemctl --machine=${user.userName}@.host --user start border-color
           '';

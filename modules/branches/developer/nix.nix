@@ -44,6 +44,7 @@
       };
 
       # ** Enable binaries in NixOS
+      # # Allow for zed lsp servers
       programs.nix-ld.enable = true;
     };
 

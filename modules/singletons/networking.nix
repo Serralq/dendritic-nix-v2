@@ -8,9 +8,11 @@
       networking.networkmanager.enable = true;
       time.timeZone = "America/New_York";
       networking.firewall.enable = true;
+      # Allow ssh ports
       networking.firewall.allowedTCPPorts = [ 22 ];
 
       # ** Auto launch tailscale
+      # make sure tailscale is running before trying to connect to tailscale
       systemd.services.tailscale-autoconnect = {
         description = "Automatic connection to Tailscale";
 
@@ -45,6 +47,7 @@
       # 1) pkg install openssh
       # 2) ssh-keygen -t ed25519 -C "<name>" # Creates the answer
       # 3) cat ~/.ssh/id_ed25519.pub # Displays the matching public question
+      # 4) ssh serralq@<YOUR-NIXOS-TAILSCALE-IP>
       services.openssh = {
         enable = true;
         settings = {
@@ -93,12 +96,31 @@
     };
 
     homeManager = { pkgs, ... }: {
-      home.packages = with pkgs; [
-        openvpn # VPN use
-        cloudflared # Allow for external links
-        rclone # For file transfers
-        sshfs # For working over ssh eg yazi
-      ];
+      home.packages =
+        with pkgs;
+        [
+          openvpn # VPN use
+          cloudflared # Allow for external links
+          rclone # For file transfers
+          sshfs # For working over ssh eg yazi
+        ]
+        ++ (with pkgs.python311Packages; [
+          mkdocs-material
+          mkdocs-glightbox
+          mkdocs-autolinks-plugin
+        ]);
+
+      # Mkdocs blog service (commented out: re-enable when needed)
+      #       systemd.user.services.mkdocs-serve = {
+      #         Unit.After = [ "hyprland-session.target" ];
+      #         Install.WantedBy = [ "hyprland-session.target" ];
+      #         Service = {
+      #           Type = "simple";
+      #           ExecStart = "${pkgs.bash}/bin/bash -c 'cd /home/serralq/Ririka/.attach/17/d5b658-4543-4a30-b9a5-5e046f4b3e4c/Norn && ${pkgs.mkdocs}/bin/mkdocs build && ${pkgs.mkdocs}/bin/mkdocs serve'";
+      #           WorkingDirectory = "/home/serralq/Ririka/.attach/17/d5b658-4543-4a30-b9a5-5e046f4b3e4c/Norn";
+      #           Restart = "on-failure";
+      #         };
+      #       };
     };
   };
 }

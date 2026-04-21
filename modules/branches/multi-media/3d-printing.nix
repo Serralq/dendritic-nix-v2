@@ -11,7 +11,7 @@
         home.packages = with pkgs; [
           freecad
           orca-slicer
-          bambu-appimage
+          bambu-appimage # To send files to 3d printer w/ auth
         ];
       };
   };

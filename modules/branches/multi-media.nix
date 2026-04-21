@@ -18,6 +18,7 @@
 
     homeManager = { pkgs, ... }: {
       home.packages = with pkgs; [
+        # TODO Fix important passwords
         bitwarden-desktop # Passwords
         popsicle # Formatting usb
         mission-center # Resource monitor

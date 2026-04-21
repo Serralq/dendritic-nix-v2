@@ -3,6 +3,7 @@
 {
   den.aspects.video = { config, ... }: {
     nixos = { config, pkgs, ... }: {
+      # For screen recording
       programs.obs-studio = {
         enable = true;
         enableVirtualCamera = true;

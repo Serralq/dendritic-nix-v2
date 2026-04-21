@@ -18,10 +18,6 @@
         # Python
         (python-latest.withPackages (
           ps: with ps; [
-            # To serve my website
-            mkdocs-material
-            mkdocs-glightbox
-            mkdocs-autolinks-plugin
             cairosvg
             pillow
           ]
