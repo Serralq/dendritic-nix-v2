@@ -5,6 +5,8 @@
       den.provides.define-user
       den.provides.primary-user
       (den.provides.user-shell "fish")
+      den.aspects.security
+      den.aspects.input-output
       den.aspects.browser
       den.aspects.gaming
       den.aspects.desktop-environment
@@ -12,7 +14,6 @@
       den.aspects.networking
       den.aspects.file-management
       den.aspects.multi-media
-      den.aspects.startup-scripts
       den.aspects.communication
     ];
 

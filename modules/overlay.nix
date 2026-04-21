@@ -60,7 +60,7 @@ in
   den.hosts.x86_64-linux.hirakata.users.serralq = { };
 
   # ** Overlays
-  den.aspects.overlays = {
+  den.aspects.overlays = { ... }: {
     nixos = { pkgs, ... }: {
       _module.args.inputs = inputs;
 

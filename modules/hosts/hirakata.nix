@@ -1,14 +1,10 @@
 { den, ... }:
 {
-  den.aspects.hirakata = {
+  den.aspects.hirakata = { ... }: {
     includes = [
       den.provides.hostname
-      den.provides.define-user
-      den.provides.primary-user
       den.aspects.overlays
-      den.aspects.security
       den.aspects.systemd-bootloader
-      den.aspects.input-output
     ];
     nixos =
       {
