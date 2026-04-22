@@ -1,7 +1,7 @@
 { ... }:
 
 {
-  den.aspects.video = { config, ... }: {
+  den.aspects.video = { ... }: {
     nixos = { config, pkgs, ... }: {
       # For screen recording
       programs.obs-studio = {

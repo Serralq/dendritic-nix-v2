@@ -1,7 +1,7 @@
 { ... }:
 
 {
-  den.aspects.printing-3d = { config, ... }: {
+  den.aspects.printing-3d = { ... }: {
     homeManager =
       { pkgs, ... }:
       let

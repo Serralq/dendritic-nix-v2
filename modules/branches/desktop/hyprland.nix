@@ -8,21 +8,14 @@
     hypr-dynamic-cursors.url = "github:VirtCode/hypr-dynamic-cursors/8c1679b87c54e97145cae83e622956d720e88bef";
   };
 
-  den.aspects.hyprland = { config, ... }: {
-    nixos = { inputs, pkgs, ... }: {
+  den.aspects.hyprland = { ... }: {
+    nixos = { pkgs, ... }: {
       programs.hyprland = {
         enable = true;
         xwayland.enable = true;
         package = pkgs.hyprland;
         portalPackage = pkgs.xdg-desktop-portal-hyprland;
       };
-
-      nixpkgs.overlays = [
-        (final: prev: {
-          hyprland = inputs.hyprland.packages.${prev.system}.hyprland;
-          xdg-desktop-portal-hyprland = inputs.hyprland.packages.${prev.system}.xdg-desktop-portal-hyprland;
-        })
-      ];
     };
 
     # * Hyprland

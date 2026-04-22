@@ -1,7 +1,7 @@
 { ... }:
 
 {
-  den.aspects.terminal = { config, ... }: {
+  den.aspects.terminal = { ... }: {
     homeManager = { pkgs, ... }: {
       home.packages = with pkgs; [
         # * Terminal emulators

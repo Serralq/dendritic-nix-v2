@@ -9,7 +9,7 @@
   };
 
   den.aspects.nix = { user, ... }: {
-    nixos = { pkgs, inputs, ... }: {
+    nixos = { inputs, ... }: {
       nixpkgs.config.allowUnfree = true;
       nixpkgs.config.permittedInsecurePackages = [
         "electron-36.9.5"

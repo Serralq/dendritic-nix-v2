@@ -1,7 +1,7 @@
 { ... }:
 
 {
-  den.aspects.file-management = { config, ... }: {
+  den.aspects.file-management = { ... }: {
     flake-file.inputs = {
       copyparty.url = "github:9001/copyparty";
     };

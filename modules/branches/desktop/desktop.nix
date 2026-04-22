@@ -1,6 +1,7 @@
 { den, ... }:
 
 {
+  # Config here is required
   den.aspects.desktop-environment = { config, ... }: {
     includes = [
       den.aspects.font

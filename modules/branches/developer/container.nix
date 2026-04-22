@@ -2,7 +2,7 @@
 
 {
   den.aspects.container = { user, ... }: {
-    nixos = { pkgs, ... }: {
+    nixos = { ... }: {
       users.users.${user.userName}.extraGroups = [ "docker" ];
 
       # ** Docker

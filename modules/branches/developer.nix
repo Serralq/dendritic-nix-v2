@@ -14,7 +14,7 @@
       den.aspects.sqlite
     ];
 
-    nixos = { pkgs, ... }: {
+    nixos = { ... }: {
       documentation = {
         enable = true;
         man.enable = true;

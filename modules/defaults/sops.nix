@@ -7,7 +7,7 @@
     };
     nixos = { ... }: {
       # * SOPs
-      sops.defaultSopsFile = ./../secrets/secrets.yaml;
+      sops.defaultSopsFile = ./../../secrets/secrets.yaml;
       sops.defaultSopsFormat = "yaml";
 
       sops.secrets.tailscale-authkey = { };

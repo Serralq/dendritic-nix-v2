@@ -35,8 +35,8 @@
         };
     };
 
-  den.aspects.desktop-scripts = { config, ... }: {
-    homeManager = { pkgs, ... }: {
+  den.aspects.desktop-scripts = { ... }: {
+    homeManager = { config, pkgs, ... }: {
       # ** Hyprland session startup services
       systemd.user.services = {
 
