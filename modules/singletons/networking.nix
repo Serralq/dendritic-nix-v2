@@ -96,19 +96,20 @@
     };
 
     homeManager = { pkgs, ... }: {
-      home.packages =
-        with pkgs;
-        [
-          openvpn # VPN use
-          cloudflared # Allow for external links
-          rclone # For file transfers
-          sshfs # For working over ssh eg yazi
-        ]
-        ++ (with pkgs.python311Packages; [
-          mkdocs-material
-          mkdocs-glightbox
-          mkdocs-autolinks-plugin
-        ]);
+      home.packages = with pkgs; [
+        openvpn # VPN use
+        cloudflared # Allow for external links
+        rclone # For file transfers
+        sshfs # For working over ssh eg yazi
+      ];
+      pythonPackages = with pkgs.python-latest.pkgs; [
+        # To serve my website
+        cairosvg
+        pillow
+        mkdocs-material
+        mkdocs-glightbox
+        mkdocs-autolinks-plugin
+      ];
 
       # Mkdocs blog service (commented out: re-enable when needed)
       #       systemd.user.services.mkdocs-serve = {

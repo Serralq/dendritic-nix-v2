@@ -16,12 +16,6 @@
         jetbrains.idea # For 25.11
         jre25_minimal
         # Python
-        (python-latest.withPackages (
-          ps: with ps; [
-            cairosvg
-            pillow
-          ]
-        ))
         jetbrains.pycharm
         # Javascript
         nodejs_24 # For javascript deployments
@@ -39,6 +33,8 @@
         gnumake # Getting the make command
         clang # Compiling c programs?
         libtool # To compile vterm
+      ];
+      pythonPackages = with pkgs.python-latest.pkgs; [
       ];
     };
   };

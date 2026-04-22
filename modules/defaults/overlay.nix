@@ -117,6 +117,25 @@ in
 
       home-manager.useGlobalPkgs = true;
       home-manager.extraSpecialArgs = { inherit inputs; };
+      home-manager.sharedModules = [
+        (
+          {
+            lib,
+            pkgs,
+            config,
+            ...
+          }:
+          {
+            options.pythonPackages = lib.mkOption {
+              type = lib.types.listOf lib.types.package;
+              default = [ ];
+            };
+            config.home.packages = lib.mkIf (config.pythonPackages != [ ]) [
+              (pkgs.python-latest.withPackages (ps: config.pythonPackages))
+            ];
+          }
+        )
+      ];
     };
   };
 
