@@ -8,7 +8,6 @@
     nixos =
       { lib, ... }:
       {
-
         # Required for ZFS — must match your actual hostname
         # generate with: head -c4 /dev/urandom | od -A none -t x4 | tr -d ' '
         networking.hostId = lib.mkDefault "8c3b74a7";

@@ -71,4 +71,3 @@ nix-collect-garbage --delete-older-than 1d
 cd nixos
 sudo nixos-rebuild switch --flake .
 #+END_SRC
-* Pkg info

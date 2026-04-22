@@ -1,7 +1,6 @@
 # * Flakes
 # For Flakes: since will be auto generated,
-#   Flakes only work when tracked by git
-# List of sources
+#             only work when tracked by git
 # Follow just means imports not that it will accept public interface changes
 # Flakes just means repoducable not that this version will work
 # Nixpkgs-heavy: Whatever slows down the update by a lot
@@ -36,11 +35,9 @@
 # * Global configs
 {
   inputs,
-  den,
   lib,
   ...
 }:
-
 let
   pkgs-stable = import inputs.nixpkgs-stable {
     system = "x86_64-linux";
@@ -53,12 +50,14 @@ let
 in
 {
   # ** Schema
-  den.schema.aspect = { lib, ... }: {
-    options.minimal = lib.mkOption {
-      type = lib.types.bool;
-      default = false;
+  den.schema.aspect =
+    { lib, ... }:
+    {
+      options.minimal = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+      };
     };
-  };
 
   # ** User declarations
   den.schema.user.classes = lib.mkDefault [ "homeManager" ];
@@ -70,74 +69,79 @@ in
   den.hosts.x86_64-linux.hirakata.users.serralq = { };
 
   # ** Overlays
-  den.aspects.overlays = { ... }: {
-    nixos = { pkgs, ... }: {
-      _module.args.inputs = inputs;
+  den.aspects.overlays =
+    { ... }:
+    {
+      nixos =
+        { pkgs, ... }:
+        {
+          _module.args.inputs = inputs;
 
-      imports = [
-        inputs.copyparty.nixosModules.default
-        inputs.sops-nix.nixosModules.sops
-        inputs.disko.nixosModules.disko
-      ];
+          imports = [
+            inputs.copyparty.nixosModules.default
+            inputs.sops-nix.nixosModules.sops
+            inputs.disko.nixosModules.disko
+          ];
 
-      nixpkgs.overlays = [
-        # add the copyparty overlay to expose the package to the module
-        inputs.copyparty.overlays.default
-        # Overlay is for replacement or new keyword in global space
-        #   with access to prev and final
-        #   has a global eval order
-        # Can either make a new pkg name or replace pkg
-        # Aka I am the new maintainer, allow to seperate concerns
-        (final: prev: {
-          tagstudio = inputs.tagstudio.packages.${prev.system}.tagstudio-jxl.overrideAttrs (oldAttrs: {
-            # Override is a regular build script keyword
-            # Patches keyword is a part of nix stdenv
-            patches = (oldAttrs.patches or [ ]) ++ [ ./../../patches/tagstudio-nord.patch ];
-          });
+          nixpkgs.overlays = [
+            # add the copyparty overlay to expose the package to the module
+            inputs.copyparty.overlays.default
+            # Overlay is for replacement or new keyword in global space
+            #   with access to prev and final
+            #   has a global eval order
+            # Can either make a new pkg name or replace pkg
+            # Aka I am the new maintainer, allow to seperate concerns
+            (final: prev: {
+              tagstudio = inputs.tagstudio.packages.${prev.system}.tagstudio-jxl.overrideAttrs (oldAttrs: {
+                # Override is a regular build script keyword
+                # Patches keyword is a part of nix stdenv
+                patches = (oldAttrs.patches or [ ]) ++ [ ./../../patches/tagstudio-nord.patch ];
+              });
 
-          hyprland = inputs.hyprland.packages.${prev.system}.hyprland;
-          xdg-desktop-portal-hyprland = inputs.hyprland.packages.${prev.system}.xdg-desktop-portal-hyprland;
+              hyprland = inputs.hyprland.packages.${prev.system}.hyprland;
+              xdg-desktop-portal-hyprland = inputs.hyprland.packages.${prev.system}.xdg-desktop-portal-hyprland;
 
-          # Custom nix stable pins, after fail in nix-unstable
-          rarcrack = pkgs-stable.rarcrack;
+              # Custom nix stable pins, after fail in nix-unstable
+              rarcrack = pkgs-stable.rarcrack;
 
-          # Ensures this is replacement and not just new pkg name
-          jetbrains = prev.jetbrains // {
-            rust-rover = pkgs-heavy.jetbrains.rust-rover;
-            clion = pkgs-heavy.jetbrains.clion;
-            pycharm = pkgs-heavy.jetbrains.pycharm;
-            idea = pkgs-heavy.jetbrains.idea;
-            goland = pkgs-heavy.jetbrains.goland;
-          };
+              # Ensures this is replacement and not just new pkg name
+              jetbrains = prev.jetbrains // {
+                rust-rover = pkgs-heavy.jetbrains.rust-rover;
+                clion = pkgs-heavy.jetbrains.clion;
+                pycharm = pkgs-heavy.jetbrains.pycharm;
+                idea = pkgs-heavy.jetbrains.idea;
+                goland = pkgs-heavy.jetbrains.goland;
+              };
 
-          # This is not a namespace repalcement
-          python-latest = pkgs.python313;
-        })
-      ];
+              # This is not a namespace repalcement
+              python-latest = pkgs.python313;
+            })
+          ];
 
-      home-manager.useGlobalPkgs = true;
-      home-manager.extraSpecialArgs = { inherit inputs; };
-      home-manager.sharedModules = [
-        (
-          {
-            lib,
-            pkgs,
-            config,
-            ...
-          }:
-          {
-            options.pythonPackages = lib.mkOption {
-              type = lib.types.listOf lib.types.package;
-              default = [ ];
-            };
-            config.home.packages = lib.mkIf (config.pythonPackages != [ ]) [
-              (pkgs.python-latest.withPackages (ps: config.pythonPackages))
-            ];
-          }
-        )
-      ];
+          # *** Home-manager
+          home-manager.useGlobalPkgs = true;
+          home-manager.extraSpecialArgs = { inherit inputs; };
+          home-manager.sharedModules = [
+            (
+              {
+                lib,
+                pkgs,
+                config,
+                ...
+              }:
+              {
+                options.pythonPackages = lib.mkOption {
+                  type = lib.types.listOf lib.types.package;
+                  default = [ ];
+                };
+                config.home.packages = lib.mkIf (config.pythonPackages != [ ]) [
+                  (pkgs.python-latest.withPackages (ps: config.pythonPackages))
+                ];
+              }
+            )
+          ];
+        };
     };
-  };
 
   # ** Flake-file inputs
   flake-file.inputs = {
