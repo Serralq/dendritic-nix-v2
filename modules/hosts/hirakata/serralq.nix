@@ -18,9 +18,9 @@
     ];
 
     nixos = { ... }: {
+      environment.sessionVariables.HOME = "/home/serralq";
       users.users.serralq = {
         description = "Serralq";
-        environment.sessionVariables.HOME = "/home/serralq"
         # List of questions -> To check answer against
         openssh.authorizedKeys.keys = [
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIKHJOkxOS9XQmRSYT0olSv0LHfSF/xNA6n9y5+e1g/o alexanderngocdao@gmail.com"
