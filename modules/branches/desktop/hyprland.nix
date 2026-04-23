@@ -3,8 +3,11 @@
   flake-file.inputs = {
     hyprland.url = "github:hyprwm/Hyprland/v0.52.0";
     hyprland-plugins.url = "github:hyprwm/hyprland-plugins/v0.52.0";
+    hyprland-plugins.inputs.hyprland.follows = "hyprland";
     hy3.url = "github:outfoxxed/hy3/hl0.52.0";
+    hy3.inputs.hyprland.follows = "hyprland";
     hypr-dynamic-cursors.url = "github:VirtCode/hypr-dynamic-cursors/8c1679b87c54e97145cae83e622956d720e88bef";
+    hypr-dynamic-cursors.inputs.hyprland.follows = "hyprland";
   };
 
   den.aspects.hyprland =
@@ -42,7 +45,7 @@
 
             # ** General Settings
             settings = {
-              permission = "/usr/(bin|local/bin)/hyprpm, plugin, allow";
+              # permission = "/usr/(bin|local/bin)/hyprpm, plugin, allow";
 
               env = [
                 "GTK_THEME,Adwaita:dark"

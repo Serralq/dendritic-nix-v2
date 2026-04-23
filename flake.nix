@@ -15,10 +15,19 @@
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
     home-manager.url = "github:nix-community/home-manager";
-    hy3.url = "github:outfoxxed/hy3/hl0.52.0";
-    hypr-dynamic-cursors.url = "github:VirtCode/hypr-dynamic-cursors/8c1679b87c54e97145cae83e622956d720e88bef";
+    hy3 = {
+      url = "github:outfoxxed/hy3/hl0.52.0";
+      inputs.hyprland.follows = "hyprland";
+    };
+    hypr-dynamic-cursors = {
+      url = "github:VirtCode/hypr-dynamic-cursors/8c1679b87c54e97145cae83e622956d720e88bef";
+      inputs.hyprland.follows = "hyprland";
+    };
     hyprland.url = "github:hyprwm/Hyprland/v0.52.0";
-    hyprland-plugins.url = "github:hyprwm/hyprland-plugins/v0.52.0";
+    hyprland-plugins = {
+      url = "github:hyprwm/hyprland-plugins/v0.52.0";
+      inputs.hyprland.follows = "hyprland";
+    };
     import-tree.url = "github:vic/import-tree";
     nix-alien.url = "github:thiagokokada/nix-alien";
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";

@@ -132,6 +132,8 @@ Inputs are declared in TWO places, kept in sync:
 
 After adding an input to `dendritic.nix` (or any aspect's `flake-file.inputs`), run `nix run .#write-flake` to regenerate `flake.nix`.
 
+**`follows` policy:** Generally avoid `follows` in flake inputs. The exception is **Hyprland plugins** — native `.so` plugins must be built against the exact same Hyprland they're loaded into, so `hy3`, `hyprland-plugins`, `hypr-dynamic-cursors`, and any future Hyprland plugin inputs must use `follows = "hyprland"` for their `hyprland` input.
+
 For inputs that need to be available as `_module.args`, add them in the overlays aspect:
 
 ```nix
