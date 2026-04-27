@@ -1,7 +1,10 @@
 { ... }:
 {
   den.aspects.networking =
-    { user, ... }:
+    {
+      user,
+      ...
+    }:
     {
       nixos =
         { config, pkgs, ... }:
@@ -41,6 +44,7 @@
               if [ $status = "Running" ]; then # if so, then do nothing
                 exit 0
               fi
+
 
               # otherwise authenticate with tailscale
               ${tailscale}/bin/tailscale up -authkey $(cat ${config.sops.secrets.tailscale-authkey.path})
@@ -104,6 +108,9 @@
             openvpn # VPN use
             cloudflared # Allow for external links
             sshfs # For working over ssh eg yazi
+            wireshark # Better network inspection
+            termshark
+            sshs # Nicer ssh config tui
           ];
           pythonPackages = with pkgs.python-latest.pkgs; [
             # To serve my website
