@@ -1,3 +1,8 @@
+# * Workflow
+# - Encrypt: file +format
+# - Decrypt: key into empty var or echo $envar
+#   - Nix: empty variable
+# - Edit: use sops <file> to edit it
 { ... }:
 {
   den.aspects.security =
