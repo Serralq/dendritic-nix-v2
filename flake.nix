@@ -30,6 +30,7 @@
     };
     import-tree.url = "github:vic/import-tree";
     nix-alien.url = "github:thiagokokada/nix-alien";
+    nix-value-json.url = "github:oldshensheep/nix-value-json";
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     nixpkgs-heavy.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";

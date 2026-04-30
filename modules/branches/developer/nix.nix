@@ -5,6 +5,7 @@
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
     nix-alien.url = "github:thiagokokada/nix-alien";
     devenv.url = "github:cachix/devenv";
+    nix-value-json.url = "github:oldshensheep/nix-value-json";
   };
 
   den.aspects.nix =
@@ -65,6 +66,8 @@
             deadnix # Better nix config
             nixfmt # For better formatting
             inputs.nix-alien.packages.${pkgs.system}.nix-alien # Running binaries in nix
+            inputs.nix-value-json.packages.${pkgs.system}.default # Eval NixOS config to JSON
+            inputs.nix-value-json.packages.${pkgs.system}.json-diff # Diff JSON configs
           ];
 
           # ** Direnv
