@@ -4,7 +4,6 @@
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
 
   inputs = {
-    affinity-nix.url = "github:mrshmllow/affinity-nix";
     copyparty.url = "github:9001/copyparty";
     den.url = "github:vic/den";
     devenv.url = "github:cachix/devenv";

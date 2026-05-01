@@ -9,21 +9,21 @@
           home.packages = with pkgs; [
             # Rust
             rustc
-            jetbrains.rust-rover
+            # jetbrains.rust-rover
             cargo
             # Go
-            jetbrains.goland
+            # jetbrains.goland
             go
             # Java
-            jetbrains.idea # For 25.11
+            # jetbrains.idea # For 25.11
             jre25_minimal
             # Python
-            jetbrains.pycharm
+            # jetbrains.pycharm
             # Javascript
             nodejs_24 # For javascript deployments
             yarn # Js package manager
             # c/c++
-            jetbrains.clion # For c/c++
+            # jetbrains.clion # For c/c++
             libgcc # For compiling c/c++, use the below to start gcc
             # gcc # Also for gcc # Only use with direnv
             cmake-language-server

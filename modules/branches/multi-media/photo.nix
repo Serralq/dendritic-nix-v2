@@ -1,7 +1,7 @@
 { ... }:
 {
   flake-file.inputs = {
-    affinity-nix.url = "github:mrshmllow/affinity-nix";
+    # affinity-nix.url = "github:mrshmllow/affinity-nix";
     tagstudio.url = "github:TagStudioDev/TagStudio";
   };
 
@@ -15,7 +15,7 @@
             gimp3-with-plugins
             rawtherapee
             tagstudio # TagStudio
-            inputs.affinity-nix.packages.${pkgs.system}.v3 # Affinity image editors
+            # inputs.affinity-nix.packages.${pkgs.system}.v3 # Affinity image editors
           ];
         };
     };
