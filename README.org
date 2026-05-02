@@ -67,6 +67,16 @@ ls result/ to find the executaes
 3) Overriding
    Old package uses the current( updated ) dependencies
 4) Switch channel from unstable to stable if stable is ahead of unstable
+** Lost boot entries
+1) lsblk -f
+   SYSTEM -> efi system partition (/mnt/boot later)
+2) sudo mount /dev/nvme0n1p6 /mnt
+   sudo mount /dev/nvme0n1p1 /mnt/boot
+3) sudo nixos-enter --root /mnt
+4) nixos-rebuild boot --install-bootloader --flake /home/serralq/stow/.config/nixos#hirakata
+4) exit
+   umount -R /mnt
+   reboot
 * Components
 ** Nix strings vs. etc.
 Always nix-strings > symlink OR readfile etc.
