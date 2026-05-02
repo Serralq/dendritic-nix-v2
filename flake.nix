@@ -34,6 +34,7 @@
     nixpkgs-heavy.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
     parsecgaming.url = "github:DarthPJB/parsec-gaming-nix";
+    sem-cli.url = "github:Ataraxy-Labs/sem";
     sops-nix.url = "github:Mic92/sops-nix";
     t3code.url = "github:rodeyseijkens/t3code-nix";
     tagstudio.url = "github:TagStudioDev/TagStudio";

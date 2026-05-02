@@ -6,6 +6,7 @@
     nix-alien.url = "github:thiagokokada/nix-alien";
     devenv.url = "github:cachix/devenv";
     nix-value-json.url = "github:oldshensheep/nix-value-json";
+    sem-cli.url = "github:Ataraxy-Labs/sem";
   };
 
   den.aspects.nix =
@@ -68,6 +69,7 @@
             inputs.nix-alien.packages.${pkgs.system}.nix-alien # Running binaries in nix
             inputs.nix-value-json.packages.${pkgs.system}.default # Eval NixOS config to JSON
             inputs.nix-value-json.packages.${pkgs.system}.json-diff # Diff JSON configs
+            inputs.sem-cli.packages.${pkgs.system}.default # Allow for semantic git diff
           ];
 
           # ** Direnv
