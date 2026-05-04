@@ -133,6 +133,12 @@ Extra info:
 - Kernel modules
 - Micocode updates
 - Kernel parameters for cpu model etc.
+** Mutual-Provides
+Currently: host = 1 machine + exclusive user
+Can reuse and define:
+  host -> user
+  user -> host
+  user -> user
 * Wishlist
 - [ ] Edit copyparty settings
 - [ ] Clean up configuration.nix
