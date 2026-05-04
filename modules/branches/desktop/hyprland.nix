@@ -258,8 +258,11 @@
                 "$mainMod, mouse_down, workspace, e+1"
                 "$mainMod, mouse_up, workspace, e-1"
 
-                ", F2, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-; dunstify -u low -r 9910 \"Volume: $(pactl get-sink-volume @DEFAULT_SINK@ | awk '{print $5}')\" & "
-                ", F3, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ & wpctl set-mute @DEFAULT_AUDIO_SINK@ 0; dunstify -u low -r 9910 \"Volume: $(pactl get-sink-volume @DEFAULT_SINK@ | awk '{print $5}')\" & "
+                # Probably should make a flag since this right only speaker is a asus laptop only issue
+                # ", F2, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-; dunstify -u low -r 9910 \"Volume: $(pactl get-sink-volume @DEFAULT_SINK@ | awk '{print $5}')\" & "
+                # ", F3, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ & wpctl set-mute @DEFAULT_AUDIO_SINK@ 0; dunstify -u low -r 9910 \"Volume: $(pactl get-sink-volume @DEFAULT_SINK@ | awk '{print $5}')\" & "
+                ", F2, exec, if case \"$(pactl get-default-sink)\" in *Speaker*) true;; *) false;; esac; then L=$(pactl get-sink-volume @DEFAULT_SINK@ | awk '{gsub(/%/,\"\"); print $5}'); R=$(pactl get-sink-volume @DEFAULT_SINK@ | awk '{gsub(/%/,\"\"); print $12}'); R=$((R - 5)); [ \"$R\" -lt 0 ] && R=0; pactl set-sink-volume @DEFAULT_SINK@ \"\${L}%\" \"\${R}%\"; dunstify -u low -r 9910 \"Volume: R \${R}%\"; else wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-; dunstify -u low -r 9910 \"Volume: $(pactl get-sink-volume @DEFAULT_SINK@ | awk '{print $5}')\"; fi"
+                ", F3, exec, if case \"$(pactl get-default-sink)\" in *Speaker*) true;; *) false;; esac; then L=$(pactl get-sink-volume @DEFAULT_SINK@ | awk '{gsub(/%/,\"\"); print $5}'); R=$(pactl get-sink-volume @DEFAULT_SINK@ | awk '{gsub(/%/,\"\"); print $12}'); R=$((R + 5)); [ \"$R\" -gt 100 ] && R=100; wpctl set-mute @DEFAULT_AUDIO_SINK@ 0; pactl set-sink-volume @DEFAULT_SINK@ \"\${L}%\" \"\${R}%\"; dunstify -u low -r 9910 \"Volume: R \${R}%\"; else wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ && wpctl set-mute @DEFAULT_AUDIO_SINK@ 0; dunstify -u low -r 9910 \"Volume: $(pactl get-sink-volume @DEFAULT_SINK@ | awk '{print $5}')\"; fi"
                 ", F5, exec, brightnessctl s 10%- & brightnessctl -d intel_backlight s 10%-"
                 ", F6, exec, brightnessctl s 10%+ & brightnessctl -d intel_backlight s 10%+"
 
