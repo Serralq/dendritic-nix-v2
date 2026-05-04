@@ -20,6 +20,8 @@
 
           sops.secrets.tailscale-authkey = { };
           sops.secrets.cloudflared-credentials = { };
+          sops.secrets.openvpn-auth = { };
+          sops.secrets.openvpn-config = { };
 
           sops.age.keyFile = "/home/${user.userName}/.config/sops/age/keys.txt";
 
