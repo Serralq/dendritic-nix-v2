@@ -33,6 +33,7 @@
         {
           home.packages = with pkgs; [
             mpv # Video player
+            vlc # Backup video player
             shotcut # Video editing
             kdePackages.kdenlive # Better video editing
           ];
