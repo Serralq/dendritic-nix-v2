@@ -1,11 +1,16 @@
 { ... }:
 {
   den.aspects.input-output =
+
     { ... }:
     {
       nixos =
         { pkgs, ... }:
         {
+          # ** Wacom tablet (CTL-4100WL via Bluetooth)
+          boot.kernelModules = [ "hidp" ];
+          hardware.opentabletdriver.enable = true;
+
           # ** Printing
           services.printing.enable = true;
 
