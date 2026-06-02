@@ -1,9 +1,6 @@
 { ... }:
-{
-  flake-file.inputs = {
-    t3code.url = "github:rodeyseijkens/t3code-nix";
-  };
 
+{
   den.aspects.ai =
     { ... }:
     {
@@ -13,10 +10,9 @@
           # Ai in terminal, each have different harness that they were trained on and optimized for
           home.packages = with pkgs; [
             claude-code
-            gemini-cli
-            codex
+            # gemini-cli # Both suck ass
+            codex # Only sucks within their own environment, use within opencode
             opencode
-            inputs.t3code.packages.${pkgs.system}.default # For t3code better threads
           ];
         };
     };
