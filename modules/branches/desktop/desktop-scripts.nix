@@ -136,17 +136,12 @@
             #         };
             #       };
 
-            # ** Japanese input method (also started by i18n.inputMethod.fcitx5)
-            fcitx5 = {
-              Unit.After = [ "hyprland-session.target" ];
-              Install.WantedBy = [ "hyprland-session.target" ];
-              Service = {
-                Type = "forking";
-                ExecStart = "${pkgs.fcitx5}/bin/fcitx5 -d";
-                Restart = "on-failure";
-              };
-            };
           };
+
+          # ** Japanese input method (launched via Hyprland to inherit session environment)
+          wayland.windowManager.hyprland.settings.exec-once = [
+            "${pkgs.fcitx5}/bin/fcitx5 -d"
+          ];
         };
     };
 }
