@@ -132,7 +132,7 @@ Inputs are declared in TWO places, kept in sync:
 
 After adding an input to `dendritic.nix` (or any aspect's `flake-file.inputs`), run `nix run .#write-flake` to regenerate `flake.nix`.
 
-**`follows` policy:** Generally avoid `follows` in flake inputs. The exception is **Hyprland plugins** — native `.so` plugins must be built against the exact same Hyprland they're loaded into, so `hy3`, `hyprland-plugins`, `hypr-dynamic-cursors`, and any future Hyprland plugin inputs must use `follows = "hyprland"` for their `hyprland` input.
+**`follows` policy:** Generally avoid `follows` in flake inputs. The exception is **Hyprland plugins** — native `.so` plugins must be built against the exact same Hyprland they're loaded into, so `hy3`, `hyprexpo`, `hypr-dynamic-cursors`, and any future Hyprland plugin inputs must use `follows = "hyprland"` for their `hyprland` input.
 
 For inputs that need to be available as `_module.args`, add them in the overlays aspect:
 
@@ -293,4 +293,4 @@ nix run .#write-flake
 - **The `user` context variable** — available in user-context aspects; provides `user.userName` (e.g., `"serralq"`).
 - **Self-referential overlays** — `overlay.nix` defines `pkgs-stable` and `pkgs-heavy` as separate nixpkgs instances for packages that need stable or slow-to-build versions.
 - **Cloudflare tunnels** — domain routing is in `networking.nix` via cloudflared; subdomains map to localhost ports.
-- **Hyprland is pinned** to v0.52.0 via a flake input overlay; plugins are also version-locked.
+- **Hyprland is pinned** to v0.56.1 via a flake input overlay; plugins are also version-locked. (`hyprexpo` comes from the `sandwichfarm/hyprexpo` fork — the official `hyprwm/hyprland-plugins` repo dropped it, along with `hyprtrails`, which has no maintained fork and was removed from the config.)

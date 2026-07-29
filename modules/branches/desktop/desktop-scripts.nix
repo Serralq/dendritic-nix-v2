@@ -31,6 +31,18 @@
             ACTION=="change",SUBSYSTEM=="power_supply", RUN+="${border-color}"
             SUBSYSTEM=="power_supply",ATTR{status}=="Discharging", RUN+="${border-color}"
           '';
+          # ** VPN
+          # Currently pia servers just suck and manually choosing servers also suck
+          # systemd.services.vpn = {
+          #   wantedBy = [ "multi-user.target" ];
+          #   after = [ "network-online.target" ];
+          #   wants = [ "network-online.target" ];
+          #   serviceConfig = {
+          #     Type = "simple";
+          #     ExecStart = "${pkgs.openvpn}/bin/openvpn --config /run/secrets/openvpn-config --auth-user-pass /run/secrets/openvpn-auth";
+          #     Restart = "on-failure";
+          #   };
+          # };
         };
       homeManager =
         { config, pkgs, ... }:
@@ -115,16 +127,6 @@
             #         };
             #       };
 
-            # ** VPN
-            vpn = {
-              Unit.After = [ "hyprland-session.target" ];
-              Install.WantedBy = [ "hyprland-session.target" ];
-              Service = {
-                Type = "simple";
-                ExecStart = "${config.home.homeDirectory}/scripts/vpn";
-                Restart = "on-failure";
-              };
-            };
             # ** One monitor script (Use the manual method since this will default to battery saver) (commented out: re-enable when needed)
             #       one-monitor = {
             #         Unit.After = [ "hyprland-session.target" ];

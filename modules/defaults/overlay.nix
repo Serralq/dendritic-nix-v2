@@ -103,6 +103,10 @@ in
 
               # Custom nix stable pins, after fail in nix-unstable
               rarcrack = pkgs-stable.rarcrack;
+              notonoto = pkgs-stable.notonoto;
+              mokuro = pkgs-stable.mokuro;
+              # This is not a namespace repalcement
+              python-latest = pkgs-stable.python313;
 
               # Ensures this is replacement and not just new pkg name
               jetbrains = prev.jetbrains // {
@@ -113,8 +117,6 @@ in
                 goland = pkgs-heavy.jetbrains.goland;
               };
 
-              # This is not a namespace repalcement
-              python-latest = pkgs.python313;
             })
           ];
 
@@ -153,6 +155,6 @@ in
     sops-nix.url = "github:Mic92/sops-nix";
     disko.url = "github:nix-community/disko";
     tagstudio.url = "github:TagStudioDev/TagStudio";
-    hyprland.url = "github:hyprwm/Hyprland/v0.52.0";
+    hyprland.url = "github:hyprwm/Hyprland/v0.56.1";
   };
 }

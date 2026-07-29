@@ -15,18 +15,18 @@
     };
     home-manager.url = "github:nix-community/home-manager";
     hy3 = {
-      url = "github:outfoxxed/hy3/hl0.52.0";
+      url = "github:outfoxxed/hy3/hl0.56.0.1";
       inputs.hyprland.follows = "hyprland";
     };
     hypr-dynamic-cursors = {
-      url = "github:VirtCode/hypr-dynamic-cursors/8c1679b87c54e97145cae83e622956d720e88bef";
+      url = "github:VirtCode/hypr-dynamic-cursors/f5ba36c7622098b53bf62ddb8ddf03b914abbdf8";
       inputs.hyprland.follows = "hyprland";
     };
-    hyprland.url = "github:hyprwm/Hyprland/v0.52.0";
-    hyprland-plugins = {
-      url = "github:hyprwm/hyprland-plugins/v0.52.0";
+    hyprexpo = {
+      url = "github:sandwichfarm/hyprexpo/v0.56.1";
       inputs.hyprland.follows = "hyprland";
     };
+    hyprland.url = "github:hyprwm/Hyprland/v0.56.1";
     import-tree.url = "github:vic/import-tree";
     nix-alien.url = "github:thiagokokada/nix-alien";
     nix-value-json.url = "github:oldshensheep/nix-value-json";

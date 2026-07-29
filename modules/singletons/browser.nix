@@ -14,7 +14,11 @@
               [
                 brave # Ad-blocking
                 google-chrome # Compadibility
-                vivaldi # Main browser
+                (vivaldi.override {
+                  # Main browser
+                  proprietaryCodecs = true;
+                  enableWidevine = true;
+                })
                 # TODO remove per window workspace, only have regular workspace
                 # Allow for jump between tab stacks
               ];

@@ -1,13 +1,13 @@
 { ... }:
 {
   flake-file.inputs = {
-    hyprland.url = "github:hyprwm/Hyprland/v0.52.0";
-    hyprland-plugins.url = "github:hyprwm/hyprland-plugins/v0.52.0";
-    hyprland-plugins.inputs.hyprland.follows = "hyprland";
-    hy3.url = "github:outfoxxed/hy3/hl0.52.0";
+    hyprland.url = "github:hyprwm/Hyprland/v0.56.1";
+    hy3.url = "github:outfoxxed/hy3/hl0.56.0.1";
     hy3.inputs.hyprland.follows = "hyprland";
-    hypr-dynamic-cursors.url = "github:VirtCode/hypr-dynamic-cursors/8c1679b87c54e97145cae83e622956d720e88bef";
+    hypr-dynamic-cursors.url = "github:VirtCode/hypr-dynamic-cursors/f5ba36c7622098b53bf62ddb8ddf03b914abbdf8";
     hypr-dynamic-cursors.inputs.hyprland.follows = "hyprland";
+    hyprexpo.url = "github:sandwichfarm/hyprexpo/v0.56.1";
+    hyprexpo.inputs.hyprland.follows = "hyprland";
   };
 
   den.aspects.hyprland =
@@ -26,11 +26,12 @@
 
       # * Hyprland
       # Window manager, use of hyprlandPlugins... to get plugins
-      # Last updated: March 8, ver 0.52.0 (v53 is broken, v54 doesn't have plugin support yet)
+      # Last updated: July 29 2026, ver 0.56.1 (hyprexpo moved to sandwichfarm fork, hyprtrails dropped upstream)
       homeManager =
         { pkgs, inputs, ... }:
         {
           wayland.windowManager.hyprland = {
+            configType = "hyprlang";
             enable = true;
             package = pkgs.hyprland;
             systemd.enable = true;
@@ -39,8 +40,7 @@
             plugins = [
               inputs.hypr-dynamic-cursors.packages.${pkgs.system}.hypr-dynamic-cursors
               inputs.hy3.packages.${pkgs.system}.hy3
-              inputs.hyprland-plugins.packages.${pkgs.system}.hyprtrails
-              inputs.hyprland-plugins.packages.${pkgs.system}.hyprexpo
+              inputs.hyprexpo.packages.${pkgs.system}.hyprexpo
             ];
 
             # ** General Settings
@@ -122,7 +122,6 @@
               };
 
               dwindle = {
-                pseudotile = "true";
                 preserve_split = "true";
               };
 
@@ -138,11 +137,11 @@
               #  "move 1348 790, match:title ^(Picture in picture)$"
               #];
 
-              windowrulev2 = [
-                "float, title:^(Picture in picture)$"
-                "pin, title:^(Picture in picture)$"
-                "size 200 200, title:^(Picture in picture)$"
-                "move 1348 790, title:^(Picture in picture)$"
+              windowrule = [
+                "float on, match:title ^(Picture in picture)$"
+                "pin on, match:title ^(Picture in picture)$"
+                "size 200 200, match:title ^(Picture in picture)$"
+                "move 1348 790, match:title ^(Picture in picture)$"
               ];
 
               # ** Bindings
@@ -177,7 +176,6 @@
               misc = {
                 enable_swallow = true;
                 swallow_regex = "(org.wezfurlong.wezterm)";
-                vfr = "true";
               };
 
               "$mainMod" = "SUPER";
@@ -307,13 +305,10 @@
                   };
                 };
 
-                hyprtrails = {
-                  color = "rgba(88C0D0FF)";
-                };
-
                 hyprexpo = {
                   columns = "5";
-                  gap_size = "0";
+                  gaps_in = "0";
+                  gaps_out = "0";
                   bg_col = "rgb(000000)";
                   workspace_method = "center current";
                 };

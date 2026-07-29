@@ -112,14 +112,6 @@
             termshark
             sshs # Nicer ssh config tui
           ];
-          pythonPackages = with pkgs.python-latest.pkgs; [
-            # To serve my website
-            cairosvg
-            pillow
-            mkdocs-material
-            mkdocs-glightbox
-            mkdocs-autolinks-plugin
-          ];
           # ** Mkdocs
           # Mkdocs blog service (commented out: re-enable when needed)
           #       systemd.user.services.mkdocs-serve = {
