@@ -91,6 +91,7 @@
             kitty # For testing + wayland
 
             # * Shell / Prompt
+            mosh # Allow for typing before response back in ssh
             neovim # Basic editor
             starship # Terminal prompt look
             fastfetch # Terminal splash screen
