@@ -100,7 +100,7 @@
               Install.WantedBy = [ "hyprland-session.target" ];
               Service = {
                 Type = "oneshot";
-                ExecStart = "${pkgs.hyprland}/bin/hyprctl keyword monitor eDP-2,disable";
+                ExecStart = "${pkgs.hyprland}/bin/hyprctl eval 'hl.monitor({ output = \"eDP-2\", disabled = true })'";
                 RemainAfterExit = true;
               };
             };
@@ -141,9 +141,11 @@
           };
 
           # ** Japanese input method (launched via Hyprland to inherit session environment)
-          wayland.windowManager.hyprland.settings.exec-once = [
-            "${pkgs.fcitx5}/bin/fcitx5 -d"
-          ];
+          wayland.windowManager.hyprland.extraConfig = ''
+            hl.on("hyprland.start", function()
+              hl.exec_cmd("${pkgs.fcitx5}/bin/fcitx5 -d")
+            end)
+          '';
         };
     };
 }
