@@ -39,7 +39,31 @@
 
           dsp = {
             exec = command: lua "hl.dsp.exec_cmd(${builtins.toJSON command})";
-            close = lua "hl.dsp.window.close()";
+            close = lua ''
+              function()
+                local active = hl.get_active_window()
+
+                if not active or active.class ~= "org.wezfurlong.wezterm" or not active.workspace then
+                  hl.dispatch(hl.dsp.window.close({ window = active }))
+                  return
+                end
+
+                local workspaceWezterms = 0
+
+                for _, window in ipairs(hl.get_workspace_windows(active.workspace)) do
+                  if window.class == "org.wezfurlong.wezterm" then
+                    workspaceWezterms = workspaceWezterms + 1
+                  end
+                end
+
+                if workspaceWezterms == 1 then
+                  hl.exec_cmd('dunstify "NG" -u critical')
+                  return
+                end
+
+                hl.dispatch(hl.dsp.window.close({ window = active }))
+              end
+            '';
             exit = lua "hl.dsp.exit()";
             drag = lua "hl.dsp.window.drag()";
             resize = lua "hl.dsp.window.resize()";
@@ -128,7 +152,7 @@
                   output = "eDP-1";
                   mode = "2880x1800@60";
                   position = "0x0";
-                  scale = "1.8";
+                  scale = "2";
                   bitdepth = 10;
                   cm = "hdr";
                 }
@@ -150,14 +174,14 @@
 
               config = {
                 general = {
-                  gaps_in = 4;
-                  gaps_out = 8;
-                  border_size = 2;
+                  gaps_in = 0;
+                  gaps_out = 0;
+                  border_size = 0;
                   col.inactive_border = "rgba(595959aa)";
                   allow_tearing = true;
                   layout = "hy3";
                   resize_on_border = true;
-                  extend_border_grab_area = 30;
+                  extend_border_grab_area = 0;
                 };
 
                 group.groupbar = {
@@ -226,7 +250,7 @@
                       window = 100;
                       limit = 1500;
                     };
-                    shake.enabled = false;
+                    shake.enabled = true;
                   };
 
                   hyprexpo = {
@@ -239,10 +263,14 @@
 
                   hy3 = {
                     tab_first_window = true;
+                    group_inset = 0;
                     tabs = {
+                      height = 20;
                       text_font = "Hermit";
                       text_height = 10;
-                      border_width = 4;
+                      border_width = 2;
+                      padding = 0;
+                      radius = 0;
                       colors = {
                         inactive = "rgba(595959DD)";
                         inactive_border = "rgba(2E3440FF)";
@@ -327,7 +355,7 @@
                 }
                 {
                   leaf = "fade";
-                  enabled = true;
+                  enabled = false;
                   speed = 1.8;
                   bezier = "almostLinear";
                 }
@@ -352,6 +380,14 @@
                 }
                 {
                   leaf = "layers";
+                  enabled = false;
+                }
+                {
+                  leaf = "windowsIn";
+                  enabled = false;
+                }
+                {
+                  leaf = "windowsOut";
                   enabled = false;
                 }
               ];
@@ -462,6 +498,35 @@
                 (bind (lua ''mainMod .. " + mouse:273"'') dsp.resize { mouse = true; })
               ];
             };
+
+            extraConfig = ''
+              local pending = {}
+
+              local function ensureTerminal(workspace)
+                if not workspace or workspace.special or pending[workspace.id] then
+                  return
+                end
+
+                pending[workspace.id] = true
+
+                hl.timer(function()
+                  pending[workspace.id] = nil
+
+                  if workspace.windows == 0 then
+                    hl.exec_cmd("wezterm", {
+                      workspace = workspace.name,
+                    })
+                  end
+                end, {
+                  timeout = 50,
+                  type = "oneshot",
+                })
+              end
+
+              hl.on("workspace.created", function(workspace)
+                ensureTerminal(workspace)
+              end)
+            '';
           };
         };
     };
