@@ -1,0 +1,9 @@
+[revsets]
+fix = "@"
+
+[fix.tools.nixfmt]
+command = ["nixfmt", "--filename=$path"]
+patterns = ["glob:'**/*.nix'"]
+
+[aliases]
+fn = ["util", "exec", "--", "sh", "-c", "jj fix && jj new \"$@\"", ""]
