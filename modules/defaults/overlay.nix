@@ -34,6 +34,7 @@
 #
 # * Global configs
 {
+  den,
   inputs,
   lib,
   ...
@@ -72,6 +73,8 @@ in
   den.aspects.overlays =
     { ... }:
     {
+      includes = [ den.aspects.home-manager-backups ];
+
       nixos =
         { pkgs, ... }:
         {
