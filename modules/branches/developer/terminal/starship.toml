@@ -1,0 +1,301 @@
+# [[file:.starship.toml.org::*Prompt][Prompt:1]]
+add_newline = true
+format = """ $directory$read_only$fill $time\n\r $character"""
+right_format = "$all "
+# Prompt:1 ends here
+
+# [[file:.starship.toml.org::*Main][Main:1]]
+[cmd_duration]
+  format = ' \[[ $duration]($style)\]'
+  show_notifications = true
+  min_time_to_notify = 10000
+[status]
+[fill]
+  symbol = "―"
+[sudo]
+  format = ' \[[as $symbol]($style)\]'
+  disabled = false
+[time]
+  format = '[$time]($style) '
+  style = "#4c566a"
+  disabled = false
+[username]
+  format = ' \[[$user]($style)\]'
+[directory]
+  truncate_to_repo = false
+  fish_style_pwd_dir_length = 1
+  read_only = " 󰌾"
+  style = "bold blue"
+[character]
+[hostname]
+  ssh_symbol = " "
+[line_break]
+  disabled = true
+[localip]
+[memory_usage]
+  symbol = "󰍛 "
+  format = ' \[$symbol[$ram( | $swap)]($style)\]'
+[netns]
+[direnv]
+[env_var]
+[container]
+[docker_context]
+  symbol = " "
+  format = ' \[[$symbol$context]($style)\]'
+[jobs]
+[os]
+  format = ' \[[$symbol]($style)\]'
+[package]
+  symbol = "󰏗 "
+  format = ' \[[$symbol$version]($style)\]'
+[shell]
+# Main:1 ends here
+
+# [[file:.starship.toml.org::*Battery][Battery:1]]
+[battery]
+  format = '\[[$symbol$percentage]($style)\]'
+  disabled = true
+[[battery.display]]
+  threshold = 100
+  style = "italic dimmed green"
+[[battery.display]]
+  threshold = 80
+  style = "italic dimmed yellow"
+[[battery.display]]
+  threshold = 25
+  style = "italic bold red"
+[[battery.display]]
+  threshold = 5
+  style = "italic bold purple"
+# Battery:1 ends here
+
+# [[file:.starship.toml.org::*Git][Git:1]]
+[git_branch]
+  symbol = " " # Nerd fonts
+  format = ' \[[$symbol$branch]($style)\]'
+  disabled = true # To use jj instead
+[git_commit]
+  tag_symbol = '  ' # Nerd fonts
+  disabled = true
+[git_state]
+  disabled = true
+[git_metrics]
+  disabled = true
+[git_status]
+  disabled = true
+# Git:1 ends here
+
+# [[file:.starship.toml.org::*JJ][JJ:1]]
+[custom.jj]
+  symbol = " " # Nerd fonts
+  format = '\[[$symbol$output]($style)\]'
+  when = "jj-starship detect"
+  shell = ["jj-starship", "--no-jj-prefix", "--no-jj-id"]
+# JJ:1 ends here
+
+# [[file:.starship.toml.org::*Nerd fonts only changes][Nerd fonts only changes:1]]
+[aws]
+  format = ' \[[$symbol($profile)(\($region\))(\[$duration\])]($style)\]'
+  symbol = " "
+[buf]
+  symbol = " "
+[bun]
+  symbol = " "
+  format = ' \[[$symbol($version)]($style)\]'
+[c]
+  symbol = " "
+  format = ' \[[$symbol($version(-$name))]($style)\]'
+[cpp]
+  symbol = " "
+  format = ' \[[$symbol($version(-$name))]($style)\]'
+[cobol]
+  format = ' \[[$symbol($version)]($style)\]'
+[cmake]
+  symbol = " "
+  format = ' \[[$symbol($version)]($style)\]'
+[conda]
+  format = ' \[[$symbol$environment]($style)\]'
+  symbol = " "
+[crystal]
+  symbol = " "
+  format = ' \[[$symbol($version)]($style)\]'
+[daml]
+  format = ' \[[$symbol($version)]($style)\]'
+[dart]
+  symbol = " "
+  format = ' \[[$symbol($version)]($style)\]'
+[deno]
+  format = ' \[[$symbol($version)]($style)\]'
+  symbol = " "
+[dotnet]
+  format = ' \[[$symbol($version)(🎯 $tfm)]($style)\]'
+[elixir]
+  symbol = " "
+  format = ' \[[$symbol($version \(OTP $otp_version\))]($style)\]'
+[elm]
+  symbol = " "
+  format = ' \[[$symbol($version)]($style)\]'
+[erlang]
+  format = ' \[[$symbol($version)]($style)\]'
+[fennel]
+  symbol = " "
+  format = ' \[[$symbol($version)]($style)\]'
+[fossil_branch]
+  symbol = " "
+  format = ' \[[$symbol$branch]($style)\]'
+[gcloud]
+  symbol = " "
+  format = ' \[[$symbol$account(@$domain)(\($region\))]($style)\]'
+[golang]
+  symbol = " "
+  format = ' \[[$symbol($version)]($style)\]'
+[guix_shell]
+  symbol = " "
+  format = ' \[[$symbol]($style)\]'
+[haskell]
+  symbol = " "
+  format = ' \[[$symbol($version)]($style)\]'
+[haxe]
+  symbol = " "
+  format = ' \[[$symbol($version)]($style)\]'
+[helm]
+  format = ' \[[$symbol($version)]($style)\]'
+[hg_branch]
+  symbol = " "
+  format = ' \[[$symbol$branch]($style)\]'
+[java]
+  symbol = " "
+  format = ' \[[$symbol($version)]($style)\]'
+[julia]
+  symbol = " "
+  format = ' \[[$symbol($version)]($style)\]'
+[kotlin]
+  symbol = " "
+  format = ' \[[$symbol($version)]($style)\]'
+[kubernetes]
+  format = ' \[[$symbol$context( \($namespace\))]($style)\]'
+[lua]
+  symbol = " "
+  format = ' \[[$symbol($version)]($style)\]'
+[meson]
+  symbol = "󰔷 "
+  format = ' \[[$symbol$project]($style)\]'
+[nim]
+  symbol = "󰆥 "
+  format = ' \[[$symbol($version)]($style)\]'
+[nix_shell]
+  symbol = " "
+  format = ' \[[$symbol($name.$state)]($style)\]'
+  impure_msg = "i"
+  pure_msg = "p"
+[nodejs]
+  symbol = " "
+  format = ' \[[$symbol($version)]($style)\]'
+[ocaml]
+  symbol = " "
+  format = ' \[[$symbol($version)(\($switch_indicator$switch_name\))]($style)\]'
+[opa]
+  format = ' \[[$symbol($version)]($style)\]'
+[openstack]
+  format = ' \[[$symbol$cloud(\($project\))]($style)\]'
+[os.symbols]
+  Alpaquita = " "
+  Alpine = " "
+  AlmaLinux = " "
+  Amazon = " "
+  Android = " "
+  Arch = " "
+  Artix = " "
+  CachyOS = " "
+  CentOS = " "
+  Debian = " "
+  DragonFly = " "
+  Emscripten = " "
+  EndeavourOS = " "
+  Fedora = " "
+  FreeBSD = " "
+  Garuda = "󰛓 "
+  Gentoo = " "
+  HardenedBSD = "󰞌 "
+  Illumos = "󰈸 "
+  Kali = " "
+  Linux = " "
+  Mabox = " "
+  Macos = " "
+  Manjaro = " "
+  Mariner = " "
+  MidnightBSD = " "
+  Mint = " "
+  NetBSD = " "
+  NixOS = " "
+  Nobara = " "
+  OpenBSD = "󰈺 "
+  openSUSE = " "
+  OracleLinux = "󰌷 "
+  Pop = " "
+  Raspbian = " "
+  Redhat = " "
+  RedHatEnterprise = " "
+  RockyLinux = " "
+  Redox = "󰀘 "
+  Solus = "󰠳 "
+  SUSE = " "
+  Ubuntu = " "
+  Unknown = " "
+  Void = " "
+  Windows = "󰍲 "
+[perl]
+  symbol = " "
+  format = ' \[[$symbol($version)]($style)\]'
+[php]
+  symbol = " "
+  format = ' \[[$symbol($version)]($style)\]'
+[pijul_channel]
+  symbol = " "
+  format = ' \[[$symbol$channel]($style)\]'
+[pixi]
+  symbol = "󰏗 "
+  format = ' \[[$symbol$version( $environment)]($style)\]'
+[pulumi]
+  format = ' \[[$symbol$stack]($style)\]'
+[purescript]
+  format = ' \[[$symbol($version)]($style)\]'
+[python]
+  symbol = " "
+  format = ' \[[${symbol}${pyenv_prefix}(${version})(\($virtualenv\))]($style)\]'
+[raku]
+  format = ' \[[$symbol($version-$vm_version)]($style)\]'
+[red]
+  format = ' \[[$symbol($version)]($style)\]'
+[rlang]
+  format = ' \[[$symbol($version)]($style)\]'
+  symbol = "󰟔 "
+[ruby]
+  format = ' \[[$symbol($version)]($style)\]'
+  symbol = " "
+[rust]
+  format = ' \[[$symbol($version)]($style)\]'
+  symbol = "󱘗 "
+[scala]
+  format = ' \[[$symbol($version)]($style)\]'
+  symbol = " "
+[spack]
+  format = ' \[[as $symbol]($style)\]'
+[swift]
+  format = ' \[[$symbol($version)]($style)\]'
+  symbol = " "
+[terraform]
+  format = ' \[[$symbol$workspace]($style)\]'
+[zig]
+  symbol = " "
+  format = ' \[[$symbol($version)]($style)\]'
+[solidity]
+  format = ' \[[$symbol($version)]($style)\]'
+[vagrant]
+  format = ' \[[$symbol($version)]($style)\]'
+[vlang]
+  format = ' \[[$symbol($version)]($style)\]'
+[gradle]
+  symbol = " "
+  format = ' \[[$symbol($version)]($style)\]'
+# Nerd fonts only changes:1 ends here

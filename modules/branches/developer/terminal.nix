@@ -1,13 +1,15 @@
-{ ... }:
+{ den, ... }:
 {
   den.aspects.terminal =
     { ... }:
     {
+      includes = [
+        den.aspects.starship
+      ];
       nixos =
         {
           pkgs,
           config,
-          lib,
           ...
         }:
         {
@@ -45,7 +47,7 @@
                           end
 
                           if is_tui then
-                            overrides.window_padding = { left = 0, right = 0, top = 0, bottom = 0 }
+                            overrides.window_padding = { left = 0, right = 0, bottom = 0 }
                           else
                             overrides.window_padding = nil
                           end
