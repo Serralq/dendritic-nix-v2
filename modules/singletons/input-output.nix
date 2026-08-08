@@ -8,8 +8,12 @@
         { pkgs, ... }:
         {
           # ** Wacom tablet (CTL-4100WL via Bluetooth)
-          boot.kernelModules = [ "hidp" ];
+          boot.kernelModules = [
+            "hidp"
+            "uinput"
+          ];
           hardware.opentabletdriver.enable = true;
+          hardware.uinput.enable = true;
 
           # ** Printing
           services.printing.enable = true;
@@ -36,6 +40,9 @@
 
           # ** Enable custom keyboards (voyager)
           services.udev.extraRules = ''
+            # OpenTabletDriver's bundled rules omit the Bluetooth CTL-4100WL
+            KERNEL=="hidraw*", KERNELS=="0005:056A:03C6.*", GROUP="plugdev", MODE="0660"
+
             # Rules for Oryx web flashing and live training
             KERNEL=="hidraw*", ATTRS{idVendor}=="16c0", MODE="0664", GROUP="plugdev"
             KERNEL=="hidraw*", ATTRS{idVendor}=="3297", MODE="0664", GROUP="plugdev"
