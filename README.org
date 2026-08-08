@@ -528,3 +528,7 @@ Evals includes before any nix evals(modules and regular eval)
 - Underlying implementation: [[https://den.oeiuwq.com/explanation/parametric/][Parmetric Aspects]]
   standard nix has functors which run in any context,
   den uses functors but only runs these when the context matches
+** Bugs
+*** Static Bindings
+Sometimes can use a  { ... } : { ... }, function input to output
+  but that shouldn't be allowed and what always work is to output only if no input
