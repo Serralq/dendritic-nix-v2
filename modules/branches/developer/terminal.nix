@@ -24,6 +24,7 @@
       homeManager =
         { pkgs, config, ... }:
         {
+          xdg.configFile."bluetuith/bluetuith.conf".source = ./terminal/bluetuith.conf;
           xdg.configFile."fish/config.fish".source = ./terminal/config.fish;
           xdg.configFile."wezterm/wezterm.lua".text = ''
             -- Pull in the wezterm API
