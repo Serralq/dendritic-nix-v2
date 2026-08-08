@@ -78,7 +78,7 @@
                 credentialsFile = config.sops.secrets.cloudflared-credentials.path;
                 # Don't forget to set cloudflared tunnel route dns nixos-server <subdomain path>
                 ingress = {
-                  "copyparty.serralq.dev" = "http://localhost:3210";
+                  # "copyparty.serralq.dev" = "http://localhost:3210";
                   "tonda.serralq.dev" = "http://localhost:3210";
                   "mkdocs.serralq.dev" = "http://localhost:8000";
                   "jellyfin.serralq.dev" = "http://localhost:8096";

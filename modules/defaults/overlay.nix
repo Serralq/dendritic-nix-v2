@@ -81,14 +81,14 @@ in
           _module.args.inputs = inputs;
 
           imports = [
-            inputs.copyparty.nixosModules.default
+            # inputs.copyparty.nixosModules.default
             inputs.sops-nix.nixosModules.sops
             inputs.disko.nixosModules.disko
           ];
 
           nixpkgs.overlays = [
             # add the copyparty overlay to expose the package to the module
-            inputs.copyparty.overlays.default
+            # inputs.copyparty.overlays.default
             # Overlay is for replacement or new keyword in global space
             #   with access to prev and final
             #   has a global eval order
@@ -154,7 +154,7 @@ in
     nixpkgs-heavy.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
 
-    copyparty.url = "github:9001/copyparty";
+    # copyparty.url = "github:9001/copyparty";
     sops-nix.url = "github:Mic92/sops-nix";
     disko.url = "github:nix-community/disko";
     tagstudio.url = "github:TagStudioDev/TagStudio";
