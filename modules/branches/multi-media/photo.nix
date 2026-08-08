@@ -14,7 +14,7 @@
           home.packages = with pkgs; [
             gimp3-with-plugins
             rawtherapee
-            tagstudio # TagStudio
+            inputs.tagstudio.packages.${pkgs.system}.tagstudio-jxl # TagStudio
             # inputs.affinity-nix.packages.${pkgs.system}.v3 # Affinity image editors
           ];
         };

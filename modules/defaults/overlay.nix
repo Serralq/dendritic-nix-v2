@@ -95,11 +95,11 @@ in
             # Can either make a new pkg name or replace pkg
             # Aka I am the new maintainer, allow to seperate concerns
             (final: prev: {
-              tagstudio = inputs.tagstudio.packages.${prev.system}.tagstudio-jxl.overrideAttrs (oldAttrs: {
-                # Override is a regular build script keyword
-                # Patches keyword is a part of nix stdenv
-                patches = (oldAttrs.patches or [ ]) ++ [ ./../../patches/tagstudio-nord.patch ];
-              });
+              # tagstudio = inputs.tagstudio.packages.${prev.system}.tagstudio-jxl.overrideAttrs (oldAttrs: {
+              #   # Override is a regular build script keyword
+              #   # Patches keyword is a part of nix stdenv
+              #   patches = (oldAttrs.patches or [ ]) ++ [ ./../../patches/tagstudio-nord.patch ];
+              # });
 
               hyprland = inputs.hyprland.packages.${prev.system}.hyprland;
               xdg-desktop-portal-hyprland = inputs.hyprland.packages.${prev.system}.xdg-desktop-portal-hyprland;
