@@ -3,9 +3,9 @@
   den.aspects.file-management =
     { ... }:
     {
-      flake-file.inputs = {
-        copyparty.url = "github:9001/copyparty";
-      };
+      # flake-file.inputs = {
+      #   copyparty.url = "github:9001/copyparty";
+      # };
 
       homeManager =
         { pkgs, config, ... }:
@@ -36,25 +36,25 @@
 
           services.syncthing.enable = true;
 
-          systemd.user.services.copyparty-user = {
-            Unit.After = [ "hyprland-session.target" ];
-            Install.WantedBy = [ "hyprland-session.target" ];
-            Service = {
-              Type = "simple";
-              ExecStart = "${pkgs.copyparty}/bin/copyparty -c ${config.home.homeDirectory}/.config/copyparty/copyparty.conf";
-              Restart = "on-failure";
-            };
-          };
+          # systemd.user.services.copyparty-user = {
+          #   Unit.After = [ "hyprland-session.target" ];
+          #   Install.WantedBy = [ "hyprland-session.target" ];
+          #   Service = {
+          #     Type = "simple";
+          #     ExecStart = "${pkgs.copyparty}/bin/copyparty -c ${config.home.homeDirectory}/.config/copyparty/copyparty.conf";
+          #     Restart = "on-failure";
+          #   };
+          # };
 
-          systemd.user.services.rclone-mount = {
-            Unit.After = [ "hyprland-session.target" ];
-            Install.WantedBy = [ "hyprland-session.target" ];
-            Service = {
-              Type = "simple";
-              ExecStart = "${pkgs.rclone}/bin/rclone mount --vfs-cache-mode writes --dir-cache-time 5s nixos-dav: ${config.home.homeDirectory}/Remote-Disk/";
-              Restart = "on-failure";
-            };
-          };
+          # systemd.user.services.rclone-mount = {
+          #   Unit.After = [ "hyprland-session.target" ];
+          #   Install.WantedBy = [ "hyprland-session.target" ];
+          #   Service = {
+          #     Type = "simple";
+          #     ExecStart = "${pkgs.rclone}/bin/rclone mount --vfs-cache-mode writes --dir-cache-time 5s nixos-dav: ${config.home.homeDirectory}/Remote-Disk/";
+          #     Restart = "on-failure";
+          #   };
+          # };
         };
     };
 }

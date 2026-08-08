@@ -19,6 +19,8 @@
               message = "den.aspects.terminal requires Hermit font (den.aspects.font)";
             }
           ];
+          programs.fish.enable = true;
+          users.defaultUserShell = pkgs.fish;
         };
 
       homeManager =
@@ -168,6 +170,7 @@
             nushell # When I need structured contents
             carapace # Better terminal autocomplete
             tmux # For multiplexing, also works on remote machines
+            fish # My default shell
 
             # * CLI utilities
             bat # Better cat

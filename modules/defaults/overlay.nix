@@ -81,25 +81,25 @@ in
           _module.args.inputs = inputs;
 
           imports = [
-            inputs.copyparty.nixosModules.default
+            # inputs.copyparty.nixosModules.default
             inputs.sops-nix.nixosModules.sops
             inputs.disko.nixosModules.disko
           ];
 
           nixpkgs.overlays = [
             # add the copyparty overlay to expose the package to the module
-            inputs.copyparty.overlays.default
+            # inputs.copyparty.overlays.default
             # Overlay is for replacement or new keyword in global space
             #   with access to prev and final
             #   has a global eval order
             # Can either make a new pkg name or replace pkg
             # Aka I am the new maintainer, allow to seperate concerns
             (final: prev: {
-              tagstudio = inputs.tagstudio.packages.${prev.system}.tagstudio-jxl.overrideAttrs (oldAttrs: {
-                # Override is a regular build script keyword
-                # Patches keyword is a part of nix stdenv
-                patches = (oldAttrs.patches or [ ]) ++ [ ./../../patches/tagstudio-nord.patch ];
-              });
+              # tagstudio = inputs.tagstudio.packages.${prev.system}.tagstudio-jxl.overrideAttrs (oldAttrs: {
+              #   # Override is a regular build script keyword
+              #   # Patches keyword is a part of nix stdenv
+              #   patches = (oldAttrs.patches or [ ]) ++ [ ./../../patches/tagstudio-nord.patch ];
+              # });
 
               hyprland = inputs.hyprland.packages.${prev.system}.hyprland;
               xdg-desktop-portal-hyprland = inputs.hyprland.packages.${prev.system}.xdg-desktop-portal-hyprland;
@@ -154,7 +154,7 @@ in
     nixpkgs-heavy.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
 
-    copyparty.url = "github:9001/copyparty";
+    # copyparty.url = "github:9001/copyparty";
     sops-nix.url = "github:Mic92/sops-nix";
     disko.url = "github:nix-community/disko";
     tagstudio.url = "github:TagStudioDev/TagStudio";
