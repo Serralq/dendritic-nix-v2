@@ -6,7 +6,7 @@
       includes = [
         den.provides.define-user
         den.provides.primary-user
-        (den.provides.user-shell "fish")
+        # (den.provides.user-shell "fish")
         den.aspects.security
         den.aspects.input-output
         den.aspects.browser

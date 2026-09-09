@@ -24,6 +24,7 @@
       homeManager =
         { pkgs, config, ... }:
         {
+          xdg.configFile."fish/config.fish".source = ./terminal/config.fish;
           xdg.configFile."wezterm/wezterm.lua".text = ''
                         -- Pull in the wezterm API
                         local wezterm = require("wezterm")
