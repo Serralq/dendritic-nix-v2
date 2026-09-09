@@ -26,66 +26,47 @@
         {
           xdg.configFile."fish/config.fish".source = ./terminal/config.fish;
           xdg.configFile."wezterm/wezterm.lua".text = ''
-                        -- Pull in the wezterm API
-                        local wezterm = require("wezterm")
+            -- Pull in the wezterm API
+            local wezterm = require("wezterm")
 
-                        local tui_programs = {
-                          "${pkgs.opencode}/bin/opencode",
-                          "${pkgs.emacs-pgtk}/bin/emacs",
-                        }
+            wezterm.on('update-status', function(window)
+              local overrides = window:get_config_overrides() or {}
 
-                        wezterm.on('update-status', function(window, pane)
-                          local overrides = window:get_config_overrides() or {}
-                          local process = pane:get_foreground_process_name() or ""
+             overrides.window_padding = { top = 0, left = 0, right = 0, bottom = 0 }
+             window:set_config_overrides(overrides)
+            end)
 
-                          local is_tui = false
-                          for _, path in ipairs(tui_programs) do
-                            local name = path:match("[^/]+$")
-                            if process:find(name, 1, true) then
-                              is_tui = true
-                              break
-                            end
-                          end
+            return {
 
-                          if is_tui then
-                            overrides.window_padding = { left = 0, right = 0, bottom = 0 }
-                          else
-                            overrides.window_padding = nil
-                          end
-                          window:set_config_overrides(overrides)
-                        end)
+              -- Default
+              default_prog = { "${pkgs.fish}/bin/fish" },
+              -- Colors
+              color_scheme = "nord",
+              colors = { background = "#202329" },
 
-                        return {
+              -- Fonts
+              font = wezterm.font("Hermit"),
+              font_size = 10,
 
-                          -- Default
-                          default_prog = { "${pkgs.fish}/bin/fish" },
-                          -- Colors
-                          color_scheme = "nord",
-                          colors = { background = "#202329" },
+              -- Background
+              window_decorations = "NONE",
+              window_background_opacity = 0.92,
 
-                          -- Fonts
-                          font = wezterm.font("Hermit"),
-                          font_size = 10,
+              -- Etc.
+              hide_tab_bar_if_only_one_tab = true,
 
-                          -- Background
-                          window_decorations = "NONE",
-                          window_background_opacity = 0.97,
+              inactive_pane_hsb = {
+                saturation = 0.5,
+                brightness = 0.3,
+              },
+              -- Copy mode with ctrl + shift + x
 
-                          -- Etc.
-                          hide_tab_bar_if_only_one_tab = true,
+              -- Shift enter to work in claude code
+              enable_kitty_keyboard = true,
 
-                          inactive_pane_hsb = {
-                            saturation = 0.5,
-                            brightness = 0.3,
-                          },
-                          -- Copy mode with ctrl + shift + x
-
-                          -- Shift enter to work in claude code
-                          enable_kitty_keyboard = true,
-
-            	            initial_cols = 180,
-            	            initial_rows = 50,
-                        }
+             initial_cols = 180,
+             initial_rows = 50,
+            }
           '';
 
           # For tmux
