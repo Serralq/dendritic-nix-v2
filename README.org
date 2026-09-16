@@ -53,6 +53,11 @@ nix-collect-garbage --delete-older-than 1d
 cd nixos
 sudo nixos-rebuild switch --flake .
 #+END_SRC
+*** Boot clearing
+requires running a boot cycle (not compile and change)
+#+BEGIN_SRC bash
+sudo /run/current-system/bin/switch-to-configuration boot
+#+END_SRC
 ** Using nix-anywhere
 Known failure: hostinger
 Check lsblk for which type of drive to attach to
