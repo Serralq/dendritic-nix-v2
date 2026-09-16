@@ -5,18 +5,16 @@
     tagstudio.url = "github:TagStudioDev/TagStudio";
   };
 
-  den.aspects.photo =
-    { ... }:
-    {
-      homeManager =
-        { pkgs, inputs, ... }:
-        {
-          home.packages = with pkgs; [
-            gimp3-with-plugins
-            rawtherapee
-            inputs.tagstudio.packages.${pkgs.system}.tagstudio-jxl # TagStudio
-            # inputs.affinity-nix.packages.${pkgs.system}.v3 # Affinity image editors
-          ];
-        };
-    };
+  den.aspects.photo = {
+    homeManager =
+      { pkgs, inputs, ... }:
+      {
+        home.packages = with pkgs; [
+          gimp3-with-plugins
+          rawtherapee
+          inputs.tagstudio.packages.${pkgs.system}.tagstudio-jxl # TagStudio
+          # inputs.affinity-nix.packages.${pkgs.system}.v3 # Affinity image editors
+        ];
+      };
+  };
 }
