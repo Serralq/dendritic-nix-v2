@@ -82,7 +82,6 @@ in
           # inputs.copyparty.nixosModules.default
           inputs.sops-nix.nixosModules.sops
           inputs.disko.nixosModules.disko
-          inputs.otd-repro.nixosModules.default
         ];
 
         nixpkgs.overlays = [
@@ -97,6 +96,9 @@ in
             # Custom packages
             waywallen = final.callPackage ../_packages/waywallen--gen { };
 
+            opentabletdriver-drag-scroll =
+              final.callPackage ../_packages/opentabletdriver-drag-scroll--gen/opentabletdriver-drag-scroll.nix
+                { };
             # tagstudio = inputs.tagstudio.packages.${prev.system}.tagstudio-jxl.overrideAttrs (oldAttrs: {
             #   # Override is a regular build script keyword
             #   # Patches keyword is a part of nix stdenv
@@ -158,6 +160,5 @@ in
     disko.url = "github:nix-community/disko";
     tagstudio.url = "github:TagStudioDev/TagStudio";
     hyprland.url = "github:hyprwm/Hyprland/v0.56.1";
-    otd-repro.url = "github:Tsuyumi25/otd-nixos-pr-repro";
   };
 }

@@ -1,0 +1,16 @@
+{
+  "Name": "Drag Scroll",
+  "Owner": "serralq",
+  "Creator": "serralq",
+  "Description": "Scroll by moving the pen while its tip is pressed.",
+  "PluginVersion": "0.1.0",
+  "SupportedDriverVersion": "0.6.7",
+  "MaxSupportedDriverVersion": null,
+  "RepositoryUrl": null,
+  "DownloadUrl": null,
+  "CompressionFormat": "zip",
+  "SHA256": null,
+  "WikiUrl": null,
+  "Installed": true,
+  "LicenseIdentifier": null
+}

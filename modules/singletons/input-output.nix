@@ -70,16 +70,9 @@
 
     homeManager =
       {
-        inputs,
         pkgs,
         ...
       }:
-      let
-        drag-scroll = import ../_packages/opentabletdriver-drag-scroll.nix {
-          inherit pkgs;
-          opentabletdriver = inputs.otd-repro.packages.${pkgs.system}.opentabletdriver;
-        };
-      in
       {
         home.packages = with pkgs; [
           pulseaudio # Adding the command line utils
@@ -92,11 +85,12 @@
           vial # For the svalboard
         ];
 
+        # Plugins to allow for drag scrolling with tablet
         home.file = {
           ".config/OpenTabletDriver/Plugins/Drag Scroll/DragScroll.dll".source =
-            "${drag-scroll}/lib/opentabletdriver-plugins/DragScroll.dll";
+            "${pkgs.opentabletdriver-drag-scroll}/lib/opentabletdriver-plugins/DragScroll.dll";
           ".config/OpenTabletDriver/Plugins/Drag Scroll/metadata.json".source =
-            "${drag-scroll}/lib/opentabletdriver-plugins/metadata.json";
+            "${pkgs.opentabletdriver-drag-scroll}/lib/opentabletdriver-plugins/metadata.json";
         };
       };
   };

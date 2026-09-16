@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>OpenTabletDriver.DragScroll</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="OpenTabletDriver.Plugin">
+      <HintPath>$(OpenTabletDriverPath)/lib/OpenTabletDriver/OpenTabletDriver.Plugin.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
