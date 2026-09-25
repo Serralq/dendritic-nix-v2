@@ -11,6 +11,8 @@
           freecad
           orca-slicer
           bambu-appimage # To send files to 3d printer w/ auth
+          f3d # To preview in yazi my 3d models
+          openscad-unstable # To have parametric model generator on my pc
         ];
       };
   };
