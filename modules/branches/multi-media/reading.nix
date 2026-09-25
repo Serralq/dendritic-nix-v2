@@ -2,6 +2,7 @@
 {
   den.aspects.reading = {
     homeManager =
+
       { pkgs, ... }:
       {
         home.packages = with pkgs; [
@@ -12,6 +13,7 @@
           # May require a delete and reinstall
           # Don't touch after it starts running
           # On intel gpu will take literal days for a book
+          ocrmypdf # To convert pdf to text
         ];
       };
   };
