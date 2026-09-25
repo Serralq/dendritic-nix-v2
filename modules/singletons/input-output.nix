@@ -62,6 +62,9 @@
           SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="df11", MODE:="0666", SYMLINK+="stm32_dfu"
           # Keymapp Flashing rules for the Voyager
           SUBSYSTEMS=="usb", ATTRS{idVendor}=="3297", MODE:="0666", SYMLINK+="ignition_dfu"
+
+          # Vial keyboard configuration
+          KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{serial}=="*vial:f64c2b3c*", MODE="0660", GROUP="plugdev", TAG+="uaccess", TAG+="udev-acl"
         '';
       };
 
@@ -86,6 +89,7 @@
           # 2) Hold f10 w/o fn key, keyboard will appear on the interface
           # 3) Reattach to computer body to use trackpad to select the keyboard
           # 4) Hold f10 again to actually accept the request
+          vial # For the svalboard
         ];
 
         home.file = {
