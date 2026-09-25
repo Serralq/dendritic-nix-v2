@@ -136,14 +136,13 @@ if status is-interactive
         tput cup (math (tput lines) - 3) 0
     end
 
-    function stow --description 'Restricts GNU Stow to only run inside ~/stow'
-        set -l target_dir "$HOME/stow"
-
-        if string match -q "$target_dir*" "$PWD"
+    function stow --description 'Restrict GNU Stow to exactly ~/stow or ~/any'
+        if contains -- "$PWD" "$HOME/stow" "$HOME/any"
             command stow $argv
         else
-            set_color red
-            echo "Error: stow can only be run from within $target_dir"
+            set_color red >&2
+            echo "Error: stow can only be run from $HOME/stow or $HOME/any (not subdirectories)" >&2
+            set_color normal >&2
             return 1
         end
     end
