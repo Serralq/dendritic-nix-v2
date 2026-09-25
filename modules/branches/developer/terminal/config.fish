@@ -7,6 +7,10 @@ if status is-interactive
     set -gx FZF_DEFAULT_OPTS "--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
     set -gx NIXPKGS_ALLOW_UNFREE 1
     set -gx SHELL /home/serralq/.nix-profile/bin/fish
+    # Some programs ask for this implicitly in FHS environment
+    # which nix would block so setting it here for global
+    set -gx SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt
+    set -gx CURL_CA_BUNDLE /etc/ssl/certs/ca-bundle.crt
     # TODO Customize fzf as the need arises
     # Bat examples at: https://github.com/sharkdp/bat
 
