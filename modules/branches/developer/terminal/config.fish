@@ -50,11 +50,11 @@ if status is-interactive
     # ** Pathes
     fish_add_path ~/.scripts
     fish_add_path ~/.config/emacs/bin # Doom emacs path
-    # *** Paths for windows apps
-    alias lime="winapps manual 'C:\Users\serralq\Desktop\Shared\Games\Lime\limelight_lj.exe'"
-    alias tenshi="winapps manual 'C:\Users\serralq\Desktop\Shared\Games\Tenshi\tenshi.exe'"
-    alias textractor="winapps manual 'C:\Users\serralq\Desktop\Shared\Games\Textractor\x86\Textractor.exe'"
-    alias xrdp="xfreerdp /u:'serralq' /p:'TheBest' /v:127.0.0.1 /cert:tofu /dynamic-resolution /sound:sys:pulse"
+    # # *** Paths for windows apps
+    # alias lime="winapps manual 'C:\Users\serralq\Desktop\Shared\Games\Lime\limelight_lj.exe'"
+    # alias tenshi="winapps manual 'C:\Users\serralq\Desktop\Shared\Games\Tenshi\tenshi.exe'"
+    # alias textractor="winapps manual 'C:\Users\serralq\Desktop\Shared\Games\Textractor\x86\Textractor.exe'"
+    # alias xrdp="xfreerdp /u:'serralq' /p:'TheBest' /v:127.0.0.1 /cert:tofu /dynamic-resolution /sound:sys:pulse"
     # * Global Aliasing, always all caps
     abbr --add SO --position anywhere ' > /dev/null' # Removes std out in logs
     abbr --add NE --position anywhere ' 2> /dev/null' # Removes errors in logs
@@ -360,7 +360,7 @@ end
 
 # * Start tmux (outside of tmux)
 if status is-interactive; and not set -q TMUX
-#     tmux new-session -A -s shared # Shared session, different windows
+    #     tmux new-session -A -s shared # Shared session, different windows
 end
 
 # ** Code runs only inside tmux
