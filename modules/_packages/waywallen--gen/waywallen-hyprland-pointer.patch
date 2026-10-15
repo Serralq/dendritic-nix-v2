@@ -1,0 +1,398 @@
+diff --git a/src/bin/layer_shell/app/input.rs b/src/bin/layer_shell/app/input.rs
+index fd9a907..fc55fc2 100644
+--- a/src/bin/layer_shell/app/input.rs
++++ b/src/bin/layer_shell/app/input.rs
+@@ -135,7 +135,7 @@ fn logical_to_physical(state: &App, output_name: u32, lx: f64, ly: f64) -> (f32
+     ((lx * s) as f32, (ly * s) as f32)
+ }
+ 
+-fn send_pointer_motion(state: &App, output_name: u32, x: f32, y: f32, timestamp_us: u64) {
++pub(super) fn send_pointer_motion(state: &App, output_name: u32, x: f32, y: f32, timestamp_us: u64) {
+     let Some(entry) = state.outputs.get(&output_name) else {
+         return;
+     };
+diff --git a/src/bin/layer_shell/app/mod.rs b/src/bin/layer_shell/app/mod.rs
+index e172b57..0ee67fb 100644
+--- a/src/bin/layer_shell/app/mod.rs
++++ b/src/bin/layer_shell/app/mod.rs
+@@ -4,5 +4,6 @@ mod session;
+ mod wayland;
+ 
++use self::input::send_pointer_motion;
+ use self::presentation::present_latest;
+ use self::session::shutdown_display_session;
+ use self::wayland::make_output_binding;
+@@ -305,6 +306,25 @@ impl App {
+                         );
+                     }
+                 }
++                watcher::Command::PointerMotion {
++                    display_name,
++                    x,
++                    y,
++                    present,
++                } => {
++                    let target = self.outputs.iter().find_map(|(output_name, entry)| {
++                        let binding = entry.binding.as_ref()?;
++                        (binding.display_name == display_name).then_some(*output_name)
++                    });
++                    let Some(output_name) = target else {
++                        continue;
++                    };
++                    if present {
++                        send_pointer_motion(self, output_name, x, y, 0);
++                    } else {
++                        send_pointer_motion(self, output_name, -1.0, -1.0, 0);
++                    }
++                }
+             }
+         }
+     }
+@@ -396,5 +416,11 @@ pub(super) fn run(socket: PathBuf, name_prefix: String) -> Result<()> {
+                         windows.iter().fold(0, |flags, window| flags | window.flags)
+                     ),
++                    watcher::Command::PointerMotion {
++                        display_name,
++                        x,
++                        y,
++                        present,
++                    } => log::info!("probe: {display_name} pointer=({x}, {y}) present={present}"),
+                 }
+             }
+             std::thread::sleep(std::time::Duration::from_millis(200));
+diff --git a/src/bin/layer_shell/watcher/mod.rs b/src/bin/layer_shell/watcher/mod.rs
+index 37716d2..31657c1 100644
+--- a/src/bin/layer_shell/watcher/mod.rs
++++ b/src/bin/layer_shell/watcher/mod.rs
+@@ -123,6 +123,12 @@ pub enum Command {
+         display_name: String,
+         windows: Vec<Window>,
+     },
++    PointerMotion {
++        display_name: String,
++        x: f32,
++        y: f32,
++        present: bool,
++    },
+ }
+ 
+ #[derive(Clone)]
+diff --git a/src/bin/layer_shell/watcher/hyprland.rs b/src/bin/layer_shell/watcher/hyprland.rs
+index 3283494..4ecb06e 100644
+--- a/src/bin/layer_shell/watcher/hyprland.rs
++++ b/src/bin/layer_shell/watcher/hyprland.rs
+@@ -1,8 +1,9 @@
+ use std::collections::HashMap;
+-use std::io::{BufRead, BufReader};
++use std::io::{BufRead, BufReader, Read, Write};
+ use std::os::unix::net::UnixStream;
+ use std::path::PathBuf;
+ use std::process::Command;
++use std::sync::{Arc, Mutex};
+ use std::thread;
+ use std::time::Duration;
+ 
+@@ -12,6 +13,8 @@ use waywallen_display::{
+     WAYWALLEN_WIN_HAS_NON_MINIMIZED,
+ };
+ 
++const POINTER_POLL_INTERVAL: Duration = Duration::from_millis(16);
++
+ pub fn detect_socket() -> Option<PathBuf> {
+     let his = std::env::var_os("HYPRLAND_INSTANCE_SIGNATURE")?;
+     let xdg = std::env::var_os("XDG_RUNTIME_DIR")?;
+@@ -27,6 +30,12 @@ pub fn detect_socket() -> Option<PathBuf> {
+     }
+ }
+ 
++fn detect_command_socket() -> Option<PathBuf> {
++    let mut path = detect_socket()?;
++    path.set_file_name(".socket.sock");
++    path.exists().then_some(path)
++}
++
+ pub fn spawn(registry: BindingRegistry, commands: CommandSender) -> bool {
+     let Some(sock) = detect_socket() else {
+         return false;
+@@ -39,7 +48,23 @@ pub fn spawn(registry: BindingRegistry, commands: CommandSender) -> bool {
+             return false;
+         }
+     };
+-    thread::spawn(move || run_loop(sock, stream, registry, commands));
++    let tracked_classes = std::env::var("WAYWALLEN_HYPRLAND_POINTER_CLASSES")
++        .unwrap_or_default()
++        .split(',')
++        .map(str::trim)
++        .filter(|class| !class.is_empty())
++        .map(str::to_owned)
++        .collect::<Vec<_>>();
++    let pointer_target = Arc::new(Mutex::new(None));
++    if let Some(command_socket) = detect_command_socket().filter(|_| !tracked_classes.is_empty()) {
++        let target = Arc::clone(&pointer_target);
++        let pointer_commands = commands.clone();
++        log::info!("hyprland_watcher: global pointer classes={tracked_classes:?}");
++        thread::spawn(move || pointer_loop(command_socket, target, pointer_commands));
++    }
++    thread::spawn(move || {
++        run_loop(sock, stream, registry, commands, pointer_target, tracked_classes)
++    });
+     true
+ }
+ 
+@@ -48,6 +75,8 @@ fn run_loop(
+     initial_stream: UnixStream,
+     registry: BindingRegistry,
+     commands: CommandSender,
++    pointer_target: Arc<Mutex<Option<PointerTarget>>>,
++    tracked_classes: Vec<String>,
+ ) {
+     let mut initial_stream = Some(initial_stream);
+     loop {
+@@ -57,11 +83,11 @@ fn run_loop(
+             .unwrap_or_else(|| UnixStream::connect(&socket_path))
+         {
+             Ok(stream) => {
+-                push_state(&registry, &commands);
++                push_state(&registry, &commands, &pointer_target, &tracked_classes);
+                 let reader = BufReader::new(stream);
+                 for line in reader.lines() {
+                     match line {
+-                        Ok(_) => push_state(&registry, &commands),
++                        Ok(_) => push_state(&registry, &commands, &pointer_target, &tracked_classes),
+                         Err(e) => {
+                             log::warn!("hyprland_watcher: read error: {e}");
+                             break;
+@@ -74,7 +103,12 @@ fn run_loop(
+     }
+ }
+ 
+-fn push_state(_registry: &BindingRegistry, commands: &CommandSender) {
++fn push_state(
++    _registry: &BindingRegistry,
++    commands: &CommandSender,
++    pointer_target: &Mutex<Option<PointerTarget>>,
++    tracked_classes: &[String],
++) {
+     let snapshot = match hyprctl_snapshot() {
+         Ok(v) => v,
+         Err(e) => {
+@@ -82,6 +116,7 @@ fn push_state(_registry: &BindingRegistry, commands: &CommandSender) {
+             return;
+         }
+     };
++    *pointer_target.lock().unwrap() = tracking_target(&snapshot, tracked_classes);
+     let by_output = windows_by_output(&snapshot);
+     for monitor in &snapshot.monitors {
+         commands.send(WatcherCommand::WindowState {
+@@ -91,6 +126,64 @@ fn push_state(_registry: &BindingRegistry, commands: &CommandSender) {
+     }
+ }
+ 
++#[derive(Clone, Debug, PartialEq)]
++struct PointerTarget {
++    display_name: String,
++    window_x: f64,
++    window_y: f64,
++    window_width: f64,
++    window_height: f64,
++    monitor_x: f64,
++    monitor_y: f64,
++    scale: f64,
++}
++
++#[derive(serde::Deserialize)]
++struct CursorPosition {
++    x: f64,
++    y: f64,
++}
++
++fn pointer_loop(
++    command_socket: PathBuf,
++    target: Arc<Mutex<Option<PointerTarget>>>,
++    commands: CommandSender,
++) {
++    let mut last: Option<(String, f32, f32)> = None;
++    loop {
++        let current_target = target.lock().unwrap().clone();
++        let motion = current_target.and_then(|target| {
++            let cursor = request_json::<CursorPosition>(&command_socket, "cursorpos").ok()?;
++            project_pointer(&target, cursor.x, cursor.y)
++        });
++        match motion {
++            Some((display_name, x, y)) => {
++                let current = (display_name.clone(), x, y);
++                if last.as_ref() != Some(&current) {
++                    commands.send(WatcherCommand::PointerMotion {
++                        display_name,
++                        x,
++                        y,
++                        present: true,
++                    });
++                    last = Some(current);
++                }
++            }
++            None => {
++                if let Some((display_name, _, _)) = last.take() {
++                    commands.send(WatcherCommand::PointerMotion {
++                        display_name,
++                        x: -1.0,
++                        y: -1.0,
++                        present: false,
++                    });
++                }
++            }
++        }
++        thread::sleep(POINTER_POLL_INTERVAL);
++    }
++}
++
+ #[derive(serde::Deserialize)]
+ struct Client {
+     #[serde(default)]
+@@ -103,6 +196,12 @@ struct Client {
+     workspace: Workspace,
+     fullscreen: i64,
+     mapped: bool,
++    #[serde(default)]
++    hidden: bool,
++    #[serde(default)]
++    at: [f64; 2],
++    #[serde(default)]
++    size: [f64; 2],
+ }
+ 
+ #[derive(serde::Deserialize)]
+@@ -115,6 +205,11 @@ struct Monitor {
+     name: String,
+     #[serde(rename = "activeWorkspace")]
+     active_workspace: WorkspaceRef,
++    x: f64,
++    y: f64,
++    width: f64,
++    height: f64,
++    scale: f64,
+ }
+ 
+ #[derive(serde::Deserialize)]
+@@ -148,6 +251,15 @@ fn run_hyprctl_json<T: serde::de::DeserializeOwned>(args: &[&str]) -> anyhow::Re
+     Ok(serde_json::from_slice(&out.stdout)?)
+ }
+ 
++fn request_json<T: serde::de::DeserializeOwned>(socket: &PathBuf, request: &str) -> anyhow::Result<T> {
++    let mut stream = UnixStream::connect(socket)?;
++    stream.write_all(format!("j/{request}").as_bytes())?;
++    stream.shutdown(std::net::Shutdown::Write)?;
++    let mut response = Vec::new();
++    stream.read_to_end(&mut response)?;
++    Ok(serde_json::from_slice(&response)?)
++}
++
+ fn windows_by_output(snap: &Snapshot) -> HashMap<String, Vec<Window>> {
+     let mon_name: HashMap<i64, String> = snap
+         .monitors
+@@ -184,3 +295,105 @@ fn windows_by_output(snap: &Snapshot) -> HashMap<String, Vec<Window>> {
+     }
+     out
+ }
++
++fn tracking_target(snap: &Snapshot, tracked_classes: &[String]) -> Option<PointerTarget> {
++    let active = snap.active_addr.as_deref()?;
++    let client = snap.clients.iter().find(|client| {
++        client.address == active
++            && client.mapped
++            && !client.hidden
++            && tracked_classes
++                .iter()
++                .any(|class| class.eq_ignore_ascii_case(&client.class))
++    })?;
++    let monitor = snap.monitors.iter().find(|monitor| {
++        monitor.id == client.monitor && monitor.active_workspace.id == client.workspace.id
++    })?;
++    Some(PointerTarget {
++        display_name: monitor.name.clone(),
++        window_x: client.at[0],
++        window_y: client.at[1],
++        window_width: client.size[0],
++        window_height: client.size[1],
++        monitor_x: monitor.x,
++        monitor_y: monitor.y,
++        scale: monitor.scale,
++    })
++}
++
++fn project_pointer(target: &PointerTarget, x: f64, y: f64) -> Option<(String, f32, f32)> {
++    let inside = x >= target.window_x
++        && y >= target.window_y
++        && x < target.window_x + target.window_width
++        && y < target.window_y + target.window_height;
++    if !inside || target.scale <= 0.0 {
++        return None;
++    }
++    Some((
++        target.display_name.clone(),
++        ((x - target.monitor_x) * target.scale) as f32,
++        ((y - target.monitor_y) * target.scale) as f32,
++    ))
++}
++
++#[cfg(test)]
++mod pointer_tests {
++    use super::*;
++
++    fn target() -> PointerTarget {
++        PointerTarget {
++            display_name: "eDP-1".into(),
++            window_x: 0.0,
++            window_y: 20.0,
++            window_width: 1440.0,
++            window_height: 880.0,
++            monitor_x: 0.0,
++            monitor_y: 0.0,
++            scale: 2.0,
++        }
++    }
++
++    #[test]
++    fn projects_logical_cursor_to_physical_output() {
++        assert_eq!(
++            project_pointer(&target(), 500.0, 400.0),
++            Some(("eDP-1".into(), 1000.0, 800.0))
++        );
++    }
++
++    #[test]
++    fn ignores_cursor_outside_tracked_window() {
++        assert_eq!(project_pointer(&target(), 500.0, 10.0), None);
++    }
++
++    #[test]
++    fn only_tracks_allowlisted_active_window() {
++        let snapshot = Snapshot {
++            clients: vec![Client {
++                class: "org.wezfurlong.wezterm".into(),
++                title: "shell".into(),
++                address: "0x1".into(),
++                monitor: 0,
++                workspace: Workspace { id: 3 },
++                fullscreen: 0,
++                mapped: true,
++                hidden: false,
++                at: [0.0, 20.0],
++                size: [1440.0, 880.0],
++            }],
++            monitors: vec![Monitor {
++                id: 0,
++                name: "eDP-1".into(),
++                active_workspace: WorkspaceRef { id: 3 },
++                x: 0.0,
++                y: 0.0,
++                width: 2880.0,
++                height: 1800.0,
++                scale: 2.0,
++            }],
++            active_addr: Some("0x1".into()),
++        };
++        assert!(tracking_target(&snapshot, &["org.wezfurlong.wezterm".into()]).is_some());
++        assert!(tracking_target(&snapshot, &["firefox".into()]).is_none());
++    }
++}
