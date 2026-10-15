@@ -22,8 +22,7 @@
           #   flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flhub.flatpakrepo
           #
           # To install:
-          # flatpak install flathub com.github.PintaProject.Pinta
-          # also bambu studio
+          # flatpak install flathub <url>
           services.flatpak.enable = true;
 
           # * Waydroid
