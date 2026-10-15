@@ -153,7 +153,7 @@
           # ** Japanese input method (launched via Hyprland to inherit session environment)
           wayland.windowManager.hyprland.extraConfig = ''
             hl.on("hyprland.start", function()
-              hl.exec_cmd("${pkgs.fcitx5}/bin/fcitx5 -d")
+              hl.exec_cmd("/run/current-system/sw/bin/fcitx5 -d")
             end)
           '';
         };
