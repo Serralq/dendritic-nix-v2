@@ -69,8 +69,6 @@
           grimblast # Better screenshots
           brightnessctl # For brightness cmd
           waybar # TODO create a currently listening
-          mpvpaper
-          socat # Control forked mpvpaper
           playerctl # Allow to check what's currently playing
           hyprcursor # TODO Util to convert Xcursor to hyprcursor
           xcur2png # Help extract xcursor
@@ -87,6 +85,7 @@
           hyprpicker # Get colors from screen
           wev # Figure out what output from input devices
           hypridle # For locking the computer
+          waywallen # For desktop engine wallpapers
         ];
 
         # * Notifications: Dunst

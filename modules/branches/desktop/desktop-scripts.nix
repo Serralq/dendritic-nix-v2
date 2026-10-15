@@ -106,12 +106,14 @@
             };
 
             # ** Wallpaper
+            # Allows for mouse tracking on transparent windows
             hyprland-wallpaper = {
               Unit.After = [ "hyprland-session.target" ];
               Install.WantedBy = [ "hyprland-session.target" ];
               Service = {
                 Type = "simple";
-                ExecStart = "${pkgs.mpvpaper}/bin/mpvpaper eDP-1 ${config.home.homeDirectory}/Videos/atri.jpg -o '--loop --no-audio --fullscreen=yes --panscan=1'";
+                Environment = "WAYWALLEN_HYPRLAND_POINTER_CLASSES=org.wezfurlong.wezterm,emacs";
+                ExecStart = "${pkgs.waywallen}/bin/waywallen --no-ui --display-backend layer-shell";
                 Restart = "on-failure";
               };
             };
