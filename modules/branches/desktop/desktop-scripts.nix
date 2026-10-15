@@ -45,7 +45,15 @@
           # };
         };
       homeManager =
-        { config, pkgs, ... }:
+        {
+          config,
+          inputs,
+          pkgs,
+          ...
+        }:
+        let
+          hyprland = inputs.hyprland.packages.${pkgs.system}.hyprland;
+        in
         {
           # * Hyprland session startup services
           systemd.user.services = {
@@ -89,7 +97,7 @@
               Install.WantedBy = [ "hyprland-session.target" ];
               Service = {
                 Type = "oneshot";
-                ExecStart = "${pkgs.hyprland}/bin/hyprctl setcursor oguri-cap-1 50";
+                ExecStart = "${hyprland}/bin/hyprctl setcursor oguri-cap-1 50";
                 RemainAfterExit = true;
               };
             };
@@ -100,7 +108,7 @@
               Install.WantedBy = [ "hyprland-session.target" ];
               Service = {
                 Type = "oneshot";
-                ExecStart = "${pkgs.hyprland}/bin/hyprctl eval 'hl.monitor({ output = \"eDP-2\", disabled = true })'";
+                ExecStart = "${hyprland}/bin/hyprctl eval 'hl.monitor({ output = \"eDP-2\", disabled = true })'";
                 RemainAfterExit = true;
               };
             };

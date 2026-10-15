@@ -103,9 +103,6 @@ in
             #   patches = (oldAttrs.patches or [ ]) ++ [ ./../../patches/tagstudio-nord.patch ];
             # });
 
-            hyprland = inputs.hyprland.packages.${prev.system}.hyprland;
-            xdg-desktop-portal-hyprland = inputs.hyprland.packages.${prev.system}.xdg-desktop-portal-hyprland;
-
             # Custom nix stable pins, after fail in nix-unstable
             rarcrack = pkgs-stable.rarcrack;
             notonoto = pkgs-stable.notonoto;

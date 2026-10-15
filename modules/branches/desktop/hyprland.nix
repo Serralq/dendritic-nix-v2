@@ -12,13 +12,16 @@
 
   den.aspects.hyprland = {
     nixos =
-      { pkgs, ... }:
+      { inputs, pkgs, ... }:
+      let
+        hyprlandPackages = inputs.hyprland.packages.${pkgs.system};
+      in
       {
         programs.hyprland = {
           enable = true;
           xwayland.enable = true;
-          package = pkgs.hyprland;
-          portalPackage = pkgs.xdg-desktop-portal-hyprland;
+          package = hyprlandPackages.hyprland;
+          portalPackage = hyprlandPackages.xdg-desktop-portal-hyprland;
         };
       };
 
@@ -33,6 +36,7 @@
         ...
       }:
       let
+        hyprlandPackages = inputs.hyprland.packages.${pkgs.system};
         lua = lib.generators.mkLuaInline;
 
         dsp = {
@@ -120,10 +124,10 @@
         wayland.windowManager.hyprland = {
           configType = "lua";
           enable = true;
-          package = pkgs.hyprland;
+          package = hyprlandPackages.hyprland;
           systemd.enable = true;
           systemd.variables = [ "--all" ];
-          portalPackage = pkgs.xdg-desktop-portal-hyprland;
+          portalPackage = hyprlandPackages.xdg-desktop-portal-hyprland;
           plugins = [
             inputs.hypr-dynamic-cursors.packages.${pkgs.system}.hypr-dynamic-cursors
             inputs.hy3.packages.${pkgs.system}.hy3
