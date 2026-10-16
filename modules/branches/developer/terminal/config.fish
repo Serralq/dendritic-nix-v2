@@ -37,7 +37,8 @@ if status is-interactive
     alias ls="eza --icons=always --color=always -T --hyperlink -L 1"
     alias rsync="rsync -azvhP"
     alias json-diff="json-diff -S full" # Use with nix-value-json to compare nix outputs
-    alias sshs "sshs --exit --template 'mosh \"{{{name}}}\"'" # To connect ssh without lag and to autocomplete username
+    alias sshs="sshs --exit --template 'mosh \"{{{name}}}\"'" # To connect ssh without lag and to autocomplete username
+    alias nmtui="nmtui-connect"
     # For alias to be ver of original so it autocompletes
     alias xclip-expand="cliphist list | fzf --no-sort | cliphist decode | wl-copy"
     alias nix-search="nix-search-tv print | fzf --preview 'nix-search-tv preview {}' --scheme history"
