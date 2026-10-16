@@ -418,6 +418,12 @@
                 size = "200 200";
                 move = "1348 790";
               }
+              {
+                match.class = "^(MateEngineX\\.x86_64)$";
+                float = true;
+                pin = true;
+                no_blur = true;
+              }
             ];
 
             bind = [
