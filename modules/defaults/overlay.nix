@@ -96,6 +96,8 @@ in
             # Custom packages
             waywallen = final.callPackage ../_packages/waywallen--gen { };
 
+            mate-engine = final.callPackage ../_packages/mate-engine--gen { };
+
             opentabletdriver-drag-scroll =
               final.callPackage ../_packages/opentabletdriver-drag-scroll--gen/opentabletdriver-drag-scroll.nix
                 { };

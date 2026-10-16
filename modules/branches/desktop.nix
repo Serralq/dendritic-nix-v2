@@ -86,6 +86,7 @@
           wev # Figure out what output from input devices
           hypridle # For locking the computer
           waywallen # For desktop engine wallpapers
+          mate-engine # For atri vr model to dance
         ];
 
         # * Notifications: Dunst
