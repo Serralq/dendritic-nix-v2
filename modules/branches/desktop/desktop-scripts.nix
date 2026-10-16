@@ -31,18 +31,6 @@
             ACTION=="change",SUBSYSTEM=="power_supply", RUN+="${border-color}"
             SUBSYSTEM=="power_supply",ATTR{status}=="Discharging", RUN+="${border-color}"
           '';
-          # ** VPN
-          # Currently pia servers just suck and manually choosing servers also suck
-          # systemd.services.vpn = {
-          #   wantedBy = [ "multi-user.target" ];
-          #   after = [ "network-online.target" ];
-          #   wants = [ "network-online.target" ];
-          #   serviceConfig = {
-          #     Type = "simple";
-          #     ExecStart = "${pkgs.openvpn}/bin/openvpn --config /run/secrets/openvpn-config --auth-user-pass /run/secrets/openvpn-auth";
-          #     Restart = "on-failure";
-          #   };
-          # };
         };
       homeManager =
         {
