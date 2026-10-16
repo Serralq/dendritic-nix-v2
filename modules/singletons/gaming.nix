@@ -20,6 +20,7 @@
       {
         home.packages = with pkgs; [
           protonup-ng # Improve proton
+          umu-launcher # Proton launcher
           (heroic.override {
             extraPkgs = pkgs: [
               pkgs.gamemode
