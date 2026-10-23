@@ -39,10 +39,20 @@
   https://mynixos.com
   https://search.nixos.org/packages
   https://searchix.ovh
+  https://home-manager-options.extranix.com
 - Curated list:
   https://github.com/nix-community/awesome-nix?tab=readme-ov-file
   https://github.com/awesome-selfhosted/awesome-selfhosted
 *** [[https://nix.dev/tutorials/packaging-existing-software.html][Create new Package]]
+** Style Guide
+- global: [[id:f742bfcd-2940-4223-9c62-30d32a413ef8][new Coding Project]]
+  comments
+  comment header
+- root
+  nixos vs homemanager
+  non-default options (weak enforce)
+  - networking / client.nix / server.nix
+    service vs pkgs
 * Debugging, it's always a full boot partition
 - Almost always hardware.nix failure
 - Or forgot to "git add ." the new file
@@ -151,13 +161,6 @@ Can reuse and define:
 - [ ] Allow for declarative flatpaks ([[https://github.com/gmodena/nix-flatpak][github]])
 - [ ] Remove hard paths
 - [ ] Add nix optimze and gc optimizations
-** Convert to allow secrets
-- Three folder:
-  |            | Stow | Auto-sync | Uploading |
-  | Stow       | Y    | Y         | Y         |
-  | Secrets    | Y    | Y         |           |
-  | (Services) | Y    | Y         |           |
-  | Remote     | Y    |           |           |
 ** Custom boot entry names
 Format: (<Host>.<ver>) <Branch>.<commit#>.#<count>
 ** Slow ass dev env -> use [[https://devenv.sh/blog/2026/03/05/devenv-20-a-fresh-interface-to-nix/#native-process-manager][devenv]]
