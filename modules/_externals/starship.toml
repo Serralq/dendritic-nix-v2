@@ -1,10 +1,20 @@
-# [[file:.starship.toml.org::*Prompt][Prompt:1]]
+# * Task
+# - Missing nerd fonts
+# - Missing formatting
+# - Checking all the modules listed
+# - Change src background
+# - Faster prompt, mainly async, to avoid the command_timeout
+#   To allow for a place holder and filling it in
+#   - Fish so far only allow for input, no placeholder
+#   - Zsh so far only allow for input, no placeholder
+#   - Fish.tide, without config file, too fast to check for placeholder
+#   - The speed issue was due to git_status' ahead_behind
+# * Prompt
 add_newline = true
 format = """ $directory$read_only$fill $time\n\r $character"""
 right_format = "$all "
-# Prompt:1 ends here
 
-# [[file:.starship.toml.org::*Main][Main:1]]
+# * Main
 [cmd_duration]
   format = ' \[[ $duration]($style)\]'
   show_notifications = true
@@ -52,12 +62,10 @@ right_format = "$all "
   symbol = "󰏗 "
   format = ' \[[$symbol$version]($style)\]'
 [shell]
-# Main:1 ends here
 
-# [[file:.starship.toml.org::*Battery][Battery:1]]
+# * Battery
 [battery]
   format = '\[[$symbol$percentage]($style)\]'
-  disabled = true
 [[battery.display]]
   threshold = 100
   style = "italic dimmed green"
@@ -70,9 +78,8 @@ right_format = "$all "
 [[battery.display]]
   threshold = 5
   style = "italic bold purple"
-# Battery:1 ends here
 
-# [[file:.starship.toml.org::*Git][Git:1]]
+# * Git
 [git_branch]
   symbol = " " # Nerd fonts
   format = ' \[[$symbol$branch]($style)\]'
@@ -86,17 +93,15 @@ right_format = "$all "
   disabled = true
 [git_status]
   disabled = true
-# Git:1 ends here
 
-# [[file:.starship.toml.org::*JJ][JJ:1]]
+# * JJ
 [custom.jj]
   symbol = " " # Nerd fonts
   format = '\[[$symbol$output]($style)\]'
   when = "jj-starship detect"
   shell = ["jj-starship", "--no-jj-prefix", "--no-jj-id"]
-# JJ:1 ends here
 
-# [[file:.starship.toml.org::*Nerd fonts only changes][Nerd fonts only changes:1]]
+# * Nerd Fonts
 [aws]
   format = ' \[[$symbol($profile)(\($region\))(\[$duration\])]($style)\]'
   symbol = " "
@@ -301,4 +306,3 @@ right_format = "$all "
 [gradle]
   symbol = " "
   format = ' \[[$symbol($version)]($style)\]'
-# Nerd fonts only changes:1 ends here

@@ -94,6 +94,8 @@ ls result/ to find the executaes
    reboot
 ** Aspect level empty inputs
 then should not just leave a { ... }:, this can cause a bug
+** User does not own root
+Can be caused by a rootful docker
 * Components
 ** Nix strings vs. etc.
 Always nix-strings > symlink OR readfile etc.

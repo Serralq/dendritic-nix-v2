@@ -1,5 +1,6 @@
 .direnv/
 .opencode--gen/
+tmuxinator.yml
 
 # Devenv
 .devenv*

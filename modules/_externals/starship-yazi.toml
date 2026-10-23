@@ -78,6 +78,11 @@ right_format = "$time$battery"
 [git_status]
   format = '([\[$all_status$ahead_behind\]]($style) )'
 # Git:1 ends here
+[custom.jj]
+  symbol = " " # Nerd fonts
+  format = '\[[$symbol$output]($style)\]'
+  when = "jj-starship detect"
+  shell = ["jj-starship", "--no-jj-prefix", "--no-jj-id"]
 
 # [[file:.starship.toml.org::*Nerd fonts only changes][Nerd fonts only changes:1]]
 [aws]
@@ -172,6 +177,8 @@ right_format = "$time$battery"
 [nix_shell]
   symbol = " "
   format = '\[[$symbol$state( \($name\))]($style)\] '
+  impure_msg = "i"
+  pure_msg = "p"
 [nodejs]
   symbol = " "
   format = '\[[$symbol($version)]($style)\] '
