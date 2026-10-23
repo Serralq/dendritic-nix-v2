@@ -1,8 +1,8 @@
 [revsets]
-fix = "@"
+fix = "@" # Fix to work on "@" the current edit
 
 [fix.tools.nixfmt]
-command = ["nixfmt", "--filename=$path"]
+command = ["nixfmt", "--filename=$path"] # Add nixfmt as a tool
 patterns = ["glob:'**/*.nix'"]
 
 [aliases]
