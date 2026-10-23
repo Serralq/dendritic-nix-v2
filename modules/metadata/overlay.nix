@@ -68,6 +68,8 @@ in
 
   # Define a user account. Don't forget to set a password with 'passwd'.
   den.hosts.x86_64-linux.hirakata.users.serralq = { };
+  den.hosts.x86_64-linux.otaru.users.nice-nature = { };
+  den.hosts.x86_64-linux.choshi.users.agnes-tachyon = { };
 
   # ** Overlays
   den.aspects.overlays = {
