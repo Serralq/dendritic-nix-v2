@@ -189,6 +189,8 @@
             ];
           };
         };
+        # * Hyprpolkit (when asking for permissions)
+        services.hyprpolkitagent.enable = true;
 
         # * HyprIdle (handles locking + dim brightness on idle)
         services.hypridle = {
