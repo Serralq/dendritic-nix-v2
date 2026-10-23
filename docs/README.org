@@ -92,6 +92,8 @@ ls result/ to find the executaes
 4) exit
    umount -R /mnt
    reboot
+** Aspect level empty inputs
+then should not just leave a { ... }:, this can cause a bug
 * Components
 ** Nix strings vs. etc.
 Always nix-strings > symlink OR readfile etc.
@@ -408,7 +410,7 @@ index 5721948..189f41c 100644
  }
 #+END_SRC
 ** [[https://github.com/feel-co/hjem][hejm]] or [[https://github.com/viperML/nix-maid][nix-maid]]
-* Den notes v3: [[https://github.com/denful/den/discussions/355][author's notes]]
+* Den notes v3: [[https://github.com/denful/den/discussions/355][author's notes]] // notes as of v0.9 //
 ** Goal: seperate features and implementation of features
 - Aspect = USE-case
 - Option = per/host
@@ -481,9 +483,10 @@ imports = [ inputs.den.flakeModule ]; allows for den framework, not just library
     Can define how code within den is forwarded into the implementation code
     Can create guard or conditions for the evaluation
 *** Import system via context, can make your own custom context
-Uses provides to show what's availible for importing
+Uses provides to show what's availible for importing, (after self)
 Uses include  from the importing side
-Uses into     to show how to go from one context to another context
+Uses into     to show how to go from one context to another context (before next)
+  // INTO IS NOW LEGACY //
 - Eg: host
   | provide | host, user |
   | into    | user        |
@@ -505,7 +508,7 @@ Uses into     to show how to go from one context to another context
 *** Schema as undefined possible users
 - Can do:
   adding options
-  setting defaults
+  setting defaults as metadata // den.defaults are the actual data //
   sharing universal configs
 - Schema	        Applied To	Use Case
   den.schema.conf	All entities	Shared options/config
@@ -516,7 +519,8 @@ Uses into     to show how to go from one context to another context
 den.schema  is for the list of options
 ** Import system expanded // not needed to use includes //
 *** Vs nix module system
-- Imports then config, but if import relies on config for condition -> breaks
+- Imports then config as distinct stages,
+  but if import relies on config for condition -> breaks
 - Work around is to import unconditionally then activate based on config using mkIf
 - SpecialArgs is global so it's an anti-pattern
 - _module-args has same issue with config, can get merge conflicts
