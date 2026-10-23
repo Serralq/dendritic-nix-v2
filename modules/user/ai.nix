@@ -1,5 +1,4 @@
 { ... }:
-
 {
   den.aspects.ai = {
     homeManager =

@@ -1,6 +1,7 @@
 { ... }:
 {
   den.aspects.languages = {
+
     homeManager =
       { pkgs, ... }:
       {
@@ -34,6 +35,7 @@
           gnumake # Getting the make command
           clang # Compiling c programs?
           libtool # To compile vterm
+          sqlite # For db
         ];
       };
   };

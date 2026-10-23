@@ -1,8 +1,8 @@
 { ... }:
 {
-  den.aspects.input-output = {
+  den.aspects.input-output = { user, ... }: {
     nixos =
-      { pkgs, ... }:
+      { ... }:
       {
         # ** Wacom tablet (CTL-4100WL via Bluetooth)
         boot.kernelModules = [
@@ -24,16 +24,6 @@
           alsa.support32Bit = true;
           pulse.enable = true;
         };
-
-        # ** Hardware graphics
-        hardware.graphics = {
-          enable = true;
-          enable32Bit = true;
-          extraPackages = with pkgs; [
-            vpl-gpu-rt # for newer GPUs on NixOS >24.05 or unstable
-          ];
-        };
-        hardware.enableRedistributableFirmware = true;
 
         # ** Enable custom keyboards (voyager) and Wacom
         services.udev.extraRules = ''
@@ -74,9 +64,11 @@
         ...
       }:
       {
+        # ** General home
         home.packages = with pkgs; [
           pulseaudio # Adding the command line utils
           bluetuith # use nmtui for wifi, use gnome for captive portals
+          pavucontrol # GUI to check volume
           # Connecting to keyboards
           # 1) Connect to GNOME's blt interface
           # 2) Hold f10 w/o fn key, keyboard will appear on the interface
@@ -84,8 +76,9 @@
           # 4) Hold f10 again to actually accept the request
           vial # For the svalboard
         ];
+        xdg.configFile."bluetuith/bluetuith.conf".source = user.externals + "/bluetuith.conf";
 
-        # Plugins to allow for drag scrolling with tablet
+        # ** Plugins to allow for drag scrolling with tablet
         home.file = {
           ".config/OpenTabletDriver/Plugins/Drag Scroll/DragScroll.dll".source =
             "${pkgs.opentabletdriver-drag-scroll}/lib/opentabletdriver-plugins/DragScroll.dll";
