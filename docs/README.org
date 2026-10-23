@@ -15,10 +15,10 @@
   - Keep it simple
 - Install checklist
   home.nix => config.nix
-  - host w/ port
-    Services => Docker => Install => Flatpak
-  - w/o port
-    Services => Install => Docker => Flatpak
+  - Server
+    Docker => Service => Install => Flatpak
+  - Docker is pre built with maintainability in mind
+  - NixOS allows me to build my own maintainable system
 ** Hosting => Mermaid diagram
 - Localhost at // this isn't perfect //
   Jellyfin: 8096 (Docker)
