@@ -14,6 +14,7 @@
           rawtherapee
           inputs.tagstudio.packages.${pkgs.system}.tagstudio-jxl # TagStudio
           # inputs.affinity-nix.packages.${pkgs.system}.v3 # Affinity image editors
+          imagemagick # Edit image properties in the terminal
         ];
       };
   };

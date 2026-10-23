@@ -2,7 +2,6 @@
 {
   den.aspects.desktop-environment = {
     includes = [
-      den.aspects.font
       den.aspects.desktop-scripts
       den.aspects.hyprland
     ];
@@ -10,7 +9,18 @@
     nixos =
       { pkgs, ... }:
       {
-        # Enable the X11 windowing system and GNOME as backup
+
+        # * Graphics
+        hardware.graphics = {
+          enable = true;
+          enable32Bit = true;
+          extraPackages = with pkgs; [
+            vpl-gpu-rt # for newer GPUs on NixOS >24.05 or unstable
+          ];
+        };
+        hardware.enableRedistributableFirmware = true;
+
+        # * Enable the X11 windowing system and GNOME as backup
         services.xserver.enable = true;
         services.desktopManager.gnome.enable = true;
         services.displayManager.ly.enable = true;
@@ -87,6 +97,7 @@
           hypridle # For locking the computer
           waywallen # For desktop engine wallpapers
           mate-engine # For atri vr model to dance
+          mission-center # Resource monitor
         ];
 
         # * Notifications: Dunst

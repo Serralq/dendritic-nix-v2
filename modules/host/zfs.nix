@@ -1,13 +1,12 @@
-{ ... }:
+{ inputs, ... }:
 {
-  flake-file.inputs = {
-    disko.url = "github:nix-community/disko";
-  };
+  flake-file.inputs.disko.url = "github:nix-community/disko";
 
   den.aspects.zfs = {
     nixos =
       { lib, ... }:
       {
+        imports = [ inputs.disko.nixosModules.disko ];
         # Required for ZFS — must match your actual hostname
         # generate with: head -c4 /dev/urandom | od -A none -t x4 | tr -d ' '
         networking.hostId = lib.mkDefault "8c3b74a7";
@@ -15,6 +14,8 @@
         boot.supportedFilesystems = [ "zfs" ];
         boot.zfs.forceImportRoot = false;
 
+        # TODO: Disk monitoring
+        # TODO: Accidental deletions
         disko.devices = {
           disk.disk1 = {
             device = lib.mkDefault "/dev/sda";
@@ -70,43 +71,13 @@
             };
 
             datasets = {
-
-              # Nix store — the biggest win from ZFS compression on NixOS
-              "local/nix" = {
-                type = "zfs_fs";
-                options = {
-                  mountpoint = "legacy";
-                  "com.sun:auto-snapshot" = "false"; # nix store is fully reproducible
-                };
-                mountpoint = "/nix";
-              };
-
-              # Root — kept small, snapshottable
-              "local/root" = {
+              "root" = {
                 type = "zfs_fs";
                 options.mountpoint = "legacy";
                 mountpoint = "/";
               };
 
-              # Persistent state you want to snapshot (databases, app data, etc.)
-              "safe/home" = {
-                type = "zfs_fs";
-                options = {
-                  mountpoint = "legacy";
-                  "com.sun:auto-snapshot" = "true";
-                };
-                mountpoint = "/home";
-              };
-
-              "safe/persist" = {
-                type = "zfs_fs";
-                options = {
-                  mountpoint = "legacy";
-                  "com.sun:auto-snapshot" = "true";
-                };
-                mountpoint = "/persist";
-              };
-              "local/reserved" = {
+              "reserved" = {
                 type = "zfs_fs";
                 options = {
                   mountpoint = "none";

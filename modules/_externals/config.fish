@@ -20,6 +20,7 @@ if status is-interactive
         ssh-agent -a "$SSH_AUTH_SOCK" -t 8h >/dev/null 2>&1
         ssh-add ~/.ssh/id_ed25519 2>/dev/null
     end
+
     # ** Environment functions
     functions --erase __direnv_export_eval # To disable direnv for now
     functions --erase __direnv_cd_hook
@@ -186,6 +187,50 @@ if status is-interactive
         rclone mount "$remote$remote_path" "$mountdir" --daemon --vfs-cache-mode $cache_mode --skip-links
         and echo "Mounted $host:$remote_path at $mountdir"
         or echo "Failed to mount $host"
+    end
+
+    # ** --gen functions
+    function sync-home --description 'Sync a home directory to the same relative remote location'
+        argparse 'from=' -- $argv
+        or return 2
+
+        if test (count $argv) -ne 1; or not set -q _flag_from; or test -z "$_flag_from"
+            printf 'Usage: sync-home SSH_PROFILE --from ~/path\n' >&2
+            return 2
+        end
+
+        set -l profile "$argv[1]"
+
+        if not string match -qr '^[A-Za-z0-9_][A-Za-z0-9_.-]*$' -- "$profile"
+            printf 'Expected an SSH profile name, not a user@host or address specification.\n' >&2
+            return 2
+        end
+
+        set -l home (realpath -e -- "$HOME")
+        or return 1
+
+        set -l source (realpath -e -- "$_flag_from")
+        or return 1
+
+        if not test -d "$source"
+            printf 'Source must be an existing directory.\n' >&2
+            return 2
+        end
+
+        set -l relative (realpath --relative-to="$home" -- "$source")
+        or return 1
+
+        switch "$relative"
+            case . .. '../*'
+                printf 'Source must be a directory inside your home, not the entire home or an outside path.\n' >&2
+                return 2
+        end
+
+        command rsync -az \
+            --info=progress2 \
+            --protect-args \
+            --mkpath \
+            -- "$source/" "$profile:$relative/"
     end
 
     # ** Virtual monitors, so browser doesn't pause video when looking away

@@ -6,7 +6,7 @@
     # };
 
     homeManager =
-      { pkgs, config, ... }:
+      { pkgs, ... }:
       {
         home.packages = with pkgs; [
           nautilus # GUI Backup file manager
@@ -27,12 +27,14 @@
           unar # unrar but also allow for zips
           p7zip # Create zips of multiple parts with file limit
           unzip # Unzips
+          popsicle # Formatting usb
+          pika-backup # Just to get something
           # Eg: 7z a -v9m archive_name.7z /path/to/files
           trash-cli # For yazi undo button
           rclone # For the remote disk mounts
         ];
 
-        services.syncthing.enable = true;
+        # services.syncthing.enable = true;
 
         # systemd.user.services.copyparty-user = {
         #   Unit.After = [ "hyprland-session.target" ];

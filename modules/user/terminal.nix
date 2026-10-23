@@ -1,32 +1,32 @@
 { den, ... }:
 {
-  den.aspects.terminal = {
-    includes = [
-      den.aspects.starship
-    ];
+  den.aspects.terminal = { user, ... }: {
+    includes = [ den.aspects.starship ];
+
     nixos =
       {
-        pkgs,
         config,
+        lib,
+        pkgs,
         ...
       }:
       {
         assertions = [
           {
-            assertion = builtins.elem pkgs.hermit config.fonts.packages;
-            message = "den.aspects.terminal requires Hermit font (den.aspects.font)";
+            assertion = lib.elem pkgs.hermit config.fonts.packages;
+            message = "terminal requires Hermit; add pkgs.hermit to fonts.packages.";
           }
         ];
+
         programs.fish.enable = true;
         users.defaultUserShell = pkgs.fish;
       };
 
     homeManager =
-      { pkgs, config, ... }:
+      { pkgs, ... }:
       {
-        xdg.configFile."kitty/kitty.conf".source = ./terminal/kitty.conf;
-        xdg.configFile."bluetuith/bluetuith.conf".source = ./terminal/bluetuith.conf;
-        xdg.configFile."fish/config.fish".source = ./terminal/config.fish;
+        xdg.configFile."kitty/kitty.conf".source = user.externals + "/kitty.conf";
+        xdg.configFile."fish/config.fish".source = user.externals + "/config.fish";
         xdg.configFile."wezterm/wezterm.lua".text = ''
           -- Pull in the wezterm API
           local wezterm = require("wezterm")

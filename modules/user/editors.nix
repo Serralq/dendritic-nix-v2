@@ -13,6 +13,7 @@
           pandoc # document convertions
           vscode # for VScode plugin's GUI
           zed-editor # Fast version of vs code
+          todoist-electron # Notes app
         ];
       };
   };

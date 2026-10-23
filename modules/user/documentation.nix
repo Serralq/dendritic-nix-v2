@@ -1,17 +1,6 @@
-{ den, ... }:
+{ ... }:
 {
-  den.aspects.developer = {
-    includes = [
-      den.aspects.nix
-      den.aspects.version-control
-      den.aspects.ai
-      den.aspects.languages
-      den.aspects.terminal
-      den.aspects.editors
-      den.aspects.container
-      den.aspects.sqlite
-    ];
-
+  den.aspects.documentation = {
     nixos =
       { ... }:
       {
