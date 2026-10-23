@@ -1,0 +1,539 @@
+* Dev checklist
+- Search via nix-search, nix search, or nix options
+- Install via nix-install <pkg-name>
+- Test via nix-unlock
+  with write-able config file
+  - Import into NixOS
+  - Delete and Copy to write-able ver to test new changes
+- Do dry run using rebuild --no-save
+- Clean when homemanager gives activation error
+  Either manual OR create backup then find \*.backup
+** Install checklist
+- Heuristics, [ break rules ] chance to refactor
+  - Keep all in home folder
+  - Keep as regular user
+  - Keep it simple
+- Install checklist
+  home.nix => config.nix
+  - Server
+    Docker => Service => Install => Flatpak
+  - Docker is pre built with maintainability in mind
+  - NixOS allows me to build my own maintainable system
+** Hosting => Mermaid diagram
+- Localhost at // this isn't perfect //
+  Jellyfin: 8096 (Docker)
+  Copyparty: 3210 (Install)
+             3921 (ftp)
+  CloudDoom: 8080 (Docker) // TODO expand to allow others to explore my docs //
+  Mkdocs: 8000 (Install)
+  Syncthing: 8384 (Service)
+  Immich: 2283 (Docker)
+- Non-localhost at Norn
+*** Other hostings
+- Pixel:
+  Syncthing
+  Dropbox -> Kobo
+  (Tailscale)
+** Resources
+- Resources:
+  https://mynixos.com
+  https://search.nixos.org/packages
+  https://searchix.ovh
+- Curated list:
+  https://github.com/nix-community/awesome-nix?tab=readme-ov-file
+  https://github.com/awesome-selfhosted/awesome-selfhosted
+*** [[https://nix.dev/tutorials/packaging-existing-software.html][Create new Package]]
+* Debugging, it's always a full boot partition
+- Almost always hardware.nix failure
+- Or forgot to "git add ." the new file
+- If rsynced a git repo, must redo the owner
+** Trash collection
+#+BEGIN_SRC bash
+nix-collect-garbage --delete-older-than 1d
+cd nixos
+sudo nixos-rebuild switch --flake .
+#+END_SRC
+*** Boot clearing
+requires running a boot cycle (not compile and change)
+#+BEGIN_SRC bash
+sudo /run/current-system/bin/switch-to-configuration boot
+#+END_SRC
+** Using nix-anywhere
+Known failure: hostinger
+Check lsblk for which type of drive to attach to
+** Type checking inside of nix: [[https://github.com/ryanrasti/typenix][typenix]]
+** Finding binaries
+nix build nixpkgs#<pkg-name>
+ls result/ to find the executaes
+** (Failing) Update
+1) Try commenting out // with "# TODO update ltr" //
+2) Pin the version via flakes
+   Old package uses the original dependencies
+3) Overriding
+   Old package uses the current( updated ) dependencies
+4) Switch channel from unstable to stable if stable is ahead of unstable
+** Lost boot entries
+1) lsblk -f
+   SYSTEM -> efi system partition (/mnt/boot later)
+2) sudo mount /dev/nvme0n1p6 /mnt
+   sudo mount /dev/nvme0n1p1 /mnt/boot
+3) sudo nixos-enter --root /mnt
+4) nixos-rebuild boot --install-bootloader --flake /home/serralq/stow/.config/nixos#hirakata
+4) exit
+   umount -R /mnt
+   reboot
+* Components
+** Nix strings vs. etc.
+Always nix-strings > symlink OR readfile etc.
+** Concat multi line into single line (example)
+#+BEGIN_SRC nix
+  services.hypridle = {
+    enable = true;
+    settings = {
+      general = {
+        lock_cmd = "pidof hyprlock || hyprlock";
+        before_sleep_cmd = "loginctl lock-session";
+        on_unlock_cmd = lib.concatStringsSep " " [
+          "pactl set-sink-volume @DEFAULT_SINK@ 0% &"
+          "notify-send \"Battery Level $(cat /sys/class/power_supply/BAT0/capacity)%\""
+        ];
+      };
+    };
+  };
+#+END_SRC
+** Nixos garbage collection
+- Explanation
+  1. Delete old generations from the system profile
+     sudo nix-collect-garbage --delete-older-than 1d
+  2. Rebuild the bootloader to purge old /boot entries
+     sudo nixos-rebuild boot
+  3. Now GC can actually reclaim the store paths
+     sudo nix-collect-garbage --delete-older-than 1d
+- Alternative
+  sudo nh clean all --keep 3
+** Check to run pure program
+#+BEGIN_SRC bash
+nix-shell --pure --run "check-commands-here"
+#+END_SRC
+** To force install of nix
+Don't forget to change the pointer, and make it executable via chmod
+#+BEGIN_SRC bash
+curl -sSf https://raw.githubusercontent.com/Serralq/algo-prog2/main/install.sh | bash
+#+END_SRc
+Don't forget to change the git clone, and cd
+#+BEGIN_SRC bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+git clone https://github.com/Serralq/algo-prog2.git
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install --no-confirm
+. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+cd algo-prog2
+nix-shell --pure --run "./test.sh"
+#+END_SRC
+** Nixos-anywhere + Disko vs Hardware.nix
+Disko creates both the config, and how to read the config
+Hardware.nix is catching up to the
+Extra info:
+- Kernel modules
+- Micocode updates
+- Kernel parameters for cpu model etc.
+** Mutual-Provides
+Currently: host = 1 machine + exclusive user
+Can reuse and define:
+  host -> user
+  user -> host
+  user -> user
+* Wishlist
+- [ ] Edit copyparty settings
+- [ ] Clean up configuration.nix
+- [ ] Flake update by parts and then see where to go
+- [ ] Allow for declarative flatpaks ([[https://github.com/gmodena/nix-flatpak][github]])
+- [ ] Remove hard paths
+- [ ] Add nix optimze and gc optimizations
+** Convert to allow secrets
+- Three folder:
+  |            | Stow | Auto-sync | Uploading |
+  | Stow       | Y    | Y         | Y         |
+  | Secrets    | Y    | Y         |           |
+  | (Services) | Y    | Y         |           |
+  | Remote     | Y    |           |           |
+** Custom boot entry names
+Format: (<Host>.<ver>) <Branch>.<commit#>.#<count>
+** Slow ass dev env -> use [[https://devenv.sh/blog/2026/03/05/devenv-20-a-fresh-interface-to-nix/#native-process-manager][devenv]]
+** [[https://www.reddit.com/r/NixOS/comments/1rkwtk4/nixoscope_a_tool_for_visualizing_dependencies/][Dependency chart]] w/ Den support soon?
+** [[https://github.com/hyprwm/hyprland-plugins][Hyprland plugins]]
+*** Remainning issue
+- To update current working to actually connect
+*** Lessons
+- Dev: (must not run clion, or rename folders)
+  nix develop
+  cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug
+  cmake --build build --target hyprexpo
+- Load
+  plugin = /home/serralq/Downloads/hyprland-plugins/result/lib/libhyprexpo.so
+
+  plugin = ${(pkgs.hyprlandPlugins.hyprexpo.overrideAttrs (old: {
+    src = /home/serralq/Downloads/hyprland-plugins;
+  }))}/lib/libhyprexpo.so
+*** Patches
+**** Ver 1
+#+BEGIN_SRC git
+diff --git a/hyprexpo/overview.cpp b/hyprexpo/overview.cpp
+index 5721948..962a90a 100644
+--- a/hyprexpo/overview.cpp
++++ b/hyprexpo/overview.cpp
+@@ -14,6 +14,35 @@
+ #include <hyprland/src/helpers/time/Time.hpp>
+ #undef private
+ #include "OverviewPassElement.hpp"
++#include <cairo/cairo.h>
++#include <pango/pangocairo.h>
++#include <format>
++
++static SP<CTexture> createGroupTexture(int groupNum) {
++    const int w = 250;
++    const int h = 60;
++    cairo_surface_t* cairoSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
++    cairo_t* cairo = cairo_create(cairoSurface);
++
++    PangoLayout* layout = pango_cairo_create_layout(cairo);
++    PangoFontDescription* fontDesc = pango_font_description_from_string("Sans Bold 32");
++    pango_layout_set_font_description(layout, fontDesc);
++
++    std::string text = std::format("Group {}", groupNum);
++    pango_layout_set_text(layout, text.c_str(), -1);
++
++    // Draw white text
++    cairo_set_source_rgba(cairo, 1.0, 1.0, 1.0, 1.0);
++    pango_cairo_show_layout(cairo, layout);
++
++    pango_font_description_free(fontDesc);
++    g_object_unref(layout);
++    cairo_destroy(cairo);
++
++    auto tex = makeShared<CTexture>(cairoSurface);
++    cairo_surface_destroy(cairoSurface);
++    return tex;
++}
+
+ static void damageMonitor(WP<Hyprutils::Animation::CBaseAnimatedVariable> thisptr) {
+     g_pOverview->damage();
+@@ -452,6 +481,19 @@ void COverview::fullRender() {
+             texbox.round();
+             CRegion damage{0, 0, INT16_MAX, INT16_MAX};
+             g_pHyprOpenGL->renderTextureInternal(images[x + y * SIDE_LENGTH].fb.getTexture(), texbox, {.damage = &damage, .a = 1.0});
++
++            // Inject Group Label overlay
++            int currentID = images[x + y * SIDE_LENGTH].workspaceID;
++            if (currentID > 0 && currentID % 5 == 1) {
++                int groupNum = (currentID / 5) + 1;
++                auto textTex = createGroupTexture(groupNum);
++                CBox textBox = texbox;
++                textBox.x += 20 * pMonitor->m_scale; // Scale padding with monitor
++                textBox.y += 20 * pMonitor->m_scale;
++                textBox.w = 250;
++                textBox.h = 60;
++                g_pHyprOpenGL->renderTextureInternal(textTex, textBox, {.damage = &damage, .a = 1.0});
++            }
+         }
+     }
+ }
+#+END_SRC
+**** Ver 2
+#+BEGIN_SRC
+diff --git a/hyprexpo/overview.cpp b/hyprexpo/overview.cpp
+index 5721948..782c85f 100644
+--- a/hyprexpo/overview.cpp
++++ b/hyprexpo/overview.cpp
+@@ -14,6 +14,39 @@
+ #include <hyprland/src/helpers/time/Time.hpp>
+ #undef private
+ #include "OverviewPassElement.hpp"
++#include <cairo/cairo.h>
++#include <pango/pangocairo.h>
++#include <format>
++#include <drm_fourcc.h>
++
++static SP<CTexture> createGroupTexture(int groupNum) {
++    const int             w            = 250;
++    const int             h            = 60;
++    cairo_surface_t*      cairoSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
++    cairo_t*              cairo        = cairo_create(cairoSurface);
++
++    PangoLayout*          layout   = pango_cairo_create_layout(cairo);
++    PangoFontDescription* fontDesc = pango_font_description_from_string("Sans Bold 32");
++    pango_layout_set_font_description(layout, fontDesc);
++
++    std::string text = std::format("Group {}", groupNum);
++    pango_layout_set_text(layout, text.c_str(), -1);
++
++    // Draw white text
++    cairo_set_source_rgba(cairo, 1.0, 1.0, 1.0, 1.0);
++    pango_cairo_show_layout(cairo, layout);
++
++    pango_font_description_free(fontDesc);
++    g_object_unref(layout);
++    cairo_destroy(cairo);
++
++    cairo_surface_flush(cairoSurface);
++    auto data   = (uint8_t*)cairo_image_surface_get_data(cairoSurface);
++    auto stride = (uint32_t)cairo_image_surface_get_stride(cairoSurface);
++    auto tex    = makeShared<CTexture>(DRM_FORMAT_ARGB8888, data, stride, Vector2D(w, h));
++    cairo_surface_destroy(cairoSurface);
++    return tex;
++}
+
+ static void damageMonitor(WP<Hyprutils::Animation::CBaseAnimatedVariable> thisptr) {
+     g_pOverview->damage();
+@@ -452,6 +485,19 @@ void COverview::fullRender() {
+             texbox.round();
+             CRegion damage{0, 0, INT16_MAX, INT16_MAX};
+             g_pHyprOpenGL->renderTextureInternal(images[x + y * SIDE_LENGTH].fb.getTexture(), texbox, {.damage = &damage, .a = 1.0});
++
++            // Inject Group Label overlay
++            int currentID = images[x + y * SIDE_LENGTH].workspaceID;
++            if (currentID > 0 && currentID % 5 == 1) {
++                int  groupNum = (currentID / 5) + 1;
++                auto textTex  = createGroupTexture(groupNum);
++                CBox textBox  = texbox;
++                textBox.x += 20 * pMonitor->m_scale; // Scale padding with monitor
++                textBox.y += 20 * pMonitor->m_scale;
++                textBox.w = 250;
++                textBox.h = 60;
++                g_pHyprOpenGL->renderTextureInternal(textTex, textBox, {.damage = &damage, .a = 1.0});
++            }
+         }
+     }
+ }
+#+END_SRC
+**** Ver 3
+#+BEGIN_SRC
+diff --git a/hyprexpo/overview.cpp b/hyprexpo/overview.cpp
+index 5721948..189f41c 100644
+--- a/hyprexpo/overview.cpp
++++ b/hyprexpo/overview.cpp
+@@ -14,6 +14,69 @@
+ #include <hyprland/src/helpers/time/Time.hpp>
+ #undef private
+ #include "OverviewPassElement.hpp"
++#include <cairo/cairo.h>
++#include <pango/pangocairo.h>
++#include <format>
++#include <unordered_map>
++
++static SP<CTexture> getGroupTexture(int groupNum) {
++    static std::unordered_map<int, SP<CTexture>> cache;
++    if (cache.contains(groupNum))
++        return cache[groupNum];
++
++    const int        w            = 300;
++    const int        h            = 80;
++    cairo_surface_t* cairoSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
++    cairo_t*         cairo        = cairo_create(cairoSurface);
++
++    cairo_save(cairo);
++    cairo_set_operator(cairo, CAIRO_OPERATOR_CLEAR);
++    cairo_paint(cairo);
++    cairo_restore(cairo);
++
++    // Dark semi-transparent pill for contrast against bright wallpapers
++    cairo_set_source_rgba(cairo, 0.0, 0.0, 0.0, 0.6);
++    cairo_rectangle(cairo, 0, 0, w, h);
++    cairo_fill(cairo);
++
++    PangoLayout*          layout   = pango_cairo_create_layout(cairo);
++    PangoFontDescription* fontDesc = pango_font_description_from_string("Sans Bold 32");
++    pango_layout_set_font_description(layout, fontDesc);
++
++    std::string text = std::format("Group {}", groupNum);
++    pango_layout_set_text(layout, text.c_str(), -1);
++
++    cairo_set_source_rgba(cairo, 1.0, 1.0, 1.0, 1.0);
++    int layoutWidth, layoutHeight;
++    pango_layout_get_size(layout, &layoutWidth, &layoutHeight);
++    cairo_move_to(cairo, (w - layoutWidth / PANGO_SCALE) / 2.0, (h - layoutHeight / PANGO_SCALE) / 2.0);
++    pango_cairo_show_layout(cairo, layout);
++
++    pango_font_description_free(fontDesc);
++    g_object_unref(layout);
++    cairo_surface_flush(cairoSurface);
++    const auto DATA = cairo_image_surface_get_data(cairoSurface);
++
++    auto       tex = makeShared<CTexture>();
++    tex->allocate();
++    GLint currentTex = 0;
++    glGetIntegerv(GL_TEXTURE_BINDING_2D, &currentTex); // Stash current binding
++    glBindTexture(GL_TEXTURE_2D, tex->m_texID);
++    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
++    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
++#ifndef GLES2
++    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_BLUE);
++    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
++#endif
++    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, DATA);
++    glBindTexture(GL_TEXTURE_2D, currentTex); // Restore previous binding
++
++    cairo_destroy(cairo);
++    cairo_surface_destroy(cairoSurface);
++
++    cache[groupNum] = tex;
++    return tex;
++}
+
+ static void damageMonitor(WP<Hyprutils::Animation::CBaseAnimatedVariable> thisptr) {
+     g_pOverview->damage();
+@@ -452,6 +515,19 @@ void COverview::fullRender() {
+             texbox.round();
+             CRegion damage{0, 0, INT16_MAX, INT16_MAX};
+             g_pHyprOpenGL->renderTextureInternal(images[x + y * SIDE_LENGTH].fb.getTexture(), texbox, {.damage = &damage, .a = 1.0});
++
++            // Inject Group Label overlay
++            int currentID = images[x + y * SIDE_LENGTH].workspaceID;
++            if (currentID > 0 && currentID % 5 == 1) {
++                int  groupNum = ((currentID - 1) / 5) + 1;
++                auto textTex  = getGroupTexture(groupNum);
++                CBox textBox  = texbox; // texbox is already physically scaled
++                textBox.x += 15 * pMonitor->m_scale;
++                textBox.y += 15 * pMonitor->m_scale;
++                textBox.w = 150 * pMonitor->m_scale;
++                textBox.h = 40 * pMonitor->m_scale;
++                g_pHyprOpenGL->renderTextureInternal(textTex, textBox, {.damage = &damage, .a = 1.0});
++            }
+         }
+     }
+ }
+#+END_SRC
+** [[https://github.com/feel-co/hjem][hejm]] or [[https://github.com/viperML/nix-maid][nix-maid]]
+* Den notes v3: [[https://github.com/denful/den/discussions/355][author's notes]]
+** Goal: seperate features and implementation of features
+- Aspect = USE-case
+- Option = per/host
+** Overview/How
+- [[https://den.oeiuwq.com/explanation/library-vs-framework/][Restates how library vs framework]]
+- Assumption: can work without flake-parts, and without flakes
+    but I will be talking only about flakes
+- This is an overview of the concepts, not of exact implementation
+  Read the [[https://den.oeiuwq.com][main guide]] for the complete info
+- Also use the deep wiki for den specific info
+  much better than regular gemini or claude
+  But fails regarding standard nix info
+** Den as library
+allows for custom import system using
+  | aspect    | how to organize features        |
+  | class     | how to implement features       |
+  | context   | how to import & resolve classes |
+  | namespace | share features                  |
+** Den as framework
+- Prebuilt import system for a normal laptop / server system
+- Provided as a framework
+  | Feature   | Extra Description        | Implementation                           |
+  |-----------+--------------------------+------------------------------------------|
+  | Schema    | For hardware definitions | via den.schema (framework-only variable) |
+  | Batteries | Reusable functions       | via [[https://den.oeiuwq.com/reference/batteries/#_top][den.provides]]                         |
+  | Class     |                          | via den.{host, user, home}.<aspect>      |
+  | Context   |                          | via [[https://den.oeiuwq.com/explanation/context-pipeline/][den.ctx.host etc.]] for above class    |
+- Automatic aspect.class creation
+  To create based on the defined hosts and schema
+  then the later den.aspect.<user> will augment the config
+  #+BEGIN_SRC nix
+# Linux host with user using hjem
+den.hosts.x86_64-linux.laptop.users.alice = {
+  classes = [ "hjem" ];
+};
+# Multiple home environments for the same user
+den.hosts.x86_64-linux.igloo.users.tux = {
+  classes = [ "homeManager" "hjem" ];
+};
+# Darwin host (nix-darwin) with user
+den.hosts.aarch64-darwin.mac.users.alice = { };
+# Standalone hjem on Linux
+den.homes.x86_64-linux.alice = {};
+
+# Standalone home-manager on Darwin
+den.homes.aarch64-darwin.alice = {};
+#+END_SRC
+- ._nixos folders so we can use regular modules and not flake parts
+*** Integration to nixos
+1) Import den as flake input, and within main den flake parts
+   #+BEGIN_SRC nix
+imports = [ inputs.den.flakeModule ]; allows for den framework, not just library
+   #+END_SRC
+2) Within a let statement is den's evaluation
+   1) Define aspect
+   2) Resolve per class
+3) Produces a module for you to import
+** Library concept // minimum knowledge check //
+*** Aspect.class
+- Aspects are features
+  Has direct configs
+  Includes
+    { raw } will always apply
+    ({ input }: {  }) only apply with context containing input
+    other.aspects.features
+  Provides -> named sub aspects
+- Class are how those aspects are implemented
+  - Prebuilt are nix-darwin, nixos, home-manager, hejm, nix-maid etc.
+  - Can make your own, eg: for git, or for only systems with imperanence enabled
+    Can define how code within den is forwarded into the implementation code
+    Can create guard or conditions for the evaluation
+*** Import system via context, can make your own custom context
+Uses provides to show what's availible for importing
+Uses include  from the importing side
+Uses into     to show how to go from one context to another context
+- Eg: host
+  | provide | host, user |
+  | into    | user        |
+- Another example for when my-service.enable = true
+  #+BEGIN_SRC nix
+  den.ctx.my-service = {
+    description = "Custom service context";
+    provides.my-service = den.aspects.my-service;
+  };
+
+  den.ctx.host.into.my-service = { host }:
+    lib.optional host.my-service.enable { inherit host; };
+
+  den.aspects.my-service = { host }: {
+    nixos.services.my-service.hostName = host.hostName;
+  };
+  #+END_SRC
+** Framework only concept // minimum knowledge checks //
+*** Schema as undefined possible users
+- Can do:
+  adding options
+  setting defaults
+  sharing universal configs
+- Schema	        Applied To	Use Case
+  den.schema.conf	All entities	Shared options/config
+  den.schema.host	All hosts	Host-specific defaults/options
+  den.schema.user	All users	User-specific defaults/options
+  den.schema.home	All homes	Home-specific defaults/options
+*** den.default is the actual config
+den.schema  is for the list of options
+** Import system expanded // not needed to use includes //
+*** Vs nix module system
+- Imports then config, but if import relies on config for condition -> breaks
+- Work around is to import unconditionally then activate based on config using mkIf
+- SpecialArgs is global so it's an anti-pattern
+- _module-args has same issue with config, can get merge conflicts
+  it lives under config so inherits all the issues
+*** Den's Workaround
+Evals includes before any nix evals(modules and regular eval)
+1) Acts within function land (not module land) allowing for function helpers
+2) Context system to allow for staged evals
+3) In each stage only eval if it has all dependency is a nice to have
+*** Context resolution
+// Nice to have, not essential to solve the circular import issue //
+- Only resolves when has the required inputs
+    Thus no need to check if var is valid
+    eg for gpu aspect, can check if host's gpu is nvidia
+      and remove need to check if there is a host or not
+  - Free deduplication
+- Underlying implementation: [[https://den.oeiuwq.com/explanation/parametric/][Parmetric Aspects]]
+  standard nix has functors which run in any context,
+  den uses functors but only runs these when the context matches
+** Bugs
+*** Static Bindings
+Sometimes can use a  { ... } : { ... }, function input to output
+  but that shouldn't be allowed and what always work is to output only if no input

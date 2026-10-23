@@ -1,4 +1,5 @@
 .direnv/
+.opencode--gen/
 
 # Devenv
 .devenv*
@@ -22,4 +23,11 @@ devenv.local.yaml
 # pre-commit
 .pre-commit-config.yaml
 
-nixos-switch.log
+/remote/.terraform/
+/remote/*.tfstate
+/remote/*.tfstate.*
+/remote/*.tfplan
+/remote/*.tfvars
+/remote/*.tfvars.json
+/remote/crash.log
+/remote/crash.*.log

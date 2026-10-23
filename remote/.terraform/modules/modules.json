@@ -1,0 +1,1 @@
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"choshi","Source":"./modules/hetzner-nixos","Dir":"modules/hetzner-nixos"},{"Key":"otaru","Source":"./modules/hetzner-nixos","Dir":"modules/hetzner-nixos"}]}
