@@ -38,6 +38,9 @@ right_format = "$all "
 [netns]
 [direnv]
 [env_var]
+[env_var.SOPS_EXPORTED_VARIABLES]
+  variable = "SOPS_EXPORTED_VARIABLES"
+  format = ' \[[secrets:](#EBCB8B) [$env_value](#4c566a)\]'
 [container]
 [docker_context]
   symbol = " "
