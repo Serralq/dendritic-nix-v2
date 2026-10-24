@@ -27,6 +27,8 @@
       {
         xdg.configFile."kitty/kitty.conf".source = user.externals + "/kitty.conf";
         xdg.configFile."fish/config.fish".source = user.externals + "/config.fish";
+        xdg.configFile."fish/nu-tables.fish".source = user.externals + "/nu-tables--gen.fish";
+        xdg.configFile."fish/nu-tables.nu".source = user.externals + "/nu-tables--gen.nu";
         xdg.configFile."wezterm/wezterm.lua".text = ''
           -- Pull in the wezterm API
           local wezterm = require("wezterm")

@@ -27,7 +27,7 @@ if status is-interactive
 
     # * Regular Aliases
     alias trash="gio trash"
-    alias kill="ps aux | fzf | awk '{print \$2}' | xargs kill"
+    alias kill="command ps aux | fzf | awk '{print \$2}' | xargs kill"
     alias rename="~/.config/hypr/workspace-manager.sh --rename"
     alias mirror="hyprctl keyword monitor HDMI-A-1, preferred, auto, 1, mirror, eDP-1"
     alias extend="hyprctl keyword monitor HDMI-A-1, 1920x1080@60, auto, 1"
@@ -400,6 +400,7 @@ if status is-interactive
     # Optional: bridge completions from other shells (zsh, bash, etc.)
     set -Ux CARAPACE_BRIDGES 'zsh,fish,bash,inshellisense'
     carapace _carapace | source
+    source ~/.config/fish/nu-tables.fish
     # Later as rn not up to date, as soon as v2.1 hits
     # devenv hook fish | source
     enable_transience
