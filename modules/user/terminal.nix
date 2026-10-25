@@ -32,6 +32,7 @@
         xdg.configFile."wezterm/wezterm.lua".text = ''
           -- Pull in the wezterm API
           local wezterm = require("wezterm")
+          local act = wezterm.action
 
           wezterm.on('update-status', function(window)
             local overrides = window:get_config_overrides() or {}
@@ -63,7 +64,13 @@
               saturation = 0.5,
               brightness = 0.3,
             },
-            -- Copy mode with ctrl + shift + x
+            -- Disabling shortcuts for other programs
+            keys = {
+              { key = "z", mods = "CTRL|SHIFT", action = act.DisableDefaultAssignment },
+              { key = "x", mods = "CTRL|SHIFT", action = act.DisableDefaultAssignment },
+              { key = "0", mods = "CTRL", action = act.DisableDefaultAssignment },
+              { key = "0", mods = "CTRL|SHIFT", action = act.ResetFontSize },
+            },
 
             -- Shift enter to work in claude code
             enable_kitty_keyboard = true,
@@ -77,13 +84,32 @@
         xdg.configFile."tmux/tmux.conf".text = ''
           set -g default-shell "${pkgs.fish}/bin/fish"
           set -g default-command "${pkgs.fish}/bin/fish"
+          # Regular mouse scrolling
+          set -g mouse on
+          # Aligning with my keyboard
+          set -g base-index 1
+          # Maximize keyboard compadiblity
+          set -s extended-keys always
+          set -s extended-keys-format csi-u
+          # Disable keybinds, use just my customs
+          set -g prefix None
+          unbind -T prefix C-b
+
+          # Vi style copy mode
+          set -g mode-keys vi
+          bind-key -n C-Z copy-mode
+          bind-key -T copy-mode-vi v send-keys -X begin-selection
+          bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
+          bind-key -T copy-mode-vi '{' send-keys -X page-up
+          bind-key -T copy-mode-vi '}' send-keys -X page-down
 
           set -g status-position top
           set -g status-style "bg=default,fg=#e5e9f0"
           set -g status-left " #S "
           set -g status-right ""
-          set -g window-status-format " #I #W "
-          set -g window-status-current-format " #[fg=#a3be8c,bold]#I #W#[default] "
+          # Internal window 10 is displayed as 0 to follow keyboard number order.
+          set -g window-status-format " #{?#{==:#{window_index},10},0,#{window_index}} #W "
+          set -g window-status-current-format " #[fg=#a3be8c,bold]#{?#{==:#{window_index},10},0,#{window_index}} #W#[default] "
           set -g status-justify left
           set -g allow-passthrough on
 
@@ -95,15 +121,27 @@
           bind-key -n C-s previous-window
           bind-key -n C-f next-window
           bind-key -n C-n new-window
-          bind-key -n C-x kill-window
+          bind-key -n C-X kill-window
+
+          # To select via numbers
+          bind-key -n C-0 select-window -t :10
+          bind-key -n C-1 select-window -t :1
+          bind-key -n C-2 select-window -t :2
+          bind-key -n C-3 select-window -t :3
+          bind-key -n C-4 select-window -t :4
+          bind-key -n C-5 select-window -t :5
+          bind-key -n C-6 select-window -t :6
+          bind-key -n C-7 select-window -t :7
+          bind-key -n C-8 select-window -t :8
+          bind-key -n C-9 select-window -t :9
 
           # Ctrl+p opens the native tmux command menu.
           bind-key -n C-p display-menu -T " tmux " \
           "New window" n "new-window" \
           "Split horizontally" h "split-window -v" \
           "Split vertically" v "split-window -h" \
-          "Next window" l "next-window" \
-          "Previous window" k "previous-window" \
+          "Next window" s "next-window" \
+          "Previous window" f "previous-window" \
           "Rename window" r "command-prompt -p 'Window name:' 'rename-window \"%%\"'" \
           "Kill pane" x "kill-pane" \
           "Kill window" X "kill-window" \
@@ -112,45 +150,6 @@
           "Reload tmux configuration" R "source-file ~/.config/tmux/tmux.conf" \
           "Detach session" d "detach-client"
         '';
-
-        home.file.".local/bin/tmux-palette" = {
-          executable = true;
-          text = ''
-            #!/bin/sh
-            set -eu
-
-            choice=$(cat <<'EOF' | ${pkgs.fzf}/bin/fzf --layout=reverse --border --prompt='tmux> '
-            New window
-            Split pane horizontally
-            Split pane vertically
-            Next window
-            Previous window
-            Rename window
-            Kill pane
-            Kill window
-            Zoom pane
-            Choose session, window, or pane
-            Reload tmux configuration
-            Detach session
-            EOF
-            ) || exit 0
-
-            case "$choice" in
-              "New window") tmux new-window ;;
-              "Split pane horizontally") tmux split-window -v ;;
-              "Split pane vertically") tmux split-window -h ;;
-              "Next window") tmux next-window ;;
-              "Previous window") tmux previous-window ;;
-              "Rename window") tmux command-prompt -p "Window name:" "rename-window '%%'" ;;
-              "Kill pane") tmux kill-pane ;;
-              "Kill window") tmux kill-window ;;
-              "Zoom pane") tmux resize-pane -Z ;;
-              "Choose session, window, or pane") tmux choose-tree -Zw ;;
-              "Reload tmux configuration") tmux source-file "$HOME/.config/tmux/tmux.conf" ;;
-              "Detach session") tmux detach-client ;;
-            esac
-          '';
-        };
 
         home.packages = with pkgs; [
           # * Terminal emulators
@@ -169,6 +168,7 @@
           nushell # When I need structured contents
           carapace # Better terminal autocomplete
           tmux # For multiplexing, also works on remote machines
+          tmuxinator # Project-local tmux session layouts
           fish # My default shell
           tldr # Quick manuals
 
