@@ -397,6 +397,7 @@ if status is-interactive
     atuin init fish | source
     zoxide init fish | source
     pay-respects fish --alias fuck | source
+    tv init fish | source
     # Optional: bridge completions from other shells (zsh, bash, etc.)
     set -Ux CARAPACE_BRIDGES 'zsh,fish,bash,inshellisense'
     carapace _carapace | source

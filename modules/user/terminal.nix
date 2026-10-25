@@ -165,6 +165,7 @@
           atuin # Terminal History
           pay-respects # Fixing previous terminal command
           fishPlugins.fifc # Fish auto completion fzf
+          television # Prebuilt things to fuzzy search
           nushell # When I need structured contents
           carapace # Better terminal autocomplete
           tmux # For multiplexing, also works on remote machines
