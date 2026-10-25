@@ -158,7 +158,6 @@
           kitty # For testing + wayland
 
           # * Shell / Prompt
-          mosh # Allow for typing before response back in ssh
           neovim # Basic editor
           starship # Terminal prompt look
           fastfetch # Terminal splash screen
@@ -171,6 +170,7 @@
           carapace # Better terminal autocomplete
           tmux # For multiplexing, also works on remote machines
           fish # My default shell
+          tldr # Quick manuals
 
           # * CLI utilities
           bat # Better cat

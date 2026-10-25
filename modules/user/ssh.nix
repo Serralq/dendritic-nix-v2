@@ -30,6 +30,7 @@
         home.packages = with pkgs; [
           sshs # Nicer ssh config tui
           sshfs-fuse # For working over ssh eg yazi
+          mosh # Allow for typing before response back in ssh
         ];
         programs.ssh = {
           enable = true;
