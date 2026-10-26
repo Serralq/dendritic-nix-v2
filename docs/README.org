@@ -560,3 +560,6 @@ Evals includes before any nix evals(modules and regular eval)
 *** Static Bindings
 Sometimes can use a  { ... } : { ... }, function input to output
   but that shouldn't be allowed and what always work is to output only if no input
+** Next features
+Constantly being released, check sometimes
+Such as collector pattern
