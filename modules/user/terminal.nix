@@ -29,6 +29,9 @@
         xdg.configFile."fish/config.fish".source = user.externals + "/config.fish";
         xdg.configFile."fish/nu-tables.fish".source = user.externals + "/nu-tables--gen.fish";
         xdg.configFile."fish/nu-tables.nu".source = user.externals + "/nu-tables--gen.nu";
+        xdg.configFile."fastfetch/config-spaced.jsonc".source = user.externals + "/config-spaced.jsonc";
+        xdg.configFile."fastfetch/config.jsonc".source = user.externals + "/config.jsonc";
+        xdg.configFile."fastfetch/atri.png".source = user.externals + "/atri.png";
         xdg.configFile."wezterm/wezterm.lua".text = ''
           -- Pull in the wezterm API
           local wezterm = require("wezterm")

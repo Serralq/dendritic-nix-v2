@@ -1,0 +1,77 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "type": "sixel",
+    "source": "~/.config/fastfetch/atri.png",
+    // Ratio is 24 to 10
+    "padding": {
+      "left": 1,
+      "right": 1,
+    },
+    "width": 26,
+    "height": 11
+  },
+  "display": {
+    "color": {
+      "keys": "blue",
+      "title": "red"
+    },
+    "separator": " ",
+  },
+  "modules": [
+    {
+      "type": "DateTime",
+      "format": "{#1}{9}, {6} {11}, {13}:{18} ",
+      "outputColor": "red",
+      "key": " "
+    },
+    "separator",
+    {
+      "type": "uptime",
+      "format": "{} days",
+      "key": "Uptime ="
+    },
+    {
+      "type": "command",
+      "key": "Remote =",
+      "text": "f=~/.local/state/update-remote; if [ -f $f ]; then d=$(( $(date +%s)/86400 - $(stat -c %Y $f)/86400 )); if [ $d -ge 4 ]; then c='\\033[31m'; elif [ $d -ge 2 ]; then c='\\033[33m'; else c='\\033[32m'; fi; echo -e \"${c}$(cat $f)\\033[0m\"; else echo 'Unknown'; fi"
+    },
+    {
+      "type": "command",
+      "key": "Update =",
+      "text": "f=~/.local/state/nixos-last-update; if [ -f $f ]; then d=$(( $(date +%s)/86400 - $(stat -c %Y $f)/86400 )); if [ $d -ge 14 ]; then c='\\033[31m'; elif [ $d -ge 8 ]; then c='\\033[33m'; else c='\\033[32m'; fi; echo -e \"${c}$(cat $f)\\033[0m\"; else echo 'Unknown'; fi"
+    },
+    {
+      "type": "CPUUsage",
+      "format": "{}",
+      "key": "CPU    ="
+    },
+    {
+      "type": "disk",
+      "hideFS": ["fuse.sshfs"],
+      "format": "{3}",
+      "key": "Disk   ="
+    },
+    {
+      "type": "memory",
+      "format": "{3}",
+      "key": "Memory ="
+    },
+    {
+      "type": "command",
+      "key": "Batt   =",
+      "text": "battery-info"
+    },
+    {
+      "type": "command",
+      "key": "Wifi   =",
+      "text": "wifi=$(nmcli --terse --escape no --fields IN-USE,SIGNAL,SSID device wifi list --rescan no | awk -F: '$1 == \"*\" { signal=$2; sub(/^[^:]*:[^:]*:/, \"\"); print signal \"|\" $0; exit }'); signal=${wifi%%|*}; ssid=${wifi#*|}; if [ -z \"$wifi\" ]; then signal=0; ssid=N/A; fi; if [ \"$signal\" -ge 70 ]; then signal_color='\\033[32m'; elif [ \"$signal\" -ge 30 ]; then signal_color='\\033[33m'; else signal_color='\\033[31m'; fi; state=~/.local/state/pia-vpn/last-server.tsv; if nmcli --terse --escape no --fields NAME,TYPE connection show --active | grep -Fx 'PIA VPN:vpn' >/dev/null 2>&1; then country=$(awk -F '\\t' 'NR == 1 { print $7 }' \"$state\" 2>/dev/null); if [ -z \"$country\" ]; then country=$(awk -F '\\t' 'NR == 1 { print substr($1, 1, 2) }' \"$state\" 2>/dev/null); fi; vpn=\"pia-$(printf '%s' \"$country\" | tr '[:upper:]' '[:lower:]')\"; color='\\033[32m'; else vpn='N/A'; color='\\033[31m'; fi; printf '%b%s%%\\033[0m [%s] [%b%s\\033[0m]\\n' \"$signal_color\" \"$signal\" \"$ssid\" \"$color\" \"$vpn\""
+    },
+    {
+      "type": "command",
+      "key": "Sound  =",
+      "text": "info=$(wpctl inspect @DEFAULT_AUDIO_SINK@ 2>/dev/null); name=$(printf '%s\\n' \"$info\" | awk -F '\"' '/node.nick =/ { print $2; exit }'); [ -n \"$name\" ] || name=$(printf '%s\\n' \"$info\" | awk -F '\"' '/node.description =/ { print $2; exit }'); volume=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null); if printf '%s' \"$volume\" | grep -q '\\[MUTED\\]'; then level=Muted; color='\\033[96m'; else if [ \"$name\" = Speaker ]; then level=$(pactl get-sink-volume @DEFAULT_SINK@ 2>/dev/null | awk -F 'front-right: ' 'NF > 1 { match($2, /[0-9]+%/); print substr($2, RSTART, RLENGTH); exit }'); numeric=${level%\\%}; color=$(awk -v v=\"$numeric\" 'BEGIN { if (v < 30) print \"\\033[32m\"; else if (v < 70) print \"\\033[33m\"; else print \"\\033[31m\" }'); else level=$(printf '%s\\n' \"$volume\" | awk '{ printf \"%.0f%%\", $2 * 100 }'); color=$(printf '%s\\n' \"$volume\" | awk '{ if ($2 < 0.3) print \"\\033[32m\"; else if ($2 < 0.7) print \"\\033[33m\"; else print \"\\033[31m\" }'); fi; fi; printf '%s [%b%s\\033[0m]\\n' \"${name:-Unknown}\" \"$color\" \"${level:-Unknown}\""
+    },
+    "break",
+  ]
+}
