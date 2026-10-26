@@ -113,29 +113,6 @@
                 Restart = "on-failure";
               };
             };
-
-            # ** Restore saved workspaces (commented out: re-enable when needed)
-            #       workspace-restore = {
-            #         Unit.After = [ "hyprland-session.target" ];
-            #         Install.WantedBy = [ "hyprland-session.target" ];
-            #         Service = {
-            #           Type = "oneshot";
-            #           ExecStart = "${config.home.homeDirectory}/.config/hypr/workspace-manager.sh --restore";
-            #           RemainAfterExit = true;
-            #         };
-            #       };
-
-            # ** One monitor script (Use the manual method since this will default to battery saver) (commented out: re-enable when needed)
-            #       one-monitor = {
-            #         Unit.After = [ "hyprland-session.target" ];
-            #         Install.WantedBy = [ "hyprland-session.target" ];
-            #         Service = {
-            #           Type = "oneshot";
-            #           ExecStart = "${}/hypr/one-monitor.sh";
-            #           RemainAfterExit = true;
-            #         };
-            #       };
-
           };
 
           # ** Japanese input method (launched via Hyprland to inherit session environment)

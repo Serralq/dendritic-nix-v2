@@ -78,7 +78,6 @@
           ydotool
           grimblast # Better screenshots
           brightnessctl # For brightness cmd
-          waybar # TODO create a currently listening
           playerctl # Allow to check what's currently playing
           hyprcursor # TODO Util to convert Xcursor to hyprcursor
           xcur2png # Help extract xcursor
@@ -86,7 +85,6 @@
           pmutils # Check battery -> Change border colors
           nwg-look # Affects the mouse cursor in a different way
           kitty # For hyprland fallback
-          waypaper # Basic wallpaper GUI
           wtype # Allow to send keymaps
           # TODO Learn to package a app launcher that has premade plugins (vicinae)
           # TODO Auto pause background music when detect another audio is playing
