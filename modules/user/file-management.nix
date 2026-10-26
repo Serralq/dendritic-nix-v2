@@ -10,7 +10,6 @@
       {
         home.packages = with pkgs; [
           nautilus # GUI Backup file manager
-          nemo # Better GUI manager
           qbittorrent # Torrenting files
           aria2 # Downloader faster
           megasync # Download from MEGA
