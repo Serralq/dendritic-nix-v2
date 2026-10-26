@@ -1,3 +1,12 @@
+* Style Guide
+- global: [[id:f742bfcd-2940-4223-9c62-30d32a413ef8][new Coding Project]]
+  comments
+  comment header
+- root
+  nixos vs homemanager
+  non-default options (weak enforce)
+  - networking / client.nix / server.nix
+    service vs pkgs
 * Dev checklist
 - Search via nix-search, nix search, or nix options
 - Install via nix-install <pkg-name>
@@ -58,15 +67,6 @@ nix run github:nix-community/nixos-anywhere -- \
   https://github.com/nix-community/awesome-nix?tab=readme-ov-file
   https://github.com/awesome-selfhosted/awesome-selfhosted
 *** [[https://nix.dev/tutorials/packaging-existing-software.html][Create new Package]]
-** Style Guide
-- global: [[id:f742bfcd-2940-4223-9c62-30d32a413ef8][new Coding Project]]
-  comments
-  comment header
-- root
-  nixos vs homemanager
-  non-default options (weak enforce)
-  - networking / client.nix / server.nix
-    service vs pkgs
 * Debugging, it's always a full boot partition
 - Almost always hardware.nix failure
 - Or forgot to "git add ." the new file
