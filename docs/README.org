@@ -19,6 +19,20 @@
     Docker => Service => Install => Flatpak
   - Docker is pre built with maintainability in mind
   - NixOS allows me to build my own maintainable system
+*** Remote Optiplex
+#+BEGIN_SRC bash
+passwd # Temporary
+ # SSH setup
+sudo systemctl start sshd
+ip -4 addr
+# Disk setup => Change sda id
+ls -l /dev/disk/by-id/ | grep -v part
+sudo umount -R /mnt; sudo zpool export zroot
+nix run github:nix-community/nixos-anywhere -- \
+  --flake .#<host> \
+  --target-host nixos@<ip-address> \
+  --build-on local
+#+END_SRC
 ** Hosting => Mermaid diagram
 - Localhost at // this isn't perfect //
   Jellyfin: 8096 (Docker)
