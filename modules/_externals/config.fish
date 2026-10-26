@@ -112,6 +112,15 @@ if status is-interactive
         yy
     end
 
+    function cdp --description 'Pick a repo and start its tmuxinator project'
+        set -l repo (tv git-repos \
+    --source-command="fd -g .git -H --no-ignore -t d -t f --prune ~/Stow ~/Remote ~/Cache --exec dirname '{}'" \
+    --keybindings='enter="confirm_selection"')
+        test -n "$repo"; or return
+        builtin cd -- "$repo"; or return
+        tmuxinator start -p ./tmuxinator.yml
+    end
+
     function ccd --description "Redo the fuzzy search"
         # TODO Integrate into yazi instead of quit to do command
         set -l last_cmd (string split " " $history[1])
