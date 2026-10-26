@@ -72,6 +72,7 @@ in
   den.hosts.x86_64-linux.otaru.users.nice-nature = { };
   den.hosts.x86_64-linux.choshi.users.agnes-tachyon = { };
   den.hosts.x86_64-linux.kasamatsu.users.oguri = { };
+  den.hosts.x86_64-linux.numazu.users.yohane = { };
 
   # ** Overlays
   den.default.includes = [ den.aspects.overlays ];
