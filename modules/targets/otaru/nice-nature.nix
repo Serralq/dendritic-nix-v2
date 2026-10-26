@@ -3,7 +3,7 @@
   den.aspects.nice-nature = {
     includes = [
       den.provides.define-user
-      den.aspects.nice-nature.provides.nice-nature
+      den.aspects.nice-nature.provides.define-user
       den.provides.primary-user
       den.aspects.admin-identity
       den.aspects.documentation

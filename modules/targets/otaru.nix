@@ -3,6 +3,7 @@
   den.aspects.otaru = {
     includes = [
       den.provides.hostname
+      den.aspects.hetzner
       den.aspects.zfs
     ];
 
