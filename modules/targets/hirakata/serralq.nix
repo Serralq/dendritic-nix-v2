@@ -5,6 +5,7 @@
       den.provides.define-user
       den.provides.primary-user
       den.aspects.serralq.provides.define-user
+      den.aspects.admin-identity
       den.aspects.desktop-environment
       den.aspects.font
       den.aspects.documentation

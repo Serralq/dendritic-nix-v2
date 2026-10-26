@@ -4,7 +4,6 @@
     includes = [
       den.provides.hostname
       den.aspects.systemd-bootloader
-      den.aspects.admin-identity
     ];
     nixos =
       {
