@@ -15,7 +15,6 @@
       boot.kernelModules = [ "kvm-intel" ];
       hardware.enableRedistributableFirmware = true;
       hardware.cpu.intel.updateMicrocode = config.hardware.enableRedistributableFirmware;
-      services.zfs.autoScrub.enable = true;
 
       # Optional: Quick Sync for Jellyfin/Immich transcoding
       hardware.graphics = {
