@@ -27,6 +27,10 @@
     };
     hyprland.url = "github:hyprwm/Hyprland/v0.56.1";
     import-tree.url = "github:vic/import-tree";
+    jovian = {
+      url = "github:Jovian-Experiments/Jovian-NixOS";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nix-alien.url = "github:thiagokokada/nix-alien";
     nix-value-json.url = "github:oldshensheep/nix-value-json";
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
@@ -36,6 +40,5 @@
     sem-cli.url = "github:Ataraxy-Labs/sem";
     sops-nix.url = "github:Mic92/sops-nix";
     tagstudio.url = "github:TagStudioDev/TagStudio";
-    winapps.url = "github:Insomniac66/winapps-nixos-fix";
   };
 }

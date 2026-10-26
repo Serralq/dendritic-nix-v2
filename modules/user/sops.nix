@@ -5,9 +5,9 @@
 # - Edit: use sops <file> to edit it
 { inputs, ... }:
 {
-  den.aspects.security = { user, ... }: {
-    flake-file.inputs.sops-nix.url = "github:Mic92/sops-nix";
+  flake-file.inputs.sops-nix.url = "github:Mic92/sops-nix";
 
+  den.aspects.security = { user, ... }: {
     nixos =
       {
         config,
